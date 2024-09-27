@@ -26,4 +26,4 @@ if __name__ == '__main__':
     if not os.path.exists(FILE_DIRECTORY):
         os.makedirs(FILE_DIRECTORY)
     
-    app.run(debug=True)
+    app.run(port=8000, debug=True)

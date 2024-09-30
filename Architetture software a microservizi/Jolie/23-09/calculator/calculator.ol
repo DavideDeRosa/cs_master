@@ -8,21 +8,23 @@ inputPort Client {
 }
 
 main {
-    [ add(request)(response)  {
-        response = request.x + request.y
-    } ] {main}
+    while(1){
+        [ add(request)(response)  {
+            response = request.x + request.y
+        } ]
 
-    [ sub(request)(response) {
-        response = request.x - request.y
-    } ] {main}
+        [ sub(request)(response) {
+            response = request.x - request.y
+        } ]
 
-    [ average(request)(response) {
-        response = 0
+        [ average(request)(response) {
+            response = 0
 
-        for(i = 0, i < #request.array, i++) {
-            response = response + request.array[i]
-        }
+            for(i = 0, i < #request.array, i++) {
+                response = response + request.array[i]
+            }
 
-        response = response / #request.array
-    } ] {main}
+            response = response / #request.array
+        } ]
+    }
 }

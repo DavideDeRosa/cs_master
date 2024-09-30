@@ -9,7 +9,7 @@ type SubRequest:void {
 }
 
 type AverageRequest:void {
-    .array*:int
+    .array[1,*]:int
 }
 
 interface Calculator {

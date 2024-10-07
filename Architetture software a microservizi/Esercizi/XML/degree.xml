@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<degree xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="degree.xsd">
+    
+    <course>
+        <title>Introduction to Computer Science</title>
+        <cfus>6</cfus>
+        <professor>
+            <name>John Doe</name>
+            <matricula>P12345</matricula>
+        </professor>
+        <professor>
+            <name>Jane Smith</name>
+            <matricula>P67890</matricula>
+        </professor>
+    </course>
+
+    <course>
+        <title>Advanced Algorithms</title>
+        <cfus>9</cfus>
+        <professor>
+            <name>Michael Johnson</name>
+            <matricula>P54321</matricula>
+        </professor>
+    </course>
+
+    <course>
+        <title>Database Systems</title>
+        <cfus>6</cfus>
+        <professor>
+            <name>Emily Davis</name>
+            <matricula>P98765</matricula>
+        </professor>
+    </course>
+</degree>

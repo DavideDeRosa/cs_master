@@ -25,27 +25,40 @@ main
 		response.message = "You are logged in."
 	};
 
-    balance = 0
+    synchronized(username){
+        if(!is_defined(global.username.(username))){
+            global.username.(username) = 0
+            println@Console(global.username.(username))()
+        }
+    }
+
+    balance -> global.username.(username)
 
 	while(keepRunning){
 		[ deposit(request)(deposit_response) {
-            balance = balance + request.amount
+            synchronized(username){
+                balance = balance + request.amount
+            }
+
             deposit_response.message = "New balance: " + balance
         } ] {
-			println@Console("deposit")(deposit_response)
+			println@Console("deposit")()
 		}
 
 		[ withdraw(request)(withdraw_response) {
-            balance = balance - request.amount
+            synchronized(username){
+                balance = balance - request.amount
+            }
+
             withdraw_response.message = "New balance: " + balance
         } ] {
-            println@Console("withdraw")(withdraw_response)
+            println@Console("withdraw")()
         }
 
         [ report(request)(report_response) {
             report_response.message = "Balance: " + balance
         } ] {
-            println@Console("report")(report_response)
+            println@Console("report")()
         }
 
         [ logout(request) ]{

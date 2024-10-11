@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+service GreetService {
+  rpc Greet (GreetRequest) returns (GreetResponse) {}
+  rpc Chat (stream ChatMessage) returns (stream ChatMessage) {}
+}
+
+message GreetRequest {
+  string name = 1;
+}
+
+message GreetResponse {
+  string message = 1;
+}
+
+message ChatMessage {
+  string sender = 1;
+  string message = 2;
+}

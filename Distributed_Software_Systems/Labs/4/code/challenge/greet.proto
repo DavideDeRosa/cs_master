@@ -2,7 +2,6 @@ syntax = "proto3";
 
 service GreetService {
   rpc Greet (GreetRequest) returns (GreetResponse) {}
-  rpc Chat (stream ChatMessage) returns (stream ChatMessage) {}
 }
 
 message GreetRequest {
@@ -11,9 +10,4 @@ message GreetRequest {
 
 message GreetResponse {
   string message = 1;
-}
-
-message ChatMessage {
-  string sender = 1;
-  string message = 2;
 }

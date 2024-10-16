@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+service ChattingService {
+    rpc GetInformation (NullMsg) returns (Message) {}
+    rpc SendMessage (Message) returns (NullMsg) {}
+}
+
+message Message {
+    string time = 1;
+    string sender = 2;
+    string msg = 3;
+}
+
+message NullMsg {
+
+}

@@ -1,0 +1,99 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #81d4fa, #0288d1);
+    color: #333;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+/* Container Styling */
+.container {
+    width: 90%;
+    max-width: 900px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Section Styling */
+.section {
+    margin-bottom: 30px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f1f8ff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section h2 {
+    color: #0277bd;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+#current-weather-data img {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+/* Current Weather Data Styling */
+#current-weather-data p,
+#hourly-forecast-data p,
+#five-day-forecast-data p {
+    font-size: 1.1em;
+    margin: 8px 0;
+    color: #444;
+}
+
+/* Forecast Items Styling */
+.forecast-item {
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 5px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Layout for 5-Day Forecast Section Only */
+#five-day-forecast-data {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    justify-items: center;
+}
+
+/* Larger Screens */
+@media (min-width: 600px) {
+    .forecast-item {
+        flex: 1 1 calc(20% - 10px);
+    }
+}
+
+/* Hourly Forecast Section */
+#hourly-forecast-data {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-evenly;
+}
+
+.forecast-item img {
+    width: 40px;
+    margin-bottom: 5px;
+}
+
+.forecast-item p {
+    font-size: 0.85em;
+    margin: 5px 0;
+}

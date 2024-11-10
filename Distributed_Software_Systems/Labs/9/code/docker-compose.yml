@@ -1,0 +1,30 @@
+services:
+  user-service:
+    build: ./user
+    ports:
+      - "8000:5000"
+    environment:
+      - DATABASE_URL=postgresql://db_user:db_password@postgres-db/mydatabase
+    depends_on:
+      - postgres-db
+
+  order-service:
+    build: ./order
+    ports:
+      - "8001:5001"
+    environment:
+      - DATABASE_URL=postgresql://db_user:db_password@postgres-db/mydatabase
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

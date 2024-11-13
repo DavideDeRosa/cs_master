@@ -1,0 +1,10 @@
+Fig. 2 shows the architecture of \textit{Apache OpenWhisk}, which consists of two primary components: the \textbf{Controller} and the \textbf{Invoker}, built on \textbf{Nginx}, \textbf{Kafka}, \textbf{Docker}, and \textbf{CouchDB}. Together, these components enable OpenWhisk to function as a \textit{serverless event-driven programming service}. OpenWhisk offers a \textit{RESTful API} that allows users to submit functions and retrieve execution results.\vspace{14pt}\\
+\textbf{Nginx} routes incoming requests to the \textit{Controller}, which handles authentication, retrieves the requested functions from the \textbf{CouchDB} database, and directs them to the \textit{Invokers} acting as a \textit{Load Balancer}.\vspace{14pt}\\
+\textbf{Kafka}, a high-performance message distribution system, facilitates communication between the \textit{Controller} and the \textit{Invokers}.\vspace{14pt}\\
+The \textit{Invokers}, distributed across multiple machines and responsible for hosting serverless function containers, execute function calls by allocating resources within \textbf{Docker} containers and assigning a container to each function invocation. Essentially, \textit{Invokers} serve as the \textit{worker nodes} in Openwhisk (as represented in Fig. 1).\vspace{14pt}\\
+Each \textit{Invoker} has an in-memory queue to manage function requests when resources are temporarily unavailable. Once resources are freed, functions are dequeued and executed in a \textbf{First Come First Serve} (\textbf{FCFS}) order. All \textit{Invokers} use the same instructions embedded in the \textit{Invoker component's source code} (written in \textit{Scala}), ensuring uniform operation across all \textit{Invokers}.\vspace{14pt}\\
+Users can register on the platform to upload their functions, specifying only the memory required for each function's execution.\cite{banaei2022etas}\vspace{10pt}\\
+\begin{center}
+    \includegraphics[width=0.6\textwidth]{img/ow_arch.png}
+    \captionof{figure}{Apache OpenWhisk architecture}
+\end{center}

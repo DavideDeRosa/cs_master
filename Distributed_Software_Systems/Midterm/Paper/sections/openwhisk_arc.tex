@@ -24,7 +24,7 @@ The process begins when an action is invoked, which can happen in several ways:
     \item From the CLI (Command Line Interface).
 \end{itemize}
 The "client" refers to the entity initiating the action. As OpenWhisk is a RESTful system, each invocation is translated into an HTTPS request that first reaches the "edge" node. This edge node is the web server and reverse proxy, Nginx. Nginx’s primary function here is to handle HTTPS, deploying the necessary certificates for secure processing.\\
-Once secure, Nginx forwards the request to the system's core service component, the controller.\vspace{14pt}\\
+Once secure, Nginx forwards the request to the system's core service component, the controller.\vspace{70pt}\\
 \textbf{Controller}\\
 Before executing an action, the controller verifies that the action can be properly executed and initialized:
 \begin{itemize}

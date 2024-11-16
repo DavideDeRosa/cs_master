@@ -1,4 +1,4 @@
-Before talking about the implementation, I want to define the main objective for this simple implementation. I want to expose an HTTP GET endpoint, which return a simple \textit{Hello World} string. Unfortunately, that's where the simple stuff ends.\vspace{14pt}\\
+Before talking about the implementation itself, I want to define the main objective of this simple implementation. I want to expose an \textbf{HTTP GET endpoint}, which return a simple \textit{Hello World} string. Unfortunately, that's where the simple stuff ends.\vspace{14pt}\\
 First of all, I tried to read \textbf{Apache Openwhisk documentation}\footnote{\url{https://openwhisk.apache.org/documentation.html}} to understand more the Openwhisk environment's setup process.\\
 After different attempts to make the \textit{Docker} setup work, I even tried the \textit{Java Standalone} version. Nothing was working the way it was supposed to. I even tried deploying everything on different virtual machines, other than my own machine.\vspace{14pt}\\
 I then decided to talk with \textit{Prof. Ciancarini} to get a different point of view of the problem. He suggested to write to \textit{Michele Sciabarrà}, the author of the book \textbf{Learning Apache OpenWhisk}\footnote{\url{https://www.oreilly.com/library/view/learning-apache-openwhisk/9781492046158/}}, which runs a company that uses Apache Openwhisk as the backbone of their service. The company is called \textbf{Nuvolaris}\footnote{\url{https://www.nuvolaris.io/}}, and it offers a new serverless approach to Kubernetes.\\
@@ -8,7 +8,7 @@ After some days, during which I tried every possible way of making it work, I tr
 Heartfelt thanks go to \textit{Michele Sciabarrà} and his team, for real-time support while debugging the various problems encountered.\\
 Also, a big thank you to the \textbf{ADM team}\footnote{\url{https://students.cs.unibo.it/}} -- especially \textit{Emanuele Grasso}. Thanks to his support, I was provided with a virtual machine that met the requirements of OpenServerless and allowed me to perform all the necessary tests. Their work goes beyond this, providing a very useful service for all students in the Computer Science department and beyond.\vspace{14pt}\\
 Let's get back to the implementation.\vspace{14pt}\\
-Using the \textit{OpenServerless CLI} (\textbf{ops}), I managed to get everything up and running on the virtual machine. I then wrote a really simple \textbf{Python} script, which return an \textit{Hello World} message:
+Using the \textit{OpenServerless CLI} (\textbf{ops}), I managed to get everything up and running on the virtual machine. I then wrote a really simple \textbf{Python} script, which returns an \textit{Hello World} message:
 \begin{lstlisting}[language=python]
 def main(args):
     return {"body": "hello world\n"}
@@ -21,5 +21,5 @@ An example of this whole execution of commands can be:
     \includegraphics[width=1\textwidth]{img/demo.png}
 \end{center}
 If you need to update the script, \textit{ops action update test\_dss/greet script.py --web true} is all you need to do.\vspace{14pt}\\
-This test shows just the core functionalities of Openwhisk (and OpenServerless). There is a lot more that can be done with this tool. The documentation shows a lot of possible implementations to do, all related to serverless functions.\\
+This test shows just the core functionalities of Openwhisk (and OpenServerless). There is a lot more that can be done with this tool. The documentation shows a lot of possible implementations to do, all related to serverless functions.\vspace{14pt}\\
 In a possible future study, it would be possible to test Openwhisk performance compared to other Cloud based solution -- like \textit{AWS Lambda} or \textit{Google Cloud Functions}.

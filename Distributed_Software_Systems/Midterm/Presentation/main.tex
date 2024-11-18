@@ -1,0 +1,99 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{metropolis}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+
+\title{Apache OpenWhisk}
+\subtitle{Distributed Software Systems, 2024/25}
+\author{Davide De Rosa}
+\date{}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+% Section 1: Introduction
+\section{Introduction}
+\begin{frame}{What is Apache OpenWhisk?}
+    \begin{itemize}
+        \item Apache OpenWhisk is an open-source, event-driven serverless cloud platform.
+        \item Key characteristics:
+        \begin{itemize}
+            \item Handles function execution in response to events.
+            \item Simplifies deployment with scalable and cost-efficient operations.
+        \end{itemize}
+    \end{itemize}
+    \centering
+    \includegraphics[width=0.6\textwidth]{example-image} % Replace with a relevant image
+\end{frame}
+
+% Section 2: Architecture
+\section{Architecture}
+
+\begin{frame}{Overview of the Architecture}
+    \begin{itemize}
+        \item Major components include:
+        \begin{itemize}
+            \item Controller: Manages API requests and orchestration.
+            \item Invoker: Executes user-defined actions (functions).
+            \item Messaging System: Backbone for event communication (e.g., Kafka).
+            \item Metadata Storage: Uses CouchDB for storing triggers, rules, and states.
+        \end{itemize}
+    \end{itemize}
+    \centering
+    \includegraphics[width=0.8\textwidth]{example-image} % Replace with architecture diagram
+\end{frame}
+
+% Section 3: Key Features
+\section{Key Features}
+
+\begin{frame}{Notable Features of OpenWhisk}
+    \begin{itemize}
+        \item Multi-language support: Python, Node.js, Go, Java, and more.
+        \item Extensible with custom Docker containers.
+        \item Integration with third-party services such as databases, APIs, and cloud tools.
+        \item Built-in monitoring and debugging tools.
+    \end{itemize}
+\end{frame}
+
+% Section 4: Use Cases
+\section{Use Cases}
+
+\begin{frame}{Practical Applications of OpenWhisk}
+    \begin{itemize}
+        \item Real-time data processing for IoT devices.
+        \item Image and video processing pipelines.
+        \item Backend for chatbots and voice assistants.
+        \item Automated DevOps workflows.
+    \end{itemize}
+    \centering
+    \includegraphics[width=0.7\textwidth]{example-image} % Replace with a use case image
+\end{frame}
+
+% Section 5: Conclusion
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+    \begin{itemize}
+        \item Apache OpenWhisk provides a robust platform for serverless computing.
+        \item It simplifies handling event-driven workloads while ensuring cost efficiency.
+        \item OpenWhisk’s flexibility makes it ideal for a range of modern applications.
+    \end{itemize}
+    \centering
+    \textbf{Thank You!}
+\end{frame}
+
+\section*{References}
+\begin{frame}{References}
+    \begin{itemize}
+        \item Etas: predictive scheduling of functions on worker nodes of apache openwhisk platform (Banaei, Ali and Sharifi, Mohsen), 2022
+        \item Evaluating apache openwhisk-faas, Quevedo (Sebasti{\'a}n and Merch{\'a}n, Freddy and Rivadeneira, Rafael and Dominguez, Federico X), 2019
+        \item Crypto currencies prices tracking microservices using apache OpenWhisk (Huy, Lam Phuoc and Saifullah, Saifullah and Sahillioglu, Marcel and Baun, Christian), 2021 
+        \item Open-source serverless architectures: an evaluation of apache openwhisk (Djemame, Karim and Parker, Matthew and Datsev, Daniel), 2020
+        \item LEARNING APACHE OPENWHISK: developing open serverless solutions (Sciabarr{\`a}, Michele), 2019
+    \end{itemize}
+\end{frame}
+\end{document}

@@ -88,24 +88,109 @@ What sets Openwhisk apart is its adaptability. It supports deployment on platfor
 \end{itemize}
 \end{frame}
 
+%SLIDE 8: APACHE OPENWHISK MAIN ARCHITECTURAL DRIVERS
 \section{Apache Openwhisk \\Main Architectural Drivers}
 \begin{frame}{Apache Openwhisk Main Architectural Drivers}
-    ciao
+The success of Apache Openwhisk lies in its architectural foundations, tailored to meet the demands of Serverless Computing:
+\begin{itemize}
+    \item \textbf{Scalability and Elasticity}: stateless functions scale instantly to meet demand. Openwhisk leverages containerized isolation for rapid provisioning.
+    \item \textbf{Low Latency}: pre-warming containers addresses the infamous cold start issue.
+    \item \textbf{Fault Tolerance}: using \textit{Apache Kafka} as a messaging backbone ensures reliable event handling, even in distributed setups.
+    \item \textbf{Extensibility}: Openwhisk’s modular architecture lets developers customize runtimes, add integrations, or tailor deployments for hybrid clouds.
+    \item \textbf{Security}: containers provide isolation, while role-based access control and encrypted communications strengthen protection.
+\end{itemize}
+By addressing these factors, Openwhisk aligns with enterprise needs while maintaining its open-source ethos.
 \end{frame}
 
+%SLIDE 9: APACHE OPENWHISK ARCHITECTURE
 \section{Apache Openwhisk Architecture}
 \begin{frame}{Apache Openwhisk Architecture}
-    ciao
+Openwhisk’s architecture consists of two primary components: the \textbf{Controller} and the \textbf{Invoker}, built on \textbf{Nginx}, \textbf{Kafka}, \textbf{Docker}, and \textbf{CouchDB}.\vspace{14pt}\\
+Together, these components enable Openwhisk to function as a \textbf{serverless event-driven} programming service.\vspace{14pt}\\
+Openwhisk offers a \textit{RESTful API} that allows users to submit functions and retrieve execution results.
 \end{frame}
 
+%SLIDE 10: APACHE OPENWHISK ARCHITECTURE
+\begin{frame}{Apache Openwhisk Architecture}
+\centering
+\includegraphics[width=0.6\textwidth]{img/ow_arch.png}
+\end{frame}
+
+%SLIDE 11: APACHE OPENWHISK ARCHITECTURE
+\begin{frame}{Apache Openwhisk Architecture}
+\textbf{Nginx} routes incoming requests to the \textit{Controller}, which handles authentication, retrieves the requested functions from the \textbf{CouchDB} database, and directs them to the \textit{Invokers} acting as a \textit{Load Balancer}.\vspace{14pt}\\
+\textbf{Kafka}, a high-performance message distribution system, facilitates communication between the \textit{Controller} and the \textit{Invokers}.\vspace{14pt}\\
+The \textit{Invokers}, distributed across multiple machines and responsible for hosting serverless function containers, execute function calls by allocating resources within \textbf{Docker} containers and assigning a container to each function invocation. Essentially, \textit{Invokers} serve as the worker nodes in Openwhisk.
+\end{frame}
+
+%SLIDE 12: APACHE OPENWHISK ARCHITECTURE
+\begin{frame}{Apache Openwhisk Architecture}
+Each \textit{Invoker} has an in-memory queue to manage function requests when resources are temporarily unavailable. Once resources are freed, functions are dequeued and executed in a \textbf{First Come First Serve} (\textbf{FCFS}) order.\vspace{14pt}\\
+All \textit{Invokers} use the same instructions embedded in the \textit{Invoker component’s source code} (written in \textit{Scala}), ensuring uniform operation across all \textit{Invokers}.\vspace{14pt}\\
+Users can register on the platform to upload their functions, specifying only the memory required for each function’s execution.
+\end{frame}
+
+%SLIDE 13: COMPETING SOLUTIONS
 \section{Competing solutions}
 \begin{frame}{Competing solutions}
-    ciao
+\begin{itemize}
+    \item \textbf{AWS Lambda}
+    \begin{itemize}
+        \item \textbf{Strength}: deep integration with AWS services.
+        \item \textbf{Weakness}: vendor lock-in.
+        \item \textbf{Comparison}: Lambda excels in AWS ecosystems, while Openwhisk’s open-source model appeals to those avoiding lock-in.
+    \end{itemize}
+    \item \textbf{Google Cloud Functions}
+    \begin{itemize}
+        \item \textbf{Strength}: low latency and tight GCP integration.
+        \item \textbf{Weakness}: limited multi-cloud deployment.
+        \item \textbf{Comparison}: Openwhisk offers more deployment flexibility.
+    \end{itemize}
+    \item \textbf{Azure Functions}
+    \begin{itemize}
+        \item \textbf{Strength}: strong .NET support.
+        \item \textbf{Weakness}: constrained by Azure’s ecosystem.
+        \item \textbf{Comparison}: Openwhisk’s language agnosticism and hybrid deployment edge out Azure for broader needs.
+    \end{itemize}
+\end{itemize}
 \end{frame}
 
+%SLIDE 14: IMPLEMENTATION
 \section{Implementation}
 \begin{frame}{Implementation}
-    ciao
+Using the \textit{OpenServerless CLI} (\textbf{ops}), I managed to get everything up and running on the virtual machine. I then wrote a really simple \textbf{Python} script, which returns an \textit{Hello World} message:\vspace{14pt}\\
+\centering
+\includegraphics[width=0.7\textwidth]{img/code_snippet.png}
+\end{frame}
+
+%SLIDE 15: IMPLEMENTATION
+\begin{frame}{Implementation}
+Using the \textbf{ops package create test dss} command, I created a test package where actions can be stored.\vspace{14pt}\\
+\textbf{ops action create test dss/greet script.py –web true} is going to create the action related to the Python script.\\
+Using the \textbf{–web} flag with a value of \textbf{true} or \textbf{yes} allows an action to be accessible via \textbf{REST} interface without the need for credentials.\vspace{14pt}\\
+To get the URL related to the action, the \textbf{ops action get test dss/greet –url} command is used. This returns the action HTTP endpoint, ready to be called and tested.
+\end{frame}
+
+%SLIDE 16: IMPLEMENTATION
+\begin{frame}{Implementation}
+An example of this whole execution of commands can be:\vspace{14pt}\\
+\centering
+\includegraphics[width=1\textwidth]{img/demo.png}
+\end{frame}
+
+%SLIDE 17: IMPLEMENTATION
+\begin{frame}{Implementation}
+Heartfelt thanks go to \textit{Michele Sciabarrà} and his team, for real-time support while debugging the various problems encountered.\vspace{14pt}\\
+\begin{minipage}{0.55\textwidth}
+    Also, a big thank you to the \textbf{ADM team} – \\
+    especially \textit{Emanuele Grasso}. Thanks to his support, I was provided with a virtual machine that met the requirements of OpenServerless and allowed me to perform all the necessary tests.\vspace{6pt}\\
+    Their work goes beyond this, providing a very useful service for all students in the Computer Science department and beyond.
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/adm_logo.png}
+\end{minipage}
 \end{frame}
 
 \section*{References}

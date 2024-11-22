@@ -25,7 +25,7 @@ The process begins when an action is invoked, which can happen in several ways:
 \end{itemize}
 The \textit{client} refers to the entity initiating the action. As Openwhisk is a RESTful system, each invocation is translated into an HTTPS request that first reaches the \textit{edge} node. This edge node is the web server and reverse proxy, Nginx.\\
 Nginx’s primary function here is to handle HTTPS, deploying the necessary certificates for secure processing.\\
-Once secure, Nginx forwards the request to the system's core service component, the controller.\vspace{70pt}\\
+Once secure, Nginx forwards the request to the system's core service component, the Controller.\vspace{70pt}\\
 \textbf{Controller}\\
 Before executing an action, the controller verifies that the action can be properly executed and initialized:
 \begin{itemize}
@@ -35,7 +35,7 @@ Before executing an action, the controller verifies that the action can be prope
 \end{itemize}
 To carry out these steps, the controller consults CouchDB, the database used by Openwhisk. Once the request is validated and enriched, the action is ready for execution and is sent to the load balancer, the next step in the processing flow.\vspace{14pt}\\
 \textbf{Load Balancer}\\
-The load balancer in Openwhisk is responsible for distributing the processing load across various executors, known as invokers.\\
+The Load Balancer in Openwhisk is responsible for distributing the processing load across various executors, known as Invokers.\\
 Since Openwhisk runs actions within designated runtimes, the load balancer tracks available runtime instances. When possible, it reuses existing instances to execute actions; if not, it creates new instances as needed.\vspace{14pt}\\
 When the system is ready to invoke an action, the load balancer can't send requests directly to an invoker if it is already occupied, has crashed, or if the system is undergoing a restart. Operating in a highly parallel, scalable environment means the system may not always have immediate resources available, necessitating a buffer for pending invocations. Openwhisk uses Kafka for this buffering.\vspace{14pt}\\
 Kafka, a high-performance \textit{publish and subscribe} messaging system, stores requests until they are ready for execution. Each action invocation is converted into an HTTPS request to Nginx, which is then transformed into a Kafka message directed to the chosen invoker.\\

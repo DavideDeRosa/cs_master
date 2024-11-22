@@ -13,13 +13,29 @@ Using the \textit{OpenServerless CLI} (\textbf{ops}), I managed to get everythin
 def main(args):
     return {"body": "hello world\n"}
 \end{lstlisting}
-Using the \textit{ops package create test\_dss} command, I created a test package where \textit{actions} can be stored.\vspace{14pt}\\
-\textit{ops action create test\_dss/greet script.py --web true} is going to create the action related to the Python script. Using the \textit{--web} flag with a value of \textit{true} or \textit{yes} allows an action to be accessible via \textbf{REST} interface without the need for credentials.\vspace{14pt}\\
-To get the URL related to the action, the \textit{ops action get test\_dss/greet --url} command is used. This returns the action HTTP endpoint, ready to be called and tested.\vspace{14pt}\\
+\vspace{15pt}
+Using the \vspace{-5pt}
+\begin{center}
+    \colorbox{codegray}{\texttt{ops package create test dss}}
+\end{center} 
+command, I created a test package where \textit{actions} can be stored.\\
+\begin{center}
+    \colorbox{codegray}{\texttt{ops action create test\_dss/greet script.py --web true}}
+\end{center} 
+is going to create the action related to the Python script. Using the \textit{--web} flag with a value of \textit{true} or \textit{yes} allows an action to be accessible via \textbf{REST} interface without the need for credentials.\vspace{14pt}\\
+To get the URL related to the action, the
+\begin{center}
+    \colorbox{codegray}{\texttt{ops action get test\_dss/greet --url}}
+\end{center} 
+command is used. This returns the action HTTP endpoint, ready to be called and tested.\vspace{150pt}\\
 An example of this whole execution of commands can be:
 \begin{center}
     \includegraphics[width=1\textwidth]{img/demo.png}
 \end{center}
-If you need to update the script, \textit{ops action update test\_dss/greet script.py --web true} is all you need to do.\vspace{14pt}\\
+If you need to update the script, 
+\begin{center}
+    \colorbox{codegray}{\texttt{ops action update test\_dss/greet script.py --web true}}
+\end{center}
+is all you need to do.\vspace{14pt}\\
 This test shows just the core functionalities of Openwhisk (and OpenServerless). There is a lot more that can be done with this tool. The documentation shows a lot of possible implementations to do, all related to serverless functions.\vspace{14pt}\\
 In a possible future study, it would be possible to test Openwhisk performance compared to other Cloud based solution -- like \textit{AWS Lambda} or \textit{Google Cloud Functions}.

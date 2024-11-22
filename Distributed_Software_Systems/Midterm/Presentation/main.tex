@@ -1,5 +1,9 @@
 \documentclass[aspectratio=169]{beamer}
 
+\usepackage{xcolor}
+
+\definecolor{codegray}{rgb}{0.85, 0.85, 0.85}
+
 \usetheme{metropolis}
 \setbeamertemplate{footline}{}
 \setbeamertemplate{headline}{}
@@ -165,10 +169,21 @@ Using the \textit{OpenServerless CLI} (\textbf{ops}), I managed to get everythin
 
 %SLIDE 15: IMPLEMENTATION
 \begin{frame}{Implementation}
-Using the \textbf{ops package create test dss} command, I created a test package where actions can be stored.\vspace{14pt}\\
-\textbf{ops action create test dss/greet script.py –web true} is going to create the action related to the Python script.\\
-Using the \textbf{–web} flag with a value of \textbf{true} or \textbf{yes} allows an action to be accessible via \textbf{REST} interface without the need for credentials.\vspace{14pt}\\
-To get the URL related to the action, the \textbf{ops action get test dss/greet –url} command is used. This returns the action HTTP endpoint, ready to be called and tested.
+Using the \vspace{-15pt}
+\begin{center}
+    \colorbox{codegray}{\texttt{ops package create test dss}}\vspace{-5pt}
+\end{center} 
+command, I created a test package where actions can be stored.\vspace{-5pt}
+\begin{center}
+    \colorbox{codegray}{\texttt{ops action create test dss/greet script.py --web true}}\vspace{-5pt} 
+\end{center}
+is going to create the action related to the Python script.\\
+Using the \textbf{–web} flag with a value of \textbf{true} or \textbf{yes} allows an action to be accessible via \textbf{REST} interface without the need for credentials.
+To get the URL related to the action, the \vspace{-15pt}
+\begin{center}
+    \colorbox{codegray}{\texttt{ops action get test dss/greet --url}}\vspace{-5pt}
+\end{center}
+command is used. This returns the action HTTP endpoint, ready to be called and tested.
 \end{frame}
 
 %SLIDE 16: IMPLEMENTATION

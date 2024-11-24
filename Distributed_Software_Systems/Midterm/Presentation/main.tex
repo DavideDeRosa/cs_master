@@ -1,6 +1,8 @@
 \documentclass[aspectratio=169]{beamer}
 
 \usepackage{xcolor}
+\usepackage{graphicx} 
+\usepackage{adjustbox} 
 
 \definecolor{codegray}{rgb}{0.85, 0.85, 0.85}
 
@@ -39,7 +41,7 @@ Over the past decade, cloud platform hosting has evolved significantly:
     \item Initially, organizations purchased or rented physical servers to run applications, incurring costs for both the hardware and its maintenance.
     \item This shifted with the adoption of \textbf{virtualization}, which allowed a single physical server to function as multiple software-defined Virtual Machines (VMs), enhancing flexibility and resource utilization. \textbf{Containerization} emerged as a further refinement, combining aspects of virtualization with configuration management.
     \item The introduction of \textbf{Platform-as-a-Service} (\textbf{PaaS}) took abstraction further, freeing users from managing servers and deployment processes.
-    \item The latest advancement, serverless computing, builds on \textit{PaaS} by enabling deployment of small code fragments that can autonomously scale, supporting the creation of self- scaling applications.
+    \item The latest advancement, serverless computing, builds on \textit{PaaS} by enabling deployment of small code fragments that can autonomously scale, supporting the creation of self-scaling applications.
 \end{itemize}
 \end{frame}
 
@@ -104,7 +106,7 @@ The success of Apache Openwhisk lies in its architectural foundations, tailored 
     \item \textbf{Extensibility}: Openwhisk’s modular architecture lets developers customize runtimes, add integrations, or tailor deployments for hybrid clouds.
     \item \textbf{Security}: containers provide isolation, while role-based access control and encrypted communications strengthen protection.
 \end{itemize}
-By addressing these factors, Openwhisk aligns with enterprise needs while maintaining its open-source ethos.
+By addressing these factors, Openwhisk aligns with enterprise needs while maintaining its open-source model.
 \end{frame}
 
 %SLIDE 9: APACHE OPENWHISK ARCHITECTURE
@@ -136,31 +138,41 @@ Users can register on the platform to upload their functions, specifying only th
 \end{frame}
 
 %SLIDE 13: COMPETING SOLUTIONS
-\section{Competing solutions}
-\begin{frame}{Competing solutions}
+\section{Competing Solutions}
+\begin{frame}{Competing Solutions}
+    \begin{center}
+        \adjustbox{max width=\textwidth}{
+            \begin{tabular}{ccc}
+                \includegraphics[height=4cm]{img/aws_lambda_logo.png} & 
+                \includegraphics[height=4cm]{img/gcf_logo.png} & 
+                \includegraphics[height=4cm]{img/azure_functions_logo.png} \\
+                \textbf{AWS Lambda} & \textbf{G.C. Functions} & \textbf{Azure Functions}
+            \end{tabular}
+        }
+    \end{center}
+\end{frame}
+
+%SLIDE 14: COMPETING SOLUTIONS
+\begin{frame}{Competing Solutions}
+\textbf{Common Strengths of Competitors}
 \begin{itemize}
-    \item \textbf{AWS Lambda}
-    \begin{itemize}
-        \item \textbf{Strength}: deep integration with AWS services.
-        \item \textbf{Weakness}: vendor lock-in.
-        \item \textbf{Comparison}: Lambda excels in AWS ecosystems, while Openwhisk’s open-source model appeals to those avoiding lock-in.
-    \end{itemize}
-    \item \textbf{Google Cloud Functions}
-    \begin{itemize}
-        \item \textbf{Strength}: low latency and tight GCP integration.
-        \item \textbf{Weakness}: limited multi-cloud deployment.
-        \item \textbf{Comparison}: Openwhisk offers more deployment flexibility.
-    \end{itemize}
-    \item \textbf{Azure Functions}
-    \begin{itemize}
-        \item \textbf{Strength}: strong .NET support.
-        \item \textbf{Weakness}: constrained by Azure’s ecosystem.
-        \item \textbf{Comparison}: Openwhisk’s language agnosticism and hybrid deployment edge out Azure for broader needs.
-    \end{itemize}
+    \item Seamless integration with their respective Cloud Ecosystems (AWS, GCP, Azure).
+    \item Strong developer tools and managed infrastructure.
+\end{itemize}
+\textbf{Common Weaknesses of Competitors}
+\begin{itemize}
+    \item Vendor lock-in limits multi-cloud or hybrid deployments.
+    \item Ecosystem constraints restrict flexibility outside their platforms.
+\end{itemize}
+\textbf{Apache OpenWhisk Differentiators}
+\begin{itemize}
+    \item \textbf{Open-source}: avoids vendor lock-in with customizable, self-hosted options.
+    \item \textbf{Deployment Flexibility}: supports hybrid and multi-cloud environments.
+    \item \textbf{Language Agnostic}: broad support for various programming languages.
 \end{itemize}
 \end{frame}
 
-%SLIDE 14: IMPLEMENTATION
+%SLIDE 15: IMPLEMENTATION
 \section{Implementation}
 \begin{frame}{Implementation}
 Using the \textit{OpenServerless CLI} (\textbf{ops}), I managed to get everything up and running on the virtual machine. I then wrote a really simple \textbf{Python} script, which returns an \textit{Hello World} message:\vspace{14pt}\\
@@ -168,33 +180,33 @@ Using the \textit{OpenServerless CLI} (\textbf{ops}), I managed to get everythin
 \includegraphics[width=0.7\textwidth]{img/code_snippet.png}
 \end{frame}
 
-%SLIDE 15: IMPLEMENTATION
+%SLIDE 16: IMPLEMENTATION
 \begin{frame}{Implementation}
 Using the \vspace{-15pt}
 \begin{center}
-    \colorbox{codegray}{\texttt{ops package create test dss}}\vspace{-5pt}
+    \colorbox{codegray}{\texttt{ops package create test\_dss}}\vspace{-5pt}
 \end{center} 
 command, I created a test package where actions can be stored.\vspace{-5pt}
 \begin{center}
-    \colorbox{codegray}{\texttt{ops action create test dss/greet script.py --web true}}\vspace{-5pt} 
+    \colorbox{codegray}{\texttt{ops action create test\_dss/greet script.py --web true}}\vspace{-5pt} 
 \end{center}
 is going to create the action related to the Python script.\\
 Using the \textbf{–web} flag with a value of \textbf{true} or \textbf{yes} allows an action to be accessible via \textbf{REST} interface without the need for credentials.
 To get the URL related to the action, the \vspace{-15pt}
 \begin{center}
-    \colorbox{codegray}{\texttt{ops action get test dss/greet --url}}\vspace{-5pt}
+    \colorbox{codegray}{\texttt{ops action get test\_dss/greet --url}}\vspace{-5pt}
 \end{center}
 command is used. This returns the action HTTP endpoint, ready to be called and tested.
 \end{frame}
 
-%SLIDE 16: IMPLEMENTATION
+%SLIDE 17: IMPLEMENTATION
 \begin{frame}{Implementation}
 An example of this whole execution of commands can be:\vspace{14pt}\\
 \centering
 \includegraphics[width=1\textwidth]{img/demo.png}
 \end{frame}
 
-%SLIDE 17: IMPLEMENTATION
+%SLIDE 18: IMPLEMENTATION
 \begin{frame}{Implementation}
 Heartfelt thanks go to \textit{Michele Sciabarrà} and his team, for real-time support while debugging the various problems encountered.\vspace{14pt}\\
 \begin{minipage}{0.55\textwidth}

@@ -1,0 +1,14 @@
+services:
+  temperature:
+    build: ./temperature
+
+  humidity:
+    build: ./humidity
+
+  wellness:
+    build: ./wellness
+    ports:
+      - "8000:8000"
+    depends_on:
+      - temperature
+      - humidity

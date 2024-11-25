@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+service TemperatureService {
+  rpc GetTemperature(EmptyT) returns (TemperatureResponse);
+}
+
+message EmptyT {}
+
+message TemperatureResponse {
+  float temperature = 1;
+}

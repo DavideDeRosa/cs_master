@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+service HumidityService {
+  rpc GetHumidity(EmptyH) returns (HumidityResponse);
+}
+
+message EmptyH {}
+
+message HumidityResponse {
+  float humidity = 1;
+}

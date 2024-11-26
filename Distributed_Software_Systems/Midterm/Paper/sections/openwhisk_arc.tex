@@ -1,7 +1,7 @@
 Fig. 3 shows the architecture of \textit{Apache Openwhisk}, which consists of two primary components: the \textbf{Controller} and the \textbf{Invoker}, built on \textbf{Nginx}, \textbf{Kafka}, \textbf{Docker}, and \textbf{CouchDB}. Together, these components enable Openwhisk to function as a \textit{serverless event-driven programming service}. Openwhisk offers a \textit{RESTful API} that allows users to submit functions and retrieve execution results.\vspace{10pt}
 \begin{center}
     \includegraphics[width=0.6\textwidth]{img/ow_arch.png}
-    \captionof{figure}{Apache Openwhisk architecture}
+    \captionof{figure}{Apache Openwhisk architecture\cite{banaei2022etas}}
     \vspace{10pt}
 \end{center}
 \textbf{Nginx} routes incoming requests to the \textit{Controller}, which handles authentication, retrieves the requested functions from the \textbf{CouchDB} database, and directs them to the \textit{Invokers} acting as a \textit{Load Balancer}.\vspace{14pt}\\
@@ -12,7 +12,7 @@ Users can register on the platform to upload their functions, specifying only th
 Fig. 4 shows how Openwhisk processes an action into more details.\cite{sciabarra2019learning}\vspace{10pt}
 \begin{center}
     \includegraphics[width=0.95\textwidth]{img/sequence.png}
-    \captionof{figure}{How Openwhisk processes an action}
+    \captionof{figure}{How Openwhisk processes an action\cite{sciabarra2019learning}}
     \vspace{10pt}
 \end{center}
 \textbf{Nginx}\\

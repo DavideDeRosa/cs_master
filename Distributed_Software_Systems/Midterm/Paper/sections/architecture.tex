@@ -3,7 +3,7 @@ The architecture of a serverless platform is illustrated in Fig. 1. In this setu
 The worker node executes the function(s), launching one or more instances depending on the request volume and available resources. If resources are sufficient, function instances (typically run in containers) are launched with restricted resources to carry out the task. If resources are limited, the function request is queued until resources become available.\vspace{10pt}\\
 \begin{center}
     \includegraphics[width=0.7\textwidth]{img/arch.png}
-    \captionof{figure}{Blueprint of serverless platform architecture}
+    \captionof{figure}{Blueprint of serverless platform architecture\cite{banaei2022etas}}
     \vspace{10pt}
 \end{center}
 A smart load balancer helps prevent workers from becoming overloaded. However, under high invocation rates or sudden bursts, a long execution queue can lead to significant wait times. Additionally, when resources are optimized to use the fewest nodes, some functions may experience delays, affecting \textbf{Quality of Service} (\textbf{QoS}). Consequently, the local scheduling approach plays a critical role in optimizing average function wait times, throughput, and resource utilization at worker nodes.\vspace{14pt}\\

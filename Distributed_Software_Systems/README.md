@@ -1,4 +1,4 @@
-# Distributed Software Systems
+# 🖥️ Distributed Software Systems
 
 [Course Site and Contents](https://www.unibo.it/en/study/phd-professional-masters-specialisation-schools-and-other-programmes/course-unit-catalogue/course-unit/2024/479053), given by Prof. [Paolo Ciancarini](https://www.unibo.it/sitoweb/paolo.ciancarini)
 

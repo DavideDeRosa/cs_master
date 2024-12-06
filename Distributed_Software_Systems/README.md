@@ -12,7 +12,7 @@ The final grade is composed by:
 - Midterm -> 50% of the final grade
 - Attendance Bonus -> ±10%
 
-**Final grade**: 
+**Final grade**: 30 with honors
 
 ## Labs
 Every lab, where possible, has been implemented with Python. 

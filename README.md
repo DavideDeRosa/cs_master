@@ -10,4 +10,4 @@ Materials for my Computer Science Master's program
 - 📐 [Architetture Software a Microservizi](https://github.com/DavideDeRosa/cs_master/tree/main/Architetture_software_a_microservizi)
 - 📏 Matematica Computazionale
 - 🖼️ Computer Graphics
-- 🤖 Laboratorio di Making
+- 💻 Emerging Programming Paradigms

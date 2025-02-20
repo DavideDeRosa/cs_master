@@ -9,5 +9,5 @@ Materials for my Computer Science Master's program
 - 👮🏻‍♂️ [Digital Forensics](https://github.com/DavideDeRosa/cs_master/tree/main/Digital_forensics)
 - 📐 [Architetture Software a Microservizi](https://github.com/DavideDeRosa/cs_master/tree/main/Architetture_software_a_microservizi)
 - 📏 Matematica Computazionale
-- 🖼️ Computer Graphics
+- 🖼️ [Computer Graphics](https://github.com/DavideDeRosa/cs_master/tree/main/Computer_graphics)
 - 💻 Emerging Programming Paradigms

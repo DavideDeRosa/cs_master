@@ -352,6 +352,7 @@ che l'esame sarà orale e poi magari stava facendo, ne riparliamo un attimo, ok?
 Questa era la chiacchierata iniziale. Se avete le domande...
 Ok.
 Potete fare una pausa o, come abbiamo detto praticamente nulla, vado a fare avanti.
+
 Allora, qual è il primo argomento che andiamo a vedere? Quindi il primo argomento che vedrete
 con me è che, sul quale direte un certo numero di ore, più degli altri, è la programmazione
 ad attori e il linguaggio di programmazione Erlang. Perché? Perché dedichiamo un tempo
@@ -411,6 +412,8 @@ tipico, se usate la libreria H per programmare in Java d'attori, essenzialmente 
 se potete usare la libreria H, però tutta una serie di metodi e oggetti non devono, per
 esempio, mutare nulla. Se mutate, sul cavo dei vostri, ovviamente il programma farà
 cose a caso. Quindi sono questi generi di problematiche.
+
+
 Quindi torniamo un attimo a noi, programmazione d'attori, abbiamo detto, è un paradigma,
 è il paradigma più di successo della programmazione distribuita e quindi il primo motivo per
 studiarlo è perché è un paradigma estremamente interessante. Ma c'è anche un altro motivo.
@@ -464,8 +467,8 @@ ci sono delle macchine remote su cui girano dei processi. E io ho bisogno di com
 il mio processo, ho bisogno di comunicare con un processo remoto che fornisce un qualche
 servizio. Come faccio a contattare il processo remoto? Ho bisogno di avere un nome del processo
 Questo nome può essere in un'attura, o è fisico o è logico. Il nome fisico, l'esempio
-più tipico è individuali P più socket, descrive come raggiungere e dove si trova il processo
-come voglio comunicare. Per esempio, l'individuali P determina esattamente, pure attraverso routing,
+più tipico è indirizzo IP più socket, descrive come raggiungere e dove si trova il processo
+come voglio comunicare. Per esempio, l'indirizzo IP determina esattamente, pure attraverso routing,
 come fare a spedire un messaggio all'altro nodo e il socket identifica, diciamo, una
 specie di porta, anzi è una porta, diciamo, sul quale il processo si mette in ascolto.
 Quindi, io non so con chi sto comunicando, con chiunque sia in ascolto in quella porta,
@@ -476,7 +479,7 @@ rete, la topologia vuol dire la forma, essenzialmente, della rete. Quindi devo s
 le macchine a disposizione, chi è deployed dove, quali socket sta utilizzando e questo
 porta una rigidità della rete. Per esempio, immaginare su una rete in cui i processi miglino
 da una macchina all'altra liberamente e non è così facile, perché la migrazione si
-comunica con gli individuali P, non avviene semplicemente. O io faccio dei giochi, rivero
+comunica con gli indirizzo IP, non avviene semplicemente. O io faccio dei giochi, rivero
 i debuti in un quadro del genere per cui, in verità, poi gli individui più viene mappato
 in maniera diversa da un'infrastruttura di rete, sennò è tutto rigido. Devo sapere
 esattamente dove sta. Per esempio, un programma che è nato per essere distribuito rispetto
@@ -484,7 +487,7 @@ a un programma che è nato per essere concorrente, quindi per lavorare su una ma
 è completamente differente per via dei nomi fisici. A Orlando non funziona così. A Orlando
 usa nomi logici. Con i nomi logici io identifico quelli con cui voglio comunicare o collaborare,
 ma non sto dicendo nulla o assumendo nulla sulla topologia della rete. Quindi vuol dire
-che io uso il nome logico di qualcuno per comunicare e questo potrebbe essere a punto
+che io uso il nome logico di qualcuno per comunicare e questo potrebbe essere dal punto
 di vista totalmente trasparente di chi scrive il codice, potrebbe essere su un server remoto,
 potrebbe anche muoversi eventualmente, potrebbe essere su un mio nodo stesso, quindi potrebbe
 essere anche su un altro core, per esempio, della mia macchina. Come vedremo, più avanti,
@@ -498,7 +501,7 @@ principali linguaggi di programmazione funzionali in uso che ci ha impiegato ven
 a integrare la programmazione multicore all'interno del linguaggio. Erlang è stato l'unico linguaggio
 di programmazione, l'unico, in cui è stato aggiunto il supporto alla programmazione multicore
 senza cambiare in una riga il linguaggio di programmazione. Il programma di Erlang non
-ha cambiato nulla, nella sintasia, nella semantica, niente, semplicemente il linguaggio di programmazione
+ha cambiato nulla, nella sintassi, nella semantica, niente, semplicemente il linguaggio di programmazione
 già funzionava perfettamente nell'idea di uscire la multicore. Ovviamente l'impronizzazione
 è cambiata profondamente, il runtime è cambiata profondamente, ma dal punto di vista del linguaggio
 di programmazione è tutto assolutamente trasparente. L'uso dei nomi logici, per esempio, aiuta in questo.
@@ -507,12 +510,12 @@ caratteristica. I nomi logici mi dicono come raggiungere l'attore. Quindi l'unic
 per contattare un attore, se io non so dov'è perché il linguaggio me lo nasconde, è conoscere
 il nome logico. Quindi solo chi conosce il nome logico di un attore è in grado di comunicare
 con quell'attore. E la topologia della rete, quindi come è fatta la rete chi collabora
-con chi è dato semplicemente la conoscenza dei nomi logici. Quindi per esempio cambia
+con chi è dato semplicemente dalla conoscenza dei nomi logici. Quindi per esempio cambia
 in continuazione. Se io per esempio conosco il nome di un attore e te lo comunico, allora
 lui da quel momento in avanti è in grado di comunicare con quell'altro. Quindi la topologia
-della rete, la comunicazione, cambia costantemente durante l'asecuazione. Il secondo ingrediente
+della rete, la comunicazione, cambia costantemente durante l'esecuzione del programma. Il secondo ingrediente
 è la mailbox. Che cos'è la mailbox? La mailbox è una coda per la ricezione dei messaggi.
-Quindi l'idea è che un attore riceva dei messaggi e rimetta il coda. Poi vedremo come
+Quindi l'idea è che un attore riceva dei messaggi e li metta in coda. Poi vedremo come
 fa a toglierli. Infine, il terzo e ultimo ingrediente di un attore è il behavior. Che
 cos'è il behavior? Il behavior è una mappa che prende messaggi e li trasforma in una
 lista di azioni e un nuovo behavior. Quindi potrebbe dire se io ho ricevuto un messaggio
@@ -521,22 +524,24 @@ volta che ricevo un messaggio, il mio behavior può cambiare completamente dalla
 Il behavior è una mappa. Quindi il behavior mi dice se ricevo questo messaggio succede
 questo, se invece ricevo questo messaggio succede questo, se invece ricevo questo messaggio
 succede questo. Quindi sono delle alternative e a seconda del messaggio che io processo,
-vedremo dopo cosa vuol dire, io compio le azioni e vento in un nuovo behavior. Lezioni
-ancora consistono. Ci possono essere computazioni interne, quindi dei calcoli interni tipicamente
+vedremo dopo cosa vuol dire, io compio le azioni ed entro in un nuovo behavior. Le azioni in cosa consistono.
+Ci possono essere computazioni interne, quindi dei calcoli interni tipicamente
 pensati per terminare in un tempo breve, dell'attore. L'attore può inviare in maniera
-sincrona messaggi verso degli altri attori di cui conosce il PID. Quindi attenzione,
-l'invio è solamente a sincrono, quindi non c'è sincronizzazione. Io spedisco un messaggio
+asincrona messaggi verso degli altri attori di cui conosce il PID. Quindi attenzione,
+l'invio è solamente a asincrono, quindi non c'è sincronizzazione. Io spedisco un messaggio
 e non so se verrà ricevuto, quando verrà ricevuto, eccetera. Questa è l'unica forma
 di comunicazione. Oppure può creare un attore, o anche terminare. Può terminare l'attore
 oppure può creare un altro attore. Quindi un attore può dare vita ad altri attori. Ok?
-Quindi ci sono i tre ingredienti della promozione di attori. Un attore corrisponde a un unico
-thread di computazione, quindi all'interno di un attore non possiamo avere più thread
-un attore un thread. La promozione di attori è un caso particolare di programmazione reattiva
+Quindi ci sono i tre ingredienti della promozione di attori.
+
+
+Un attore corrisponde a un unico thread di computazione, quindi all'interno di un attore non possiamo avere più thread.
+La programmazione di attori è un caso particolare di programmazione reattiva
 o event-driven. Cosa vuol dire? Immaginatevi un sistema che abbia decine di migliaia di
 attori, centinaia di migliaia di attori, milioni di attori. WhatsApp, per esempio. WhatsApp
-fu implementato speciale inizio tramite Erlang. Quindi WhatsApp era un esempio di programma
+fu implementato specie all'inizio tramite Erlang. Quindi WhatsApp era un esempio di programma
 scritto un negozio di promozione di attori. Ogni singola app di WhatsApp installata corrisponde
-ad un attore. Quindi c'è un attore in esecuzione per uno di noi. Questa era l'idea. Quindi
+ad un attore. Quindi c'è un attore in esecuzione per ognuno di noi. Questa era l'idea. Quindi
 c'erano migliaia di migliaia di attori nel nostro sistema di attori. Ecco, questi attori
 sono normalmente crescenti. Quindi non c'è l'idea che gli attori stiano facendo calcoli.
 L'idea, diciamo, lo stato normale per cui poi è ottimizzata la promozione di attori
@@ -549,18 +554,20 @@ programmazione multithreading dove, se siete abituati a scrivere programmi multi
 che so, in C su Linux, il numero dei thread deve rimanere basso, piccolo, perché ogni
 thread sarà davvero costoso e lanciare più thread rallenta significativamente per vari
 motivi. Quindi pochi thread, ma che lavorano, la programmazione di attori è duale, è
-una programmazione vendibile, semplicemente reagiscono all'estima. Gli attori non condividono
+una programmazione vendibile, semplicemente reagiscono agli stimoli. Gli attori non condividono
 nulla, non condividono stato, non condividono memoria, anche se sono due attori sulla stessa
 macchina, che magari stanno collaborando fra di loro attraverso scambio di messaggi,
-non condividono risorse di nessun genere. Cos'è un sistema di attori? Un sistema di
+non condividono risorse di nessun genere. 
+Cos'è un sistema di attori? Un sistema di
 attori è un sistema complesso composto da più attori di esecuzione. L'esecuzione è
 indipendente all'ocazione fisica degli attori e la topologia è variabile. Gli attori nascono,
 non condividono. Gli attori possono essere eseguiti in maniera totalmente trasparente
-sullo stesso nodo, sulla stessa V8 Machine, sulla stessa Crosso, sulla stessa CPU, continuano
+sullo stesso nodo, sulla stessa Virtual Machine, sulla stesso core, sulla stessa CPU, continuano
 a non condividere informazioni, stato, memoria e così via. Questo vuol dire che in Erlang
 non c'è di fatto distinzione e fa programmazione concorrente su una singola macchina, programmazione
 distribuita o di programmazione parallela. Chi mi ricorda la differenza fra programmazione
-concorrente e distribuita? Parallela e distribuita. Concorrente che sono sulla stessa macchina
+concorrente e distribuita? Parallela e distribuita. 
+Concorrente che sono sulla stessa macchina
 concorrano per avere le risorse distribuite, sono su macchine diverse, parallela che sono
 sulla stessa macchina, ma che li sono comunque a essere eseguiti attivamente nello stesso
 momento. Sì, quindi parallela è il multicore, quindi ci sono strade di esecuzione contemporanee.
@@ -601,7 +608,7 @@ comunicazioni di servizio non possono andare produte. Anzi, spesso e volentieri 
 qualcosa, ovviamente la cosa non funziona. C'è proprio un teorema che mi dice che non
 esce, funziona. E quindi quello che succede in questi casi tipicamente è che se voi provate
 a gestire il guasto in un sistema distribuito, andando a sincronizzarvi, a fare backtracking
-eccetera eccetera, il sistema entra in uno stato ancora più carotico. Ci saranno per
+eccetera eccetera, il sistema entra in uno stato ancora più caotico. Ci saranno per
 esempio dei thread che stanno andando all'avanti perché non hanno saputo che c'è il guasto,
 degli altri che stanno andando all'indietro per cercare di fare backtracking, dei thread
 che pensano che un altro sia completamente cresciato e quindi magari ricominciano la
@@ -612,12 +619,15 @@ drastica ma perfettamente funzionante a questo punto. Sarà la gestione dei guas
 uno dei punti di forza del promessore dell'attore. La vediamo più avanti però.
 Quindi, c'eramo attore, PID, mailbox, behavior, un sistema di attore, un'insieme di attore
 in esecuzione da qualche parte non ci interessa e che collabora di questo modo.
+
+
 Ora, prima di andare un attimo a vedere la storia della programmazione dell'attore e
 poi cosa Erlang aggiunge, vediamo un LWord della programmazione dell'attore in Erlang.
 Dittemi se è abbastanza largo da leggere e non troppo per...
 Ok, quindi scriviamo il nostro primo programma Erlang.
 Ora, che sintassi ha Erlang?
 Come nascono i linguaggi di programmazione?
+
 Allora, quando un programmatore sviluppa un nuovo linguaggio di programmazione da zero
 usa un linguaggio di programmazione che conosce e che in qualche modo ama se lo sta utilizzando
 per implementare il nuovo linguaggio di programmazione.
@@ -650,6 +660,8 @@ dai linguaggi tipo Modulo, AC e cose del genere.
 Come dicevo, l'Exir è una specie di reimplementazione del linguaggio sulla stessa runtime,
 che cerca di prendere una sintassi più simile, diciamo, a quella del linguaggio che conosciamo.
 Quindi, se qualcuno di voi conosce Prolog, riconosceva un po' della sintassi che sto usando adesso.
+
+
 Per prima cosa, io dichiavo che sto lavorando all'interno di un modulo
 e il nome del modulo deve essere il nome del file.
 Quindi, modul elo, sto dicendo che sto implementando il file elo.erlang.
@@ -662,12 +674,13 @@ e quale codice sia invocabile solamente all'interno del modulo.
 Per farlo, voi all'inizio del file dovete scrivere esattamente
 quali sono le funzioni che vengono esportate all'esterno.
 Tutto ciò che non viene esportato è nascosto.
-Quindi, in questo caso, la divertiva è meno export e prende una lista,
+Quindi, in questo caso, la direttiva è meno export e prende una lista,
 che è la lista delle funzioni da esportare.
 La lista è, facciamo etsi quadri, se provate la virgola, al momento, diciamo, non ci metto niente,
 ma tra poco ci metterò quello che vado a esportare.
 Fatemi dare una sbiocciatina giusto.
 Alto punto è il punto.
+
 Quindi, in Polog, tutti le istruzioni, i comandi, le definizioni terminano con punto.
 Quindi, punto.
 Allora, cosa vogliamo mettere in questo Hello World?
@@ -802,7 +815,7 @@ definendo delle costanti a seconda del linguaggio,
 usando per processore, usando un costume, un numero o qualcosa,
 e poi utilizzate, diciamo, i numeri direttamente.
 Le linguaggi che creano gli atomi, voi scrivete semplicemente gli atomi,
-ed è poi il compilatore, barra, rantani, che garantisce
+ed è poi il compilatore/runtime, che garantisce
 che abbiano solamente questa proprietà di associare
 se stessi diversi dagli altri,
 e decide come le rappresentiamo i rantani.
@@ -814,17 +827,17 @@ chi con me, per esempio, ha visto il corso di fondamenti logico,
 abbiamo visto i tipi dati algebrici,
 se un tipo di dato algebico non trasporta niente,
 è un atomo e il costruttore vedremo in qualche modo che quello parte dagli atomi.
-Nel caso di Poot, il mio messaggio deve contenere anche
+Nel caso di put, il mio messaggio deve contenere anche
 quanti soldi voglio versare, ok?
-Devo fare Poot in 10 euro, Poot in 50 euro e così via.
+Devo fare put in 10 euro, put in 50 euro e così via.
 Quindi, il mio messaggio, in questo caso,
 sa va una coppia, quindi fa parentesi graffe separati da virgole,
 io faccio le coppie di triple e quadruple,
 mi permette di passare più dati contemporaneamente.
-Quindi, in questo caso, una coppia in cui il primo valore della coppia è l'atomo Poot
-e secondo c'è una variabile n, le parallelità maiuscole.
+Quindi, in questo caso, una coppia in cui il primo valore della coppia è l'atomo put
+e secondo c'è una variabile n, la lettera maiuscola.
 Quindi, vuol dire che questo pattern fa match,
-per esempio, contro il messaggio Poot 10,
+per esempio, contro il messaggio put 10,
 se uno mi invia il messaggio Poot 10, questo ramo fa match,
 e la variabile n viene legata al valore 10.
 Quindi, il corpo dell'esequazione n diventa 10.
@@ -1336,16 +1349,16 @@ qualcosa del genere per dire un errore
 vedremo con un uso molto limitato
 che potrebbe anche
 sollevare un'eccezione
-di qualche natusora
+di qualche natura
 oppure potrebbe scatenare meccanismi di gestione dei guasti
-quindi diciamo il linguaggio è non tippato
+quindi diciamo il linguaggio è non tipato
 resta a voi scrivere il codice sensato
 altre domande?
 anche un po' come sintassi
 come idea
 ricorda un po'
 si ricorda
-anche GCS
+anche CCS
 si si
 ricorda
 fa parte di quella famiglia
@@ -1422,16 +1435,11 @@ sulla mia macchina
 la scelta
 io presento posto
 da un altro computer
-collegarmi la scelta su questo nodo
+collegarmi la shell su questo nodo
 quindi non è che la scelta
 essere solamente su un nodo
 la scelta nasce
 dalla macchina virtuale ma può essere
-contattata remotamente anche per fare monitor
-in dirremoto oppure lancio su un server
+contattata remotamente anche per fare monitoring da remoto oppure lancio su un server
 da questa macchina e poi posso il giorno dopo
 collegarmi e interagire
-chi ve sono?
-quindi
-prima è proprio così
-domani iniziamo a vedere

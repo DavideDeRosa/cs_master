@@ -1,0 +1,2150 @@
+Va bene, allora, la volta scorsa abbiamo visto alcuni costruttivi della parte sequenziale
+di Erlang, in particolare abbiamo visto come definire le funzioni, abbiamo visto tutti
+i principali tipi di dati, abbiamo visto che la definizione di funzioni avviene per pattern
+matching e questo ci permette di distinguere i vari casi e di accedere sotto parte del
+dato.
+Vedremo domani, probabilmente, tre costruttivi residui della parte sequenziale di Erlang,
+due di questi però sono del tutto ridondanti rispetto a quelli che abbiamo già visto e
+sono diciamo l'occhio sintattico rispetto a quelli che abbiamo, almeno sono convertibili
+coi costruttivi, sono convertibili fra di loro, quindi non aggiungono potenze espressive
+in nessun modo, uno sarà il meccanismo di recessione in cui invece dovremmo parlare
+meglio.
+La volta scorsa abbiamo visto che con i meccanismi in nostra disposizione noi siamo in grado
+di programmare e che la descrizione matematica di quello che stiamo facendo è abbastanza
+chiaro.
+Rivediamo il codice dell'altra volta, giusto per inquisicare un po' i meccanismi in un
+certo senso, e oggi iniziamo a parlare dell'implementazione di Erlang e questo è importante, non perché
+io vi voglio spiegare come scrivere un compilatore per Erlang o qualcosa del genere, ma perché
+deve essere chiaro almeno quella parte dei dettagli implementativi che fanno sì che
+voi siate in grado di capire la complicità computazionale in spazio e in tempo del codice
+che poi andate a scrivere, questo è il punto fondamentale.
+Quindi vediamo un attimo quello che abbiamo visto l'altra volta al livello di programmazione,
+è riuscita a leggere?
+Ok, quindi volevamo implementare un esempio di ricerca e update di arbi binari di ricerca,
+ora gli arbi binari di ricerca abbiamo detto sono un esempio di tipo di dato algebico dove
+se io avessi un linguaggio di programmazione tippato in cui andarlo a dichiarare, come per
+esempio come come Kamel, Haskell, oggi il giorno vengono implementati anche o simulati
+diciamo anche in altri linguaggi di programmazione non funzionali, per esempio in Java per esempio
+utilizzando le data classi e sopra quello del genere, quindi in questo caso definiamo
+un nuovo tipo degli alberi chiari valori dicendo che ha due possibili forme, ogni forma deve
+essere distinta dai precedenti e al suo interno trasporta dei dati, quindi le varie
+forme del mio albero sono tipi di dati non atomici perché al suo interno troviamo il
+dato sotto l'albero di destra, sotto l'albero di sinistra e così via, quindi usiamo delle
+tuple sia per le foglie che per i nodi interni, etichettiamo le tuple usando un attimo come
+primo elemento, questo non sarebbe necessario in questo caso perché avremo una tupla lunga
+2 e una tupla lunga 3 e quindi sarebbero comunque distinte in questo esempio, ma diciamo la
+buona pratica è quello di etichettare comunque le tuple perché se successivamente abbiamo
+due tuple della stessa lunghezza abbiamo bisogno di discriminarle, quindi se abbiamo già messo
+un tag questo robustisce il codice perché non lo dobbiamo poi ricordarci del giorno
+secondo tempo, inoltre come vedremo nei linguaggi che hanno appunto la nozione di tipo di dato
+algebrico come dichiarazione di dato il compilatore inserisce sempre il tag, quindi di fatto compila
+sempre in questo modo, dopodiché nel caso della foglia ritavamo la chiave e il valore
+e nel caso del nodo l'albero di sinistra, la chiave e l'albero di destra, abbiamo anche
+definito un altro tipo di dato algebrico che va un valore opzionale, a cosa serve il valore
+opzionale ci serve per rappresentare la presenza di un dato found of the oppure l'assenza
+del dato not found. Erlang come la maggior parte dei linguaggi funzionari e anche di
+certi linguaggi imperativi moderni non hanno la nozione di valore di default per i tipi
+di dato, che nel caso dei puntatori è tipicamente la nozione di puntatore nullo, il quale viene
+chiamato il million dollar mistake perché si stiva che si è stato responsabile di
+danni economici per più di un milione di euro di dollari dovuti all'uso ervato di
+nulla, di referenziare nulla che sappiamo sempre. Quindi in questi linguaggi non abbiamo
+la nozione di puntatore nullo, bensì se vogliamo dichiarare l'assenza, la presenza del dato
+not found. In questo caso not found non lo mettiamo all'interno di una tupla perché
+non dobbiamo, è un tipo di dato atomico not found, non dobbiamo avere a suo interno niente,
+quindi rimane semplicemente l'atomo. Dopo che abbiamo implementato la ricerca e l'inserimento
+guardiamo la funzione di inserimento perché sarà quella più interessante poi da analizzare
+spazio tempo. Quindi come facciamo? Dobbiamo inserire un valore associato a una chiave
+o modificare l'associazione precedente se già c'era all'interno di un albero. Tutti
+i tipi di dati di Erlang sono non mutabili, quindi inserire un valore all'interno di
+un albero significa creare un nuovo albero distinto dal precedente lasciando il tipo
+di dato precedente. Quindi in questo caso dobbiamo prendere in input un albero e dare
+in output un altro albero. Lavoriamo per pattern matching, quindi andiamo ad analizzare i vari
+casi possibili. Il primo caso è che siamo una foglia di chiave K2 e usiamo una guardia per
+analizzare il caso quando K uva la K2. In questo caso dobbiamo sovrascrivere, o meglio sovrascrivere
+per pensare di modificare l'albero. Dobbiamo creare un albero in output che ha la stessa chiave e il
+valore aggiornato e quindi produrre in output l'if K. Nel caso dell'inserimento, no c'è un altro caso,
+nel caso della foglia K2v, quando siamo già nel caso in cui K è diverso da K2, perché sennò
+sarebbe scattato il primo ramo, quindi nel caso in cui K è minore uguale a K2, che vuol dire
+minore stretto di fatto, generiamo in output un albero che ha un nodo che a sinistra ha la
+nuova associazione chiave e valore, come discriminatore ha la chiave e a destra ci mettiamo una coppia
+dell'albero che io ho preso. La cosa simmetrica è quando la K è maggiore stretto di K2, che è il terzo
+caso, e infine se io ho in input un nodo interno con la chiave discriminatrice K2 sotto albero T1
+sotto albero T2, a seconda che K che vogliamo inserire sia minore uguale di K2 oppure no, faccio
+ricorsione a sinistra oppure a destra e ricopio in output sia la chiave sia l'auto sotto albero.
+Questo è quello che abbiamo scritto nel codice. Ci sono un sacco di domande implementative che
+dobbiamo porci, in particolare, ve ne assumo un attimo, poi mi staremo a dare le risposte,
+la prima domanda ovviamente è come vengono rappresentati valori a runtime, questo è il
+primo punto, e in particolare a partire da quello dobbiamo anche chiederci come viene
+gestita la memoria, infatti io qua non alloco mai memoria esplicitamente e non alloco mai
+memoria esplicitamente, quindi in questo caso è l'angolo linguaggio con garbage collection che
+gestisce automaticamente la delocazione, è anche un linguaggio che lui va ad allocare memoria quando
+è necessaria, in particolare se io per esempio nell'auto della mia funzione uso una struttura,
+per esempio una tupla, quando lui esegue il corpo della funzione deve allocare la tupla
+per esempio, dovremmo capire la complessità computazionale del pattern matching, quanto
+mi costa il pattern matching e in particolare quanto mi costa in spazio e in tempo la generazione
+dell'albero in output, va da sé che sperabilmente quando io chiamo la mia funzione di inserimento che
+aggiungi una nuova chiave all'interno dell'albero in input, dando in output un nuovo albero senza
+aver modificato il primo, io spererei che non abbia allocato tutta la memoria che sarebbe per
+mantenere il primo albero, perché sennò vorrei vedere che rispetto all'algoritmo imperativo che
+occupa OV1 in spazio, quella funzione computazionale sarebbe OVN nella dimensione dell'albero e quindi
+rapidamente andrebbe fuori controllo, quindi bisogna sperare che l'implementazione sia più furba,
+notate però che io quando ho scritto il codice non ho fatto nulla per essere furbo diciamo nella
+gestione dello spazio e del tempo, ok? E l'ultimo punto devo capire quanto mi costa normalmente in
+spazio prima di tutto e poi in tempo la gestione della ricorsione, perché facendo tutta una serie
+di chiamate ricorsive, mentre invece nel codice magari imperativo potevo fare per esempio dei
+cicli, quindi devo capire quanto mi costa dal punto di vista dello spazio questo fenomeno di
+ricorsione, ok? Queste sono le domande a cui dovremmo cercare di rispondere, la lezione di oggi e in
+parte la lezione di domanda. Quindi partiamo innanzitutto dai dati, come vengono rappresentati
+i dati in Erlang, una prima osservazione stupidissima che vi è chiava a tutti, a livello di codice
+macchina non esistono i tipi di dato. Tutti i dati sono sequenze di bit, in genere multipli
+di byte o di lettura multipli di word, di parole e spesso volentieri le operazioni di ammettimento
+ecologico della CPU manipolano i bit ma non associano un significato a questi bit. A volte
+sommano, sottraggono, quindi li interpretano come se fossero numerici per esempio, a volte
+dei referenze, come se possano dei puntatori, a volte non manipola il dato a bassissimo livello.
+E poi il programmatore che quando va a scrivere un dato in memoria, va a leggere un dato in memoria,
+lo interpreta in una determinata maniera. Quindi, per esempio, la stessa sequenza di bit nello
+stesso linguaggio di programmazione potrebbe rappresentare di volta in volta, per esempio,
+un carattere, un carattere ASCII, potrebbe rappresentare un numero sign on sign, potrebbe
+essere un floating point, potrebbe essere un puntatore, e a basso livello questa cosa è
+assolutamente invisibile. Quindi sono le funzioni che associano un'interpretazione al dato e
+ovviamente il programmatore deve usare maniera coerente. Quindi se, per esempio, io ho scritto
+un award, quindi un settato di bit dell'award, con una certa interpretazione in mente, per esempio
+quello per me era la rappresentazione di un numero intero, se poi lo vado ad utilizzare la volta
+successiva con un puntatore, ovviamente il risultato sarà assolutamente errato, tipicamente porteranno
+qualche forma di spazio. Per questo motivo, storicamente è stato introdotto a certo punto
+un certo concetto chiamato tipo, dopo vedremo un altro concetto chiamato tipo che è ortogonale ma
+collegato, un certo concetto chiamato tipo per controllare che il codice che il programmatore va
+a scrivere si comporti bene. Quindi il sistema di tipi, chi ha fatto con me il corso di fondamenti
+logici che ho spiegato in quel modo, il sistema di tipi è un'analisi modulare statica fatta con
+time per garantire certe proprietà del mio codice a un time, proprietà che normalmente sarebbero
+indecidibili, quindi per le quali è impossibile decidere staticamente se potremmo. Quindi io
+approssino queste proprietà con un sistema di tipi che mi può dire, per esempio, se il programma è
+ben tipato chiaramente non ci saranno certi problemi, se non lo è il problema potrebbe
+verificarsi come va. E tipicamente il sistema di tipi controlla per l'appunto come vi dicevo,
+cioè che l'interpretazione del dato dei bit che vado a scrivere sia coerente con quella che vado
+a leggere. E molte delle funzioni che implemento nel mio linguaggio di programmazione prevedono
+per l'appunto una certa interpretazione del dato, in quanto tali sono funzioni monomorfe. Monomorfe
+vuol dire che lavorano correttamente se il dato in input ha esattamente una certa interpretazione.
+Vediamo, vi faccio degli esempi usando il top level, per esempio, di OCaml, che è un linguaggio
+a differenza di Lantipato, perché Lantipito non mi risponderebbe. Vi faccio gli esempi delle
+funzioni. Io scrivo, per esempio, una funzione f che prende in input n ed s e restituisce una
+coppia in cui a n sommo quarto e a s con carteno la stringa punto esclamativo, il compilatore
+fa un'analisi dei tipi e si rende conto che i miei due input devono per forza essere un intero e una
+stringa. Quindi che prenderò delle sequenze di bit parola eccetera che non essere un intero e una
+stringa. La cosa lo capisce dal fatto che in output a n ci faccia una somma e a s con carteno e una
+stringa. E quindi l'unica interpretazione sensata dei miei bit in input, finché questo codice abbia
+senso, è che il primo sia un intero, la seconda c'è una stringa e l'out potrebbe essere una coppia
+formata da un intero e da una stringa. Quindi questa è un'interpretazione totalmente monomorafila.
+Cosa si intende per il polimorfismo? E' un polimorfismo uniforme. Mentre molte operazioni
+per avere senso richiedono per l'appunto una certa interpretazione del dato, per esempio se io con
+carteno e due stringa voglio che i miei bit in input rappresentino una stringa, se io sommo un
+numero voglio che mi intero, voglio che i miei bit in input per forza non rappresentano un numero
+intero, c'è una manciata di operazioni pochissime le quali dal punto di vista logico possono essere
+implementate su qualunque tipo di dato perché non hanno bisogno di mettere sull'interpretazione
+sul tipo di dato. Quali sono queste operazioni? Sono tipicamente prendere un dato, non lo posso
+analizzare, non posso guardare sui video perché mi serveva un'interpretazione, quindi io prendo
+il dato e lo posso allocare, se lo delocco non è importanza che dato fosse, potrei allocare spazio
+per un dato analogo, potrei muovere il dato, per esempio spostarlo da un registro allo stack,
+lo ripo o qualcosa del genere, o potrei copiare il dato. Tutte queste operazioni le faccio
+alle varie di bit, prendo i bit, li ricopio, li muovo, li sposto e non ho bisogno di sapere
+qual è l'interpretazione del dato. Queste sono le uniche operazioni che non necessitano di sapere
+l'interpretazione del dato, quindi allocare, dellocare, muovere, copiare. Notate che questo
+vuol dire anche passare in input un'altra funzione, perché quando io passo in input un dato
+un'altra funzione, semplicemente lo sto copiando dove l'altra funzione si aspetta di trovare,
+nei registri o sullo stack. Quindi quando io scrivo una funzione in un linguaggio tippato che
+prende il dato e appunto fa solamente queste cose, lo butta via, lo copia, lo muove, eccetera,
+eccetera, la mia funzione non è più legata a un'interpretazione in particolare, quindi un
+tipo in particolare, ma diventa una funzione polimorta, cioè io ci posso passare dati di
+qualunque tipo, cioè posso interpretare come mi pare i miei dati di input e la funzione mantiene
+la sua semantica. Quindi vediamo degli esempi. Se io prendo una funzione swap, per esempio,
+che prende in input una copia xy, qua sto facendo pattern matching, e restituisce la copia yx,
+quindi è una funzione che sta copiando diciamo i due dati, scambiandoli. E se io mi chiedo qual è
+il tipo di questa funzione, O'Cannery dice questo. A con l'apicetto prima e B con l'apicetto prima,
+è ASCII ART per lettere greche, quindi si leggono alpha, beta, gamma e così via,
+quindi questo vuol dire alpha per beta, freccia beta per alpha. Quindi vuol dire che prende in
+input una copia di tipo alpha primo elemento beta al secondo, restituisce una copia beta primo elemento
+alpha al secondo. E chi sono alpha e beta sono quantificati universalmente, o se volete questa
+funzione è polimorta. Per ogni qualunque sia il tipo alpha, qualunque sia il tipo beta, la funzione
+swap è in grado di scambiare gli elementi della copia. Se vogliamo vedere altre operazioni in
+questione, per esempio io potrei aggiungere un terzo elemento z che ignoro nell'output, anche in
+questo caso è per ogni gamma, la funzione prende un alpha e un beta, un gamma nella tripla e mi
+restituisce beta per alpha. In questo caso io ho allocato un dato, perché non sto tutti in
+output. Quindi le funzioni che usano solamente queste operazioni rimangono polimorta. Per vedere
+un'operazione polimorta in cui io posso passare dato ad un'altra funzione, essendo un linguaggio
+funzionario, posso prendere in input una funzione. Quindi potrei scrivere una funzione, per esempio f,
+che prende in input una funzione g e un dato x e invoca g passando di due volte x. Quindi una
+funzione f è con due input g e x e ai g passa due volte x. Se io mi chiedo quale sia il tipo
+della funzione f, notate che non ho mai bisogno di sapere come interpretare x, perché non servo mai
+la sequenza di bit dando il mio significato. Quindi x può avere un qualunque tipo alpha e g che cos'è?
+È una funzione che prende in input due copie di x. Quindi la mia funzione può essere una funzione
+qualsivoglia che possa prendere in input x alfa alfa e cosa mi può restituire? Non lo so, non è
+vincolato, quindi mi può restituire a un qualunque beta. Quindi il tipo di questa funzione sarà la g è
+una funzione da alfa in alfa in beta, la x a tipo alfa e tutta la f a tipo beta. Quindi anche questa
+è una funzione puramente polimorta che prende in input un'altra funzione. Ovviamente quando invoco
+la f devo passare una x e una g che siano coerenti fra loro. Quindi per esempio alla f potrei passare
+la somma di numeri e il numero 3, che andrebbe tutto bene, perché la somma prende due interi e
+restituisce un intero. Se io passassi per esempio la somma e una stringa, a questo punto mi darebbe
+un errore di tipo, perché mi dice non sono coerenti i dati che tu stai passando. Quindi attenzione,
+la g non è polimorfa lei, non ho bisogno di avere una funzione polimorfa che ignori, che
+non legga, che non interprete gli input. La g può essere monomorfa perché l'unica cosa che
+interessa è che sia coerente con la x che deve avere. Questa forma di polimorfismo va sotto il
+nome di, ha vari nomi, i teorici la chiamano polimorfismo uniforme, perché per l'appunto è
+uniforme sull'interpretazione dei dati, però altri nomi che potete trovare nel linguaggio di
+pronazione è generico template. Perché? Perché in certi linguaggi di pronazione io devo dichiarare
+esplicitamente che la mia funzione è polimorfa, non come si faceva adesso in OCaml, e quando io
+dichiaro esplicitamente uno schema di funzioni in questo modo, quel costruito viene chiamato
+template per esempio in Java o Regenerics per esempio in C++, quindi si chiama anche
+polimorfismo generico, polimorfismo template. A livello sintattico le funzioni che hanno
+un polimorfismo uniforme esplicito, la maggior parte dei linguaggi utilizza le
+parentesi angolose per dichiarare queste variabili di tipo, quindi dichiarerebbe qualcosa del tipo
+alfa-beta, quindi una F parametrica in alfa-beta che ha tipo che so, alfa freccia, alfa freccia
+beta, alfa-beta, qualcosa del genere. Quindi le parentesi angolose prendono in input, mi dicono che
+si hanno quantificato tutti i tipi alfa-beta. Poi in OCaml si usano l'alfavete così via, in C
+e così via si usano ts e rette maiuscole per indichare questa cosa. Ok? Doveva essere tutta
+roba che più o meno sapete. Domande fin qua? Ok. Perché vi ho raccontato questa roba sul
+polimorfismo uniforme? Perché quando siete davanti a un linguaggio di formazione non tipato, come
+è per esempio Erlang. In Erlang io non ho un controllo a priori delle interpretazioni, quindi
+nulla mi vede in Erlang, descrivo una funzione che ha un input x, io lo interpreto come un 1 e poi
+viene usato come una stringa e questo spolterà a un errore realitario. Quindi non ho un sistema di
+tipi che mi va a escludere le combinazioni dove io sto scrivendo i dati in un certo modo e sto
+leggendo in un altro modo. Quindi i linguaggi di formazione non tipati di fatto si presentano
+come se fossero dei linguaggi di formazione polimorfi in cui tutto ha tipo alfa, tutto prende
+in punto un'alfa e così via. Quindi implementare un linguaggio di formazione non tipato ha le
+stesse problematiche di implementare un linguaggio di formazione che abbia il polimorfismo uniforme.
+Qual è la problematica che sta dietro a implementare un linguaggio di formazione che ha il polimorfismo
+uniforme? Abbiamo detto prima che le cinque operazioni base che posso fare in maniera uniforme
+sono allocare e allocare, spostare e copiare essenzialmente. Quattro, quindi quattro operazioni
+spostare e copiare, allocare e allocare. Per implementare queste quattro operazioni non ho
+bisogno di sapere come interpreto la sequenza di bit, ma mi serve sapere qualcosa. Immaginatevi
+di copiare il dato che avete preso in input da qualche altra parte. Che informazione vi
+serve per fare questa copia? A parte l'indirizzo di dove si trova il dato e l'indirizzo di
+dove ce lo voglio mettere. Vi serve un'altra informazione. Quanto lungo il dato? Quanto
+lungo il dato. La funzione swap che ho scritto prima prende due dati e gli scambio in memoria.
+Ma se devo scambiare due byte, due word, due long word o cose di via, il codice assembly
+che devo andare a generare è diverso. Quindi io ho bisogno per implementare questo genere
+di operazione di conoscere la dimensione. Come fare dei linguaggi di programmazione
+a implementare queste operazioni? Facciamo un passo indietro, scordiamoci un attimo per
+questo. Se io prendo un linguaggio di programmazione che sia un po' più di alto livello rispetto
+all'assembly, prendiamo per esempio il C, per risolvere il problema di quanto sono grandi
+i dati, storicamente si è aggiunto a linguaggio di programmazione una cosa chiamata tipi.
+Ma non sono quelli di prima. I tipi hanno due origini completamente diverse. Quindi ci
+sono sia i tipi che, come vediamo adesso, nascono per misurare semplicemente la dimensione
+del dato. Quindi il tipo mi dice semplicemente un byte, una word, due word, quindi quella
+unica informazione utile che serviva esattamente per implementare questa operazione semplicemente.
+Quanto alloco, quanto deloco, quanto sposto. E poi c'è la nozione di tipo invece per
+garantire che l'interpretazione delle sequenze di bit sia corretta e quindi garantire proprietà
+di alto livello. Entrambe le nozioni di tipo storicamente si sono sviluppate provenienti
+da concetti diversi, una dalla logica, l'altra dal bisogno, nei momenti in cui si è staccati
+l'assemble di allocare e allocare una certa quantità di spazio. E poi sono confluite
+nel concetto di tipo che abbiamo di giorno. Quindi il tipo e il giorno svolgono entrambi
+i vuoli e nei linguaggi di programmazione lo possono svolgere bene o male. Per esempio
+quando si dice che il C è un linguaggio debolmente tipato è perché non mi garantisce nessuna
+proprietà di interpretazione dei dati. Io in C posso castare per esempio qualunque
+dato a qualunque altro tipo. E quindi è inutile quel sistema di tipi del C? No, è utile
+perché il sistema di tipi del C è nato innanzitutto per disuovare la ritenzione. Quello è quello
+che fa bene il sistema di tipi del C essenzialmente. Il fatto poi di interpretarlo come un mischio
+dati differenti è un altro discorso e quello per esempio il sistema di tipi del C non lo fa bene.
+Quindi tutte le operazioni aritmetico-logiche e comprese anche le operazioni di movimento,
+allocazione e allocazione hanno bisogno di conoscere la dimensione del dato. Quindi
+se io dichiaro per esempio una funzione di swap e la tipo esplicitamente in maniera monomorfa,
+dico per esempio prendo uno short int, un long int e mi scambi, allora è chiaro che
+il compilatore può mettere il codice che prende uno short int e un long int, quindi non so,
+una word, due word, un byte, due byte, dipende dalla architettura e ovviamente gli scambi
+vanno con le istruzioni assembler-correct. Ma cosa succede se io ho polimorfismo uniforme?
+Se io ho polimorfismo uniforme vuol dire che posso utilizzare il mio codice su qualunque dato.
+Io posso scambiare per esempio un int e una stringa, swap che tipo aveva,
+avevo scritti, ah perché avevo messo anche il terzo dato. Quindi potrei scambiare,
+scrivo la funzione swap giusta, quindi prendo una copia x, y e istituisco la copia y,
+se non x dicevamo il tipo è una coppia alpha per beta, mi eseguisce beta per alpha,
+quindi posso scambiare un numero e una stringa così come posso scambiare che
+so un floating point e un array di tra cose. Ma capite bene che questo può un problema
+implementativo perché se questi hanno dimensioni differenti come è possibile poi che il codice
+che io vado a generare si è in grado di lavorare spostando in memoria quantità di
+dati differenti usando istruzioni assembler-correct. E questo problema esiste di compilazione di
+funzioni polimotiche che devono lavorare su dati di dimensioni differenti, esiste in tutti
+i linguaggi di programmazione che hanno polimorfismo uniforme e anche in tutti i linguaggi di programmazione
+non ti parti perché per l'appunto li potete passare tutto a posto di tutto e quindi il
+problema della dimensione dei dati è concente. Ok? Chiavo il punto. Quindi la domanda che
+dobbiamo porci è come facciamo a implementare funzioni polimorphe dove i dati possono avere
+dimensioni differenti. Esistono tre tecniche.
+Quindi, implementazione del polimorfismo uniforme. Esistono essenzialmente tre tecniche in uso
+nel linguaggio di programmazione. La prima tecnica va sotto il nome di monomorfizzazione
+e la avete a disposizione esclusivamente quando il vostro linguaggio di programmazione è
+tipato. Quindi qualcosa tipo Java, C++, qualcosa del genere. Quindi vincoli A, linguaggio di
+funzione tipato e B, dato un programma è possibile calcolare un insieme finito di tipi su cui ogni
+funzione lavorerà. Mi spiego. Cosa vuol dire un insieme finito di tipi su cui ogni funzione
+lavorerà? Supponete di aver dichiarato la vostra funzione swap che è polimorf e poi scrivete del
+codice. All'interno del vostro codice magari una volta chiamate swap sull'intera stringa, la volta
+dopo chiamate swap su che sono floating point e un array. Se queste sono le uniche due chiamate
+all'interno del codice, l'insieme di tipi su cui la funzione viene chiamata è un insieme finito.
+In teo stringa è floating point. È sempre vera questa seconda cosa che dato un problema è possibile
+calcolare staticamente qual è l'insieme finito di tipi su cui ogni funzione lavorerà? Oppure no?
+Oppure secondo voi ci possono essere programmi in cui staticamente non è dato sapere. Non c'è
+un insieme finito. Potenzialmente a runtime potrebbe usare dei tipi sempre diversi.
+Allora se il codice è chiuso e voi eseguite solamente quel codice lì, quello che prende l'input lo
+conosci. Diverso è per esempio il caso se per esempio tu leggi da input una stringa che ti dice
+per esempio invoca la funzione su una stringa e un intero e poi a runtime tu a partire da questa
+descrizione di cosa fare sintetizzi una stringa, sintetizzi un intero e ti chiami sopra. Ecco allora
+in questo caso potresti avere problematiche di quel genere. Quindi dipende diciamo se tu a runtime
+sei una specie di interprete che ha questo. Questo potenzialmente in genere non accade, potrebbe
+accadere. Oppure forse un altro scenario che viene in mente, per esempio io ho scritto il mio codice
+una codice di libreria per esempio di un programma oppure il core di un programma che ha dei plugin.
+Quindi io posso sempre caricare a runtime dei plugin e i plugin potrebbero aggiungere le chiamate
+alla mia funzione su dei tipi differenti. Questo è un altro scenario possibile in cui che andrebbe
+gestito insomma se ho un programma monomotivo. Lasciate per avere questo, immaginatevi che il vostro
+codice sia chiuso, quindi il vostro programma è quello lì, non ricevo strani input da fuori, non ricevo
+nuove chiamate. Quindi dato un affamento di codice, sembra possibile calcolare l'insieme dei tipi
+oppure no.
+Quando dice che è possibile calcolare, nel senso che c'è
+una funzione, non stiamo dichiarando il tipo, ma un compilatore deve fare le differenze del tipo?
+Sì, per esempio una funzione in cui, ma potreste anche tu stalo dichiarando diciamo, potreste anche dichiararlo
+explicitamente, quindi il tuo tipo potrebbe essere uno schema di tipi tipo lo swap che dice però ogni
+alfa e beta succede qualcosa, però ti rendi conto che poi a runtime l'insegno dei tipi su cui avremmo
+chiamato la funzione non è finita. Vediamo un esempio, ve lo scrivo in pseudo sintassi Erlang, non perché
+Erlang ha dei tipi, ma perché con la sintassi siamo tutti d'accordo diciamo sinceramente. Quindi immaginatevi
+questa funzione Erlang, una funzione f che prende in input un n, un numero, e si comporta diversamente
+con 0 e con i numeri maggiori di 0. Quindi se prende 0 è il caso base e restituisco per esempio empty,
+una specie di albero vuoto, ok? Nel caso invece f di n, quindi n maggiore di 0, voglio creare,
+trocaranno un albero binario diciamo così, quindi voglio creare un nodo che contiene un dato e poi si
+verifica nel sottoalbero di destra e sottoalbero di sinistra. Quindi io prostituisco un nodo centrale,
+ci sarà il sottoalbero di sinistra, il valore e poi il sottoalbero di destra. Come sottoalbero di sinistra e
+di destra faccio la chiamata ricorsiva f n-1. Anzi facciamo così, passo anche, per semplificare un attimo,
+passo anche un dato t, ok? Che nel caso dell'albero vuoto e gli ovo, anzi, lo metto in una foglia,
+faccio una foglia in cui metto t. Nel caso in cui invece sono centrale, metto t come valore all'interno del nodo
+e poi faccio le due chiamate ricorsive. Nelle due chiamate ricorsive mi richiamo su n-1 in maniera tale
+che la ricorsione finisca, ma come dato passo, per esempio, la coppia t, t. Quindi se io passo, per esempio,
+la prima chiamata un numero, alla prima chiamata ricorsiva vuoto coppie di numeri, alla seconda
+chiamata ricorsiva, secondo l'albero dell'albero, ho coppie di coppie di numeri, alla terza coppie di coppie di coppie di numeri
+e così via. Questo codice lo posso anche eseguire. Questo lo potete lanciare in Erlang, che non è tipato,
+vi lanciate un input e vedrete che genererà, a ogni passo, un tipo nuovo. Questa esempio, polymorphic recursion.
+Questo tipo di funzione va sotto il nome di polymorphic recursion, che vuol dire esattamente che è una funzione ricorsiva
+in cui i tipi cambiano a una chiamata ricorsiva. Qui non è detto che valga la b. In certi riguaggi di pronazione non può capitare,
+in altri sì. Se provate a tippare una funzione del genere in C++ o Java, per esempio, non riuscite a tippare.
+Quindi il sistema di tipi vi impedisce di fare questa funzione. In altri riguaggi di pronazione, per esempio in Asker,
+tanto per di uno, non c'è problema, riuscite tranquillamente a dichiarare questa funzione. E anche in OCaml,
+con certa cortezza, per esempio, riuscite tranquillamente a dichiarare questa funzione.
+Nel linguaggio di un tippato tipo Erlang-Eden, come vedete, questa funzione è implementabile.
+A ogni chiamata ricorsiva il tipo di t cambia.
+Torniamo qua. Quindi suppuriamo che i vincoli siano rispettati. Quindi che avrebbiate un linguaggio di pronazione
+tippato dove insieme dei tipi sia calcolabile con part time, perché per esempio il sistema di tipi lo rigetta
+la polymorphic recursion e non abbiamo quegli altri fenomeni di apertura verso l'esterno.
+Allora, l'implementazione è la seguente. La funzione polymorpha viene compilata una volta per ogni combinazione
+di tipi sulla quale verrà usata. Ok? Quindi avete la vostra funzione su op, polymorpha, l'ha usata una volta su
+intere string, una volta su boolean e floating point, l'ha compilata due volte. Quindi nel codice oggetto prodotto
+abbiamo due volte di implementazione. E chiaramente il compilatore invoca quella giusta al momento giusto.
+Questo va sotto il nome di monomonofizzazione. Chi sono i linguaggi che implementano monomonofizzazione?
+Tantissimi, per esempio C++, VAST, tanto per dire ne uno, si basano su monomonofizzazione nel codice.
+Allora, quali sono i pro e i conto di questa tecnica di monomonofizzazione?
+Quindi non pone vincoli sulla rappresentazione dei dati. Visto che quando la vado a compilare la compilo sempre su dati concreti.
+Io poi sono libero di implementare i dati concreti come mi pare, perché ogni implementazione che ho scelto va a una dimensione
+e non c'è problema. La dimensione sarà nota per quel caso specifico e quindi non ho problemi di implementazione.
+Il secondo po è scattano ottimizzazioni ad hoc sui dati. Cosa vuol dire scatta ottimizzazioni ad hoc sui dati?
+Se voi compilate la stessa funzione 3, 4, 5 volte su tipi diversi, ogni volta il codice viene ricompilato da zero
+e lavora su tipi di dati particolari per i quali i compilatori tipicamente possono conoscere le ottimizzazioni particolari.
+Per esempio i compilatori hanno un sacco di ottimizzazioni se lavorate sui floating point, perché in genere si usano nella retmetica,
+nei programmi che hanno pesantezza di calcolo. Oppure potrebbero avere un sacco di ottimizzazioni su tipi di dati piccoli,
+che occupano meno di un byte per esempio, sui quali scattano ottimizzazioni particolari per comprimere e usare meno spazio.
+E quindi ogni implementazione, ogni ricompilazione ha varie ottimizzazioni differenti e a volte queste ottimizzazioni sono importanti da punto di vista dell'efficienza.
+Quindi complessivamente abbiamo efficienza. Quali sono i cons di questa tecnica?
+Il primo cons ovviamente è limitata a quando i vincoli sono soddisfatti. I due vincoli di prima non sempre sono soddisfatti, quindi vi limita il sistema di tipi.
+Quindi questo è un problema di espressività nel vostro linguaggio di programmazione.
+La seconda sono i tempi di compilazione.
+Ovviamente se devo ricompilare la stessa funzione più e più volte, chiaramente questo mi costa.
+C++ e Lustre per esempio sono noti per essere compilatori lenti, che richiedono tempo per compilare il vostro codice.
+Quindi, diciamo, tempi di compilazione aumentati e dimensione dell'eseguibile aumentato, perché chiaramente contiene molto molto più codice.
+Fai l'altro, quando ricompila la stessa funzione più volte cambiando su parametri diversi, devi anche cambiare il nome.
+Quindi la vostra funzione tipicamente viene generata una funzione che è come nome.
+Il nome della funzione è poi chiusura degli underscore e il nome dei tipi che vengono passati.
+Questa operazione si chiama mangling, che ha un nome a partire dai tipi.
+E i nomi poi a runtime, ce li scordiamo, ma rimangono nella tabella dei simboli per fare debugging.
+Quando usate un debugger avrete bisogno di vedere a runtime che funzioni vengono invocate.
+E la tabella dei simboli può diventare molto grande con questo mangling.
+Mi ricordo, per esempio, anni fa, quando Padovani, l'auto docente, era qua un dottorando,
+si implementò nel C++, andando ad abusare il sistema di template del C++,
+un compilatore superefficente, scusate, un parsero supereficiente per Massanelle,
+che è uno standard di Xanelle, senz'anmente.
+Quindi, diciamo, ogni produzione grammaticale diventava una classe del C++
+che utilizzava questo meccanismo di stanziazione,
+e poi il compilatore andava a generare, per ogni produzione,
+delle funzioni che avevano un mangling, essenzialmente, di tutta la grammatica ripetuta.
+Il compilatore ci stava ore per riuscire a compilare quella roba lì,
+e generava un output che era gigabyte.
+Poi se uno faceva strip, cosa sarebbe il comando strip?
+Butta via da un eseguibile nella tabella dei simboli,
+quindi poi non potete più usarlo per fare debugging facilmente,
+ma buttava via la parte che non usava le funzioni.
+Quindi gigabyte si riducevano a pochi megabit,
+quindi era tutto tabella dei simboli, tutti dei nomi giganteschi.
+Questa è la tabella dei simboli enormi che non serve a niente nessuno,
+ma la dimensione dell'eseguibile aumenta può essere problematica in vari casi,
+ma lo è quando ricordo l'importanza dei processori moderni della cache.
+Noi sappiamo che la cache è ragionevolmente veloce,
+mentre l'accesso della memoria è molto più lento.
+Quindi è importante che siano presenti in cache i dati e il codice
+che voi andate ad eseguire ripetutamente, per un certo periodo di tempo.
+In certi casi diventa talmente tanto la dimensione del codice con questa tecnica
+che la cache di primo e di secondo livello è troppo piccola
+e siete sempre lì a fare scaricamento e scaricamento del codice.
+Quindi in questo caso addirittura avete un calo di prestazioni
+dovuto alla mera dimensione del codice che voi andate ad utilizzare.
+Quindi questi sono po' a conto di questa tecnica,
+che comunque è una tecnica ancora tuttora in uso,
+una delle principali tecniche.
+Andiamo alla terza tecnica.
+La metto come terza perché è quasi una non tecnica,
+e non ha nemmeno un nome, chi lo sappia, diciamo,
+e qui la chiamiamo semplicemente alla C.
+Alla C perché, perché è nominata un po',
+è quello che si fa normalmente in C, essenzialmente.
+Aggiungerei anche, per esempio, Rust in casi residuali.
+Quindi Rust utilizza la prima tecnica,
+ma ci sono dei casi residuali legati, per esempio,
+a quello che diceva prima il vostro collega,
+quindi quelle situazioni in cui effettivamente
+non riesco a determinare runtime, tutte le situazioni, ecc.
+E quindi in certi casi Rust degrada, diciamo, sulla seconda tecnica,
+su questa tecnica, quella della C.
+Quindi l'idea qual è, abbiamo detto,
+l'unica cosa che vi importa per implementare funzioni polimorfe
+è la dimensione del dato.
+Se conosco la dimensione del dato, potrei generare del codice,
+che sia sempre quello, uniforme, in grado di copiare,
+in grado di copiare, spostare, duplicare un dato
+da una certa dimensione.
+Come faccio con un ciclo?
+Quindi se, per esempio, devo copiare il dato
+e qualcuno mi passa in input il dato e la sua dimensione,
+io posso copiarlo semplicemente facendo un loop
+in cui copio un byte alla volta finché non uso l'italo spazio.
+Chiaramente è molto più inefficiente del codice monomorfo.
+Per il codice monomorfo, per esempio, per un byte,
+copio il byte, per due byte, copio due byte.
+Lì devo fare un loop per andare a copiare.
+Quindi, in C, C non ha funzioni polimorfe,
+non esiste polimorfismo in C,
+però esistono effettivamente le funzioni di Boli e Polimorfe
+dichiarate in questo modo.
+In C, per dichiarare una funzione polimorfa,
+il dato in input output viene acceduto tramite un puntatore.
+Quindi io passo il puntatore al dato in input
+e se devo andarlo a scrivere da qualche parte,
+utilizzo nuovamente un puntatore al dato.
+Quindi non ho accesso diretto sempre mediato da un puntatore.
+Il puntatore viene dichiarato di tipo void star.
+Cosa vuol dire void star?
+Void ha vari significati in C.
+Il significato di void star non è il significato di void
+che usate quando per esempio scrivete il tipo di ritorno
+di una funzione.
+Void star vuol dire semplicemente un puntatore
+di cui io ignoro la dimensione di ciò a cui sto puntando.
+Quindi con l'informazione che dicevo prima
+dell'importanza dei tipi del C semplicemente
+per sapere la dimensione,
+fanno sì che se io ho un puntatore int,
+so che per esempio quello che c'è in fondo
+ha una certa dimensione che è quella di int.
+Quindi se lo devo spostare, uso quella dimensione.
+Se non c'ha un'altra informazione, così via.
+Void vuol dire assenza di informazione.
+Quindi un puntatore è in memoria,
+ma poi non sapete quanto è lungo il dato.
+Quindi il puntato viene dichiarato di tipo void star
+e la funzione prende sempre in input coppie
+puntatore void star e dimensione del dato
+che tipicamente è size t.
+Quindi size t è un tipo della libreria standard del C
+che viene utilizzato, è un sinomo un po'
+di qualche forma di intero,
+e mi dice la dimensione del dato.
+Quindi un esempio tipico di funzione polimorfa in C,
+ovviamente un attimo, per esempio è l'ordinamento.
+Capite che le funzioni di ordinamento in genere
+sono funzioni polimorfe,
+possono ordinare qualunque array di dati,
+per esempio, a patto che io ripassi l'input anche
+la funzione di conforto.
+Ok?
+Se io cerco sort in C standard library
+o qualcosa del genere,
+ecco qua, vedete per esempio,
+qua sono altre funzioni,
+queste non sono dell'ordinamento,
+qua quick sort,
+prende un array di dati void star,
+quindi per l'appunto è un puntatore al primo dato,
+ma non sappiamo quanti sono lunghi,
+prende sizeT count e sizeT size,
+quindi mi dice quanti elementi sono,
+quante lunghe l'array, vabbè,
+ma soprattutto mi dice quanto è grande
+la dimensione del singolo dato nell'array.
+E poi prende una funzione di confronto
+che se la va da vedere,
+a sua volta lavora su due dati
+di tipo void star in input
+e mi eseguisce un boolean.
+Ok?
+Quindi io, di fatto,
+compilo tutto con le funzioni
+che prende l'input della dimensione.
+Quindi, esempio,
+googlare,
+QSort,
+quindi, vantaggi e svantaggi.
+Pro,
+diciamo,
+diciamo che non ce ne sono,
+però diciamo che ci sono dei pro a questa tecnica.
+cons
+avantime
+bisogna
+passare,
+diciamo,
+preservare e passare
+la dimensione dei dati.
+Quindi, se io compilassi tutte le funzioni
+in questo modo, come se fossero polimote,
+dovrei in continuazione passare in giro
+la dimensione dei dati.
+E, diciamo, in C
+necessitano
+di
+aiuto da parte
+del programmatore, ovviamente.
+Perché, probabilmente, nel momento in cui io
+poi vado a invocare la funzione polimota
+su un dato
+concreto, per esempio,
+su un array di 4 interi,
+io devo passare anche la dimensione.
+Quindi, io devo
+in qualche modo nel programma calcolare
+la dimensione del dato e poi
+passarla, passare l'entrata.
+Sì?
+Sì, diciamo, non ha
+lo sto mettendo i pro che solo
+non ha i cons dei precedenti, diciamo.
+Quindi, non ha i cons dei precedenti.
+Quindi, se io vado a vedere i cons di prima,
+limitata a quando i vincui sono soddisfatti,
+non c'è nessuna limitazione,
+la posso usare sempre.
+E i tempi di compilazione non aumentano
+e la dimensione eseguibile non aumenta.
+L'ultimo punto è
+inefficiente.
+Inefficiente,
+il codice contiene
+cicli
+sulle dimensioni
+dei dati.
+Ok?
+Quindi, questa è la tecnica, diciamo,
+non credo che sia un nome, è vero e proprio
+e, come dicevo,
+è abbastanza residuale.
+Rust, per esempio, la implementa
+in certi casi particolari,
+ma poi Rust ha un altro meccanismo
+che vedrete più avanti nel corso, che permette di fatto
+di scaricare almeno
+il bar del suo programmatore.
+Il programmatore non si rende conto
+che certe cose siano implementate in questo modo, perché
+il linguaggio, diciamo, sintetizza
+per lui automaticamente le dimensioni
+da passare in giro e così via.
+Ok?
+Resta la seconda tecnica.
+La seconda tecnica,
+tolto, diciamo, il C, è la tecnica che
+usano tutti i linguaggi che non fanno monomunificazione.
+Quindi, storicamente, per esempio,
+tutti i linguaggi funzionali usano
+quest'altra tecnica.
+Che va sotto il nome
+di rappresentazione
+uniforme dei dati.
+Quindi, qua ci possiamo mettere
+Erlang, per esempio,
+Kamel, Haskell,
+tanto per dire ne una,
+e punti di punti.
+Allora, qual è l'idea qua?
+Quindi, il problema
+di fondo
+che mi impedisce
+di avere una sola
+variante del codice
+e senza nemmeno
+passare la dimensione del dato,
+è il fatto che tutti i dati avranno dimensioni diverse.
+Se tutti i dati
+avessero
+la dimensione, non ci sarebbe problema.
+Se tutti i dati fossero
+l'uno word, per esempio,
+la swap prenderebbe le due word e le scambiarebbe.
+E il problema non si provrebbe proprio.
+Quindi, l'uniformizzazione
+dei dati
+parte, diciamo,
+potrei aggiungerci qua
+java.integrativo,
+nel senso che, come al solito, java fa le cose male.
+Quindi, per esempio,
+java fa, ma non sempre.
+Funziona, ma non sempre.
+Sapete, per esempio, che in java
+potete scrivere funzioni polimofe sui tipi.
+Proprio fate scrivere una funzione
+polimofe su un arrei.
+E poi mi sapete dire cosa succede in java.
+Se non lo sapete, googleate
+funzioni polimofe su arrei
+e scoprirete l'inferno.
+Allora, torniamo qua. Quindi, come funziona la presentazione
+in forma dei dati? Quindi,
+semplicemente, l'idea di fondo è
+tutti i dati devono avere la stessa dimensione.
+Questo è l'idea.
+Proprio metterla in pratica, però.
+Quindi, idea,
+tutti i dati vengono
+rappresentati
+con una word.
+Quindi, non sono tutti la stessa dimensione,
+ma la dimensione è una word.
+Che cosa ha di particolare la word?
+Rispetto ai byte, ai 5 byte.
+La grandezza dipende
+dalla creatura del processore?
+La grandezza dipende
+dalla creatura del processore.
+Perché?
+Per garantire
+la proprietà che vogliamo
+delle word.
+Che può essere calcolato
+in un ciclo di clock?
+No, questo è una
+specie di...
+Allora, se capisco bene cosa sta dicendo
+il vostro collega, tutte le operazioni etnici e logiche,
+così via, in genere, lavorano con una word,
+mentre se avete più word dovete fare più cicli, ecc.
+Però, diciamo, è più un accidente,
+visto che ci saranno le word, a quel punto li tariamo
+sulle word.
+La word è
+la dimensione necessaria
+per avere puntatori in memoria.
+Quindi, le architetture
+32-bit, 64-bit, e così via,
+vuol dire quante grande le word, quindi
+hanno un spazio di puntatori, quanta memoria, diciamo,
+sono in grado di accedere, essenzialmente.
+Quindi, in una word ci può stare un puntatore.
+Quindi, se usassi, per esempio, un byte,
+tipicamente, nelle architetture moderne,
+non potrei mettere un puntatore.
+In una word siamo sicuri che un puntatore ci sta.
+Quindi, ce l'è in una word,
+sono sicuro che almeno i puntatori ce li possono mettere lì.
+Quindi, l'idea è
+tutti i dati vengono rappresentati
+in una word.
+Come è possibile?
+Come?
+Allora, punto prima,
+se tutti i dati devono essere
+rappresentati in una word,
+questo mi partiziona i dati in 3,
+diciamo così. Ci sono i dati che si possono
+rappresentare e che già sarebbero
+in una word, per conto loro.
+E questi non hanno problemi.
+Ci sono i dati che occuperebbero meno bit
+in una word. Per esempio, se vogliamo
+rappresentare un booleano, mi servono un bit,
+ma ne servono 64.
+Come faccio in questi casi?
+Sprecco.
+Quindi, uso una word per rappresentare un bit.
+Gli altri 63 bit sono sprecati.
+Quando lo giovane io
+si usavano
+i bit
+come degli ossessi, oggigiorno
+di ram ne abbiamo e possiamo sprecarci
+63 bit. Quindi,
+i tipi
+di dati
+che occupano
+meno bit di una word
+sprecano bit.
+Semplicemente.
+Semplicemente vanno a
+sprecare dei bit.
+In certi linguaggi
+vengono chiamati
+value types.
+Quindi, se vedete
+un linguaggio per nazione e vi dice, per esempio,
+questo è un value type intenderive
+che
+per l'appunto sta in una word
+noi
+useremo unboxed.
+Quindi,
+sono terminologie diverse per la stessa cosa
+e dipende nuovamente
+da...Certi linguaggi usano la terminologia,
+certi altri usano la terminologia.
+Quindi, io utilizzerò la terminologia
+unboxed. Quindi, i tipi
+dati unboxed sono quelli che stanno
+in una word, eventualmente,
+sprecando spazio, se necessario.
+Poi, però, ci sono anche i dati che non ci stanno
+in una word.
+Per esempio, potrebbero essere
+che so, se voi avete un array
+di 12 parole
+e quella non ha proprio una word
+e voi l'array dovete passare
+in input, dare in output, lavorare.
+Quindi, cosa facciamo?
+Come facciamo? Apresentare
+un tipo di dato che occupa
+per più di una word.
+Allora, i tipi di dati
+di dimensione
+maggiore
+di una word
+vengono allocati
+sullo heap.
+Quindi, il mio dato
+comunque sia lo metto sullo heap,
+magari il C lo metterebbe sullo stack,
+C lo metterebbe...
+No, qua siamo obbligati a metterlo sullo heap.
+E B
+lo rappresento
+con il puntatore
+allo heap.
+Che è esattamente una word.
+Ok?
+Quindi, in questo caso, a questo punto, il mio dato
+occupa sempre una word. Se voglio mettere nel registro
+il dato, se è mediato
+o unboxed ci metto
+la mia sequenza di vitro che rappresenta il dato,
+se l'ho boxato nello heap ci metto
+l'indiviso del dato.
+La terminologia
+è...
+Quindi, in certi linguaggi
+sono i cosiddetti
+reference types
+perché tipicamente il puntatore
+è una reference, che è una specie
+di puntatore ammanettato
+su cui non posso fare certe operazioni.
+Noi useremo boxed.
+Quindi, un tipo di dato boxed
+è un tipo di dato che è stato spostato
+nello heap.
+Ok?
+Questa
+è la rappresentazione uniforme dei dati di base.
+Erlang, come vi dicevo, utilizza
+questa rappresentazione. Quindi, tutti i dati
+occupano esattamente
+una word. Ovviamente
+è chiaro che, se io per esempio devo...
+Il mio dato è un array lungo 4
+e quindi l'ho messo nello heap e c'ho l'indiviso,
+se voglio accedere al trasferimento,
+il compilatore, l'accesso al trasferimento,
+lo fa dereferenziando il dato cercare nello heap
+e cercando il trasferimento.
+Ok?
+Quali sono i vantaggi e gli svantaggi
+di questo?
+Quindi, Pro
+diciamo, è un po'
+il dual di questo, quindi
+non è limitato a donare vincoli,
+lo posso sempre utilizzare,
+i tempi di compilazione,
+questa volta lo scrivo explicitamente, è un po' il contrario
+di prima, avevo detto che non lo avrei fatto, lo faccio.
+Quindi, tempi di compilazione
+e dimensione
+dell'eseguibile
+ridotti,
+perché compilo codice
+una volta sola, ed è anche
+tipo le spostamenti,
+sposto semplicemente una word.
+Tanto se voglio spostare un dato
+al puntatore allo heap, io sposto il puntatore allo heap,
+non è che sposto anche il dato allo heap.
+Quindi, è tutto semplicemente efficiente
+da questo punto di vista,
+e la dimensione dell'eseguibile
+non viene aumentata.
+Quali sono i cons
+di questa tecnica?
+Introduce indiversioni.
+E questo può portare
+in certi casi una minore efficienza, ovviamente.
+Quindi, dipende
+se io frequentemente
+accessi al dato,
+magari in C avrei messo quel dato
+sullo stack,
+l'avrei tenuto sullo stack e ci avrei lavorato divertamente,
+stavolta devo sempre passare attraverso il puntatore
+per andare a cercare lo heap.
+E quindi, questo
+in certe situazioni può
+causare rallentamenti.
+Vedremo, per esempio, più avanti,
+che per motivi che un po' vi spiego,
+per esempio, camel,
+l'interi
+li ha boxed.
+Quindi,
+se volete fare certi tipi di interi,
+li deve mettere nello heap.
+Quindi, chiaramente, a questo punto,
+se tutte le volte devo andare a cercare l'interi o nello heap,
+per certi tipi di computazioni
+diventa molto più lento. Quindi, computazioni numeriche
+e pesanti, se voglio utilizzare
+gli interi della macchina, non li posso fare ma camel,
+perché l'overhead sarebbe significativo.
+Ok?
+Chiaro?
+A tutti?
+Bene, quindi, questa
+è la prima idea.
+Vi faccio vedere già
+qualcosa.
+Torniamo un attimo
+qua al nostro
+tipo di data. Abbiamo detto
+che noi rappresentiamo
+i nostri alberi
+come una tupla
+nodo-albero-
+chiave-albero
+oppure una tupla
+leaf-kv.
+Sapendo
+che io rappresento con la presentazione uniforme,
+come sono rappresentati questi dati in memoria?
+Ok.
+Allora, prendiamo un esempio. Un esempio
+in cui potrei metterci, per esempio,
+un nodo che ha a sinistra
+un albero con una foglia
+in cui metto, per esempio,
+4 e
+true.
+Poi
+ci metto 5, per esempio, e ci metto da destra
+un'altra foglia
+che è 6
+false.
+Ok, questo è il tipo
+di dato. Come viene rappresentato?
+Chiamiamolo T.
+Allora, innanzitutto,
+prendiamo tutta questa roba qua. Questa roba qua
+ci sta in no word
+oppure no.
+Ovvio che no, c'è dentro
+di tutto. Quindi quello finisce sullo heap.
+Ok? Quindi T si va al puntatore allo heap.
+Quindi T
+punta
+nel mio heap. Nel mio heap cosa ci devo andare a mettere?
+Ci devo andare a mettere a questo punto
+tutto questo dato,
+diciamo così. Quindi
+idealmente poi ci aggiungeremo dei altri dettagli,
+quindi una prima appostimazione.
+Io nello heap ci devo andare a mettere una tripla,
+anzi una quadrupla, node
+tri, k, tri.
+Ora, come rappresento una quadrupla?
+Ovviamente la vorrei
+rappresentare come quattopavole
+in memoria consecutive.
+Ok? Questa è l'idea di una
+tupla o di un record in C
+e di tenere record in C. Quindi,
+io metterò consecutivamente le quattopavole.
+Cosa scriverò nelle quattopavole?
+Nella prima
+ci devo andare a mettere node.
+Node è un atomo,
+l'atomo sarà boxed o unboxed?
+Riesco a fare stare in un world
+tutti i miei atomi?
+Sì, gli atomi, abbiamo detto,
+non dovrebbero essere tantissimi in uso
+e quindi l'unica cosa che mi interessa di altri
+è che siano diversi uno di altri,
+quindi basta scegliere sempre diverse.
+Ma non è che avrebbe bisogno di più di due
+alla 64 atomi.
+Quindi, lì ci vado
+a mettere node. Scrivo node per
+intendere la sequenza di bit
+con cui ho codificato node.
+La seconda cella in memoria sarà
+il mio albero
+leaf4true.
+Leaf4true è boxed
+o unboxed?
+Anche questo è boxed, non ci sta
+in una world. Quindi, visto che io ci devo
+mettere il dato, questo sarà un altro
+puntatore.
+Quindi, vuol dire che io avò qua
+un secondo puntatore
+un secondo puntatore
+un secondo puntatore
+in cui da qualche parte nello heap
+vado a metterci leafkv
+quindi leaf4true
+quindi leaf sarà leaf
+4 boxed unboxed
+4 un numero
+si suppone che sia più piccolo in una world
+quindi ce lo lascio direttamente lì
+e true è un bit
+quindi a maggior ragione si sta in una world.
+Quindi, ho questa rappresentazione
+e poi
+ho la chiave 5
+che nuovamente è
+unboxed
+quindi ce la posso direttamente
+e poi ho l'altro albero
+quindi l'altro albero sarà a sua volta
+sarà a sua volta un
+puntatore al alto
+che sarà leaf
+per esempio
+6
+e false
+ok? Quindi
+questa sarà la rappresentazione in memoria
+del mio albero
+in C come sarebbe?
+sarebbe diversa da questa cosa che ho fatto qua
+o sarebbe la stessa cosa?
+come fareste a implementare
+una struttura dati del geno?
+fareste esattamente la stessa cosa
+quindi il vostro nodo sarebbe
+una struct
+che avrebbe 2 puntatori
+da una parte e dall'altra, avreste la chiave dentro
+poi
+rischio che avete i nodi e i leaf
+avrete 2 tipi di struct anche in C
+e i puntatori
+punterebbero una volta a un tipo
+una volta all'altro
+dovete scoprire per esempio quelle cose che in C
+è chiaro che volreste questo in memoria
+ma il tippaggio del C
+ricomplica un po'
+quindi dovreste fare una union
+per mettere all'interno di un unico tipo
+le due possibili forme e rappresentarli
+però a di là del tippaggio
+capite bene che questa è esattamente la rappresentazione del C
+non c'è altro modo
+anche in C dovrebbe rappresentarti in questo modo
+con dei puntatori nello hip
+quindi la rappresentazione a cui arrivo
+è esattamente
+in questo caso la stessa rappresentazione del C
+differisce in quei casi in cui il C
+invece di allocare nello hip con dei puntatori
+allocherebbe direttamente all'interno del dato
+che a volte in C si fa
+quindi magari si fa un record
+e all'interno del record ci mette per esempio un array
+di probabilmente perché piccolo e allora viene tutto
+allocato consecutivamente
+in memoria, però per le strutture dati tipo
+list, arbre e cose del genere
+esattamente lo fareste in C
+anche per le liste, andiamo a vedere il tipo di dato lista
+quindi una lista realmente di tipo T
+è un tipo di dato algebico che o è
+nil
+per dire vuota
+oppure
+è un cons per dire non vuoto
+con
+un valore tipo T
+che è la testa della lista
+e una lista di T che è la coda
+ok?
+quindi, esempio
+che potrei avere con la lista L
+è
+cons
+0, cons
+1
+nil
+ok?
+o, se preferite, in sintassi
+airlang che è più brutta, però
+0, 1, vuoto
+come si rappresenta
+la mia L
+in memoria con quello che ho detto finora?
+stesso discorso
+questo è un tipo di dato
+boxed, perché è troppo grande
+quindi la mia lista L sarà un puntatore
+che mi punterà a cons
+seguito da 0
+e poi ci ho cons
+1, nil
+a sua volta è troppo grande
+quindi anche questo è boxed
+quindi a questo punto
+io vorrò un puntatore, stavolta cambia leggermente
+faccio così per dire che il puntatore
+a qualche parte lo ip
+sto a fare le cose
+quindi trovo nuovamente
+un cons
+1, 1
+e poi ci devo mettere nil, nil è un atomo
+quindi questo è piccolo e sta lì
+ok?
+cosa cambia rispetto a una lista in C?
+una lista in C sarebbe
+uno record con il mio valore della testa
+e il puntatore alla coda
+e se non sono nevati in fondo
+invece di puntare a qualcosa di strano
+il puntatore lo metto
+lo metto vuoto
+quindi metto una sequenza di bit che vuol dire nulla
+di puntatore
+quindi se io guardo, questa è una cella
+con una testa e una coda
+che punto un'altra cella con una testa e una coda
+che invece di avere un puntatore che punta da qualche parte
+ha una sequenza di bit
+che mi dicono non sto più puntando su una parte
+quindi rispetto al C, l'unica vera differenza
+qual'è?
+cons
+quindi qua c'è scritto cons e qua c'è scritto cons
+se io elimino da qua cons
+e lo scrivo così
+a questo punto
+questa è
+che ho detto una convenzione
+quella di metterci il nome
+se io metto il cons qua, questa è esattamente
+la presentazione del C
+ok?
+quindi è un'opertura
+semplicemente di strano
+in questa presentazione di tipi uniformi
+chiaro?
+fino a ora?
+bene
+andiamo avanti
+ho finito di spiegarvi
+come si rappresentano
+come si implementano i dati in
+Erlang
+no
+il secondo aspetto a tenere in considerazione
+è la gestione della memoria
+abbiamo detto che
+in Erlang la gestione della memoria è
+automatica
+c'è un garbage collector
+automatico che è in grado di
+reclamare la memoria quando non viene più utilizzata
+più avanti nel corso
+vi spiegherò
+quali sono
+le due principali tecniche
+per implementare la garbage collection
+in particolare quale viene utilizzata
+dalla maggior parte dei linguaggi
+che non utilizzano l'altra
+quindi è compreso Erlang, OCaml, Haskell
+e così via
+qui l'algoritmo lo do più avanti
+però adesso
+una cosa la possiamo già sapere
+se il garbage collector automatico
+deve essere in grado
+da solo, senza aiuto
+da parte del programmatore o del compilatore
+di reclamare
+la memoria che non è più
+utilizzata
+allora deve guardare i dati
+in uso del programma
+e capire
+quali sequenze di bit
+sono puntatori
+a un'area per capire se sono utilizzato
+oppure no
+e quali sequenze di bit invece non sono puntatori
+ricordatevi che la stessa sequenza
+di bit la potete
+interpretare come puntatore oppure no
+un award
+potrebbe essere
+lo posso pensare come puntatore oppure no
+distingue un award che è un puntatore da un award che è un award
+quindi se volete fare
+garbage collection automatica
+e quindi avere un famento
+di codici, guarda i vostri dati
+e dice questo è un puntatore a qualcosa
+che non è più utilizzato, reclamo la memoria
+e prima di risolvere il problema come faccio a sapere
+che è un puntatore che non è un puntatore
+quindi ho il problema di distinguere il puntatore
+da un puntatore
+questo è un nuovo problema che abbiamo fatto
+quindi problema
+nei linguaggi
+con automatic
+garbage collection
+devo essere
+in grado
+di distinguere
+puntatori
+da non
+puntatori
+distingue
+award pensate come
+puntatori
+da award
+pensate come
+non puntatori
+chiederevi di mente
+per distinguere
+le awards che sono puntatori da quelle che non lo sono
+ah, usare un beat
+in un award per marcarne
+cioè metto un tad
+non è che abbia
+non è che posso dire
+in un'area di memoria metto il puntatore
+nell'altra, non il puntatore perché è tutto bischiato
+avrete visto la prima presentazione su dell'albero
+avete 3 parole di seguito
+uno è puntatore, uno sì, uno no
+quindi l'unico modo è taggare
+le mie awards
+quindi bisogna avere un tag che dice
+questo è un puntatore, questo no
+e questo tag in minimo che mi serve
+un beat per dire puntatore o non puntatore
+ora, dove lo scrivo su questo beat?
+ci sono due scelte
+una sarebbe
+tutte le volte che ho una award
+uso un'altra award prima
+per dirmi se è un puntatore
+oppure no, ma sarebbe
+abbastanza micidiale
+starei sprecando la dimensione di una award
+ogni volta che devo dire una award
+oppure fare le strutture dati super complesse
+in cui
+in qualche modo da qualche parte uso una award
+che sono delle sequenze di beat per fare riferimento
+ad altre parti, le cose ci complica in effetta
+oppure soluzionare il vostro collega
+dire, vabbè, io ho 64 beat
+uno lo uso
+lo uso per dire se è un puntatore oppure no
+e gli altri 63 rimangono di payload
+questa è la soluzione
+che si utilizza
+tipicamente
+quindi
+soluzione
+metto
+in Erlang
+Camel, Haskell
+puntini, ma ci sono tanti altri
+tanti altri linguaggi, diciamo così
+tanti altri linguaggi che non hanno monomorfizzato
+perché se avete monomorfizzato
+sapete già se è un puntatore oppure no
+ok
+quindi
+in Erlang o Camel, Haskell
+e chi non monomorfizza
+diciamo
+in generale
+quindi la soluzione
+si usa un beat
+dell'award per fare la distinzione
+quindi
+magari
+uno vuole dire puntatore
+e zero vuole dire non puntatore
+o il contrario
+di beat ne ho
+64
+siamo nel 2025
+diciamo che di beat ne ho 64
+che beat uso?
+il primo, il settimo, l'ultimo
+il primo, l'ultimo
+che beat uso?
+il primo, l'ultimo, in mezzo
+è indifferente, è uguale
+se li vogliamo leggere
+con indirizzi di memoria
+senza farlo
+non possiamo usarli quello più grande
+ci avremmo tali indirizzi
+ottimi
+quindi
+ricordiamoci che con un beat lo stiamo sprecando
+il payload rimane il seguente
+quindi
+supponendo che nessuno deve usare il settimo
+quindi o si usa il primo o si usa l'ultimo
+abbiamo due possibilità
+il primo beat
+sarebbe il tag
+e poi avremo il payload
+oppure
+il payload e l'ultimo beat
+è un tag
+ora
+supponiamo che sia un puntatore
+quello che ci interessa
+ora, in questo caso
+vorrebbe dire che io non sto utilizzando
+il beat
+più significativo
+se non uso il beat
+più significativo là in alto
+vuol dire che io di fatto posso accedere
+a questo punto, dagli indirizzi
+se beat t è 0 per i puntatori
+quindi supponiamo che sia 0
+per esempio
+vuol dire che io
+posso accedere a tutti i puntatori
+che iniziano con 0
+quindi posso accedere al 50%
+della RAM, ma questo succede anche
+se uso questa sequenza
+in ogni caso io ho perso la metà dei puntatori
+però se io uso questa
+rappresentazione, non posso accedere
+a nessun indirizzo di memoria che inizia con uno
+quindi vuol dire che di fatto
+io posso accedere a prima metà
+di indirizzi
+e non posso accedere a seconda metà di indirizzi
+quindi di fatto io metà della RAM
+del computer non ci posso più accedere
+però c'è la memoria virtuale, ma diciamo
+io ho rinunciato al 50% della RAM
+non è una gran tecnica
+ok?
+quindi questa scelta
+no
+perdo il 50% superiore
+della memoria
+perdo vuol dire che non riesco più a indirizzare
+ok?
+quindi questa
+è la scelta sbagliata
+se invece uso il bit
+meno significativo 0
+anche in questo caso
+non riesco ad indirizzare il 50% della RAM
+però indirizzo
+uno sì uno no, uno sì uno no
+ok? posso indirizzare 0
+chi finisce con 0 sono i numeri pari
+per esempio, indirizzo 0
+2, 4, 6, 8, 15
+quindi posso
+accedere a
+tutta la memoria
+anche su una casa della sì, una casa della no
+e non mi crea un gran problema
+perché se uso un puntatore
+è perché sto accedendo a un dato boxed
+se sto accedendo a un dato boxed
+vuol dire che quel dato occupa
+almeno due word, se non lo mettevo là
+è un dato unboxed
+quindi io ho diverse
+celle di memoria, almeno due
+e ho il puntatore alla prima che deve essere in posizione pari
+poi se voglio accedere alle celle successive
+vabbè non uso un puntatore diretto
+semplicemente quando io vado ad accedere al dato
+uso il mio puntatore in posizione pari
+e poi nell'istruzione che vado a generare
+accedo quello più 1, più 2, più 3, più 4
+quindi di fatto
+cos'è che spreco? spreco da memoria
+sì, se la mia
+word qua
+se le mie celle del mio dato sono per esempio
+esattamente
+un numero
+facciamo un esempio
+se sono per esempio
+6
+quindi un numero pari
+l'accella immediatamente successiva
+avrebbe un indirizzo
+dispari, e io quella non la posso usare
+devo partire da lottare
+quindi di fatto, io spreco
+in maniera irraggiungibile
+un'accella di memoria
+in 50% delle volte
+secondo che i dati siano pari o dispari
+e questo è molto poco
+e mai
+una seconda no, perché comunque il dato è lungo al meno 2
+quindi
+sto sprecando una quantità ridotta di memoria
+che non riesco ad accedere
+chi aveva il punto?
+quindi l'idea sarebbe
+avere il puntatore in posizione pari che hai dato subito dopo
+esatto, hai il puntatore
+però non ho detto puntatore, ti punta
+alle celle cosecutive del tuo record di memoria
+peccato provare, quindi tu le celle ci accedi
+non è un problema, l'importante è che il puntatore punti lì
+quindi sprechi
+della tua prima data
+se dopo c'è una cella dispari
+non la puoi usare, devi passare alla cella pari successiva
+ok?
+quindi, sì
+quindi
+cons
+non
+diciamo
+si sprecano
+delle word
+quando un dato
+allocato
+sullo IP
+termina in posizione
+pari
+pertanto
+il dato successivo
+deve iniziare
+due celle dopo
+ok, questo è l'unico cons
+e l'osservazione è
+per accedere
+alla
+questa word
+di un dato boxed
+puntato dal
+puntatore P
+si accede
+a
+si accede come
+P più 3
+ok, quindi non è un problema
+il puntatore, sommo 3 deve fare
+quindi non ho un problema di questo gioco
+quindi l'unico cons è questo
+c'è questo spreco di memoria che però
+è molto limitato
+in un certo
+qualsiasi
+ok?
+io ho fatto un esempio con zero
+se ci metto uno, cambia qualcosa?
+mettendoci zero
+io posso accedere solamente
+a indivizi pari
+mettendo uno, posso accedere solamente
+a indivizi dispari
+poi il fatto di accedere a quelli successivi
+da stesso discorso, ci accedo con l'indivisione
+e lo spreco
+è uguale, diciamo
+mi si spreca l'altro tipo di indivizi
+quindi è identico
+poter accedere principalmente
+a un altro tipo di indivizi
+quindi è identico
+poter accedere principalmente
+a indivizi pari, o poter accedere principalmente
+ad indivizi dispari, memoria
+cosa vuol dire allineati?
+architettura, vedo nei vostri occhi
+vuoto
+quindi
+voi sapete che i dati sono in memoria, i dati
+li noto a spiriti tramite il bus di sistema
+il bus di sistema è
+quando si accede al bus di sistema
+un'operazione lenta e così via
+quindi, di fatto
+quando si trasferiscono dati dalla memoria al microprocessore
+vengono trasferiti in blocchi
+quindi anche se volete essere uno, in genere si prendono dei blocchi
+vengono trasferiti e così via
+e è tutto ottimizzato
+per accedere ai
+a partire dai blocchi allineati
+dove allineati vuol dire
+i multipli di qualcosa, in genere i multipli
+di 2, di 4, di 8
+quindi, quando avete bisogno di qualcosa all'interno di un blocco allineato
+tirate giù un intero blocco allineato, cosa del genere
+quindi
+visto che noi stiamo puntando dei dati
+nella memoria, poi accediamo al dato box
+che segue
+è buona cosa appunto di stabilità, vero?
+esattamente, all'inizio di una qualcosa
+dell'allineato
+e vengono sempre allineati a qualcosa di pari
+o multipli di 2, multipli di 4, multipli di 8
+dipende dalla architettura, mai ai dispari
+quindi, è meglio, molto meglio
+utilizzare 0 come bit invece che 1
+quindi, appuntatore
+no
+si accederebbe
+a dati non
+allineati in memoria
+gli indirizzi
+che finiscono con 0
+sono o possono
+essere
+allineati
+ok?
+domande?
+tutto chiaro?
+c'è un'ultima cosa di cui parlare
+per quanto riguarda
+la rappresentazione dei dati
+diciamo, in generale, prima di passare i singoli tipi
+di dati
+allora
+abbiamo detto fino all'inizio
+che la stessa sequenza di bit
+la possiamo utilizzare
+per rappresentare valori diversi
+di dati diversi
+per esempio, la sequenza di bit tutti 0
+se l'interpreto come un numero intero
+il numero intero 0, se l'interpreto come un
+primo carattere ASCII
+se l'interpreto come un puntatore
+la pagina 0, 0 e così via
+quindi
+valori diversi
+di tipi di dati diversi
+possono essere mappati sulla stessa sequenza di bit
+la domanda è
+nel mio
+linguaggio di programmazione
+io voglio
+distinguere
+valori di tipi diversi
+o no?
+detto altrimenti
+abbiamo detto
+la sequenza di bit a 0
+lo posso pensare, per esempio, come una
+rappresentazione del numero 0
+o lo posso pensare, per esempio, come una rappresentazione
+a quali potrebbe dire qualcosa
+oppure devo pensare come una rappresentazione
+del primo carattere
+Unicode o ASCII 0
+nel mio linguaggio di programmazione
+se io chiedo se uno è uguale all'altro
+che risposta voglio avere?
+Se mi va bene qualunque risposta
+o se la domanda non ha senso
+posso usare la stessa sequenza di bit
+ma se voglio che la risposta sia no
+sono diversi
+allora non posso usare la stessa sequenza di bit per tutti i dati
+Chiavo?
+Qua è una scelta
+che dipende dal linguaggio di programmazione
+se io prendo Erlang
+per esempio
+e mi chiedo se 0 è
+uguale
+per esempio
+alla lista vuota
+0 e lista vuota
+probabilmente
+avrebbero la stessa rappresentazione
+tutti bit 0 in memoria
+e la risposta che ottengo è false
+In Erlang mi viene garantito
+che è un linguaggio non tipato
+mi viene però garantito
+che tutti i valori
+di quei tipi di dato diversi
+di cui parlavamo l'altro giorno
+non abbiamo detto Erlang ha dei tipi di dato
+che sono
+sono i PID, le porte
+gli atomi, i numeri
+i numeri di floating point
+Erlang mi garantisce
+che siano tutti rappresentati in maniera diversa
+quindi se io chiedo l'uguaglianza
+fra due elementi di due
+diverse la risposta è
+falso
+questo significa che in verità
+Erlang non può re-usare
+le stesse sequenze di bit
+da qua non si esce
+ok
+Scusate se apri una parentese
+ma io sono scelto l'altro giorno
+quando abbiamo parlato dei tipi di dati di Erlang
+abbiamo messo i numeri, le porte, i PID ecc
+non abbiamo messo i cavatteri
+i cavatteri, le string sono tipi
+tipi di dato che troviamo
+nel linguaggio di programmazione
+Erlang non ha
+le string
+ci sono le librerie che implementano string
+e poi diciamo Erlang
+di default non ha le string
+per una stringa usa
+una lista di cavatteri
+che non è molto efficiente perché la lista
+per l'appunto sono delle celle
+che vincono, c'è la dopo e così via
+però usa lista di cavatteri, Erlang non è nato
+per fare una manipolazione di testo
+manipolava pacchetti di rete
+per i switch telefonici, quindi le string non è
+quindi lista di
+cavatteri, ma i cavatteri non c'ho detto
+che ci sono i cavatteri
+perché Erlang non ha un tipo
+dei cavatteri
+quindi una stringa
+è una lista di cavatteri
+ma i cavatteri non ci sono e quindi
+questo è un caso in cui Erlang fa confusione
+cioè lascia il programmatore interpretare
+detto altrimenti
+se io scrivo la lista
+97, 98, 99
+e lui me la stampa
+mi stampa ABC
+perché? perché 97 è il codice ASCII
+di A, 98 di B, 99 di C
+quindi
+quando Erlang
+parsa o stampa
+quando parsa una stringa
+converte in una lista di numeri, che sono i codici ASCII
+quando fa pretty printing
+di una lista
+guarda se tutti
+gli elementi della lista sono numeri
+nel range ASCII
+se sono numeri nel range ASCII usuali
+te la stampa come stringa
+quindi se io qua per esempio in questa stessa lista
+ci metto meno 3
+allora magicamente la lista torna
+97, 98, 99, 99
+ok quindi
+questo è un tipo di esempio
+in cui due tipi di dato
+il numero 97, il char A
+hanno la stessa rappresentazione in B
+e quindi ovviamente
+poi
+per esempio se chiedo
+se la lista 97
+è uguale alla stringa A
+ovviamente mi risponderà
+TO
+ok?
+quindi
+torniamo a noi
+ah no, questo è Erlang
+se il linguaggio è tippato invece
+dipende dal linguaggio
+dal sistema di tipi
+spesso e volentieri
+prendo il nuovo camera come esempio di linguaggio tippato
+in OCaml
+ho dei tipi
+e se io guardo il tipo
+dell'ugualianza
+è alfa, alfa, bull
+però ogni alfa
+quindi vuole che i due argomenti dell'ugualianza
+si abbiano lo stesso tipo
+è una funzione polimorfa ma vuole esattamente lo stesso tipo
+quindi se chiedo 4 uguale a 5
+è false
+se chiedo
+la stringa A uguale la stringa A
+mi risponde true
+se chiedo 4 uguale
+alla stringa A
+mi dà un errore di tip
+quindi mi dice che non hanno lo stesso tipo
+e quindi si rifiuta di compilare i codici
+quindi il fatto di non confrontare mai
+dati
+quindi sequenze di bit
+che io interpreto in maniera diversa
+fa si che invece per compilare OCaml
+io non ho bisogno, posso usare
+le stesse sequenze di bit
+quindi OCaml riusa le stesse sequenze di bit
+e erlang non lo può fare
+a essere sicuro che non mi sto
+dicendo panzane
+facciamo la seguente cosa
+di chi ha un tipo di dato algebrico
+per esempio semi
+in cui metto cuori
+quadri, picche
+e fiori
+pensate di come 4 atomi
+in questo caso foro la maiuscola per coccarmi un altro linguaggio
+però diciamo cuore è un atomo
+come quadro, picche, fiori
+e sono tutti atomi del tipo di dato algebrico semi
+quindi se voi dichiarate
+per esempio un altro tipo
+tipo, che so, stagioni
+autunno, inverno
+e così via, ne metto solamente due
+questo è un altro tipo di dato algebrico
+che ha i suoi atomi
+visto che non posso mai scrivere
+autunno uguale a cuori
+perché è un errore di tipo
+sono i tipi diversi
+lui può riutilizzare le stesse sequenze di bit
+per gli atomi nelle due
+e ovviamente cosa va a scegliere?
+va a scegliere tutti i 0 per il primo atomo
+tutti i 001 per il secondo
+001,00 per il terzo e così via
+quindi a runtime autunno e cuori
+in verità hanno la stessa sequenza di bit
+e solo che non mi compila
+niente che vada a confrontare
+se io chiedo
+gentilmente si fa per dire
+sistema nt-pidio camel di
+tordisi dai marroni
+vjmagic è la funzione che dice
+so che lo sto facendo
+il tipaggio te lo dico io
+che va bene, che ha senso
+e quindi dico vjmagic cuori
+a questo punto lui compila
+e a runtime
+mi diva per esempio che
+tu autunno e cuori
+effettivamente sono uguali
+mentre se faccio autunno e
+cuori mi risponde
+quindi in questo caso
+vi uso la stessa sequenza di bit
+autunno è uguale
+objmagic 0
+perché utilizza
+la sequenza di bit ut 0
+che è la stessa sequenza di bit
+che usa per autunno
+tornando qua
+se linguaggio
+come Erlang
+ammette
+tipi di dati diversi
+ammette
+confronti
+fra valori
+tipo di dati diversi
+e si aspetta false
+come risposta
+allora non possiamo
+riusare
+le stesse sequenze
+di bit per due tipi
+di dati
+vi scrivo anche
+esempio in OCam
+il bar rascal
+non vale b
+è valore di tipo
+e quindi
+si riusano
+le stesse sequenze
+torniamo alla domanda di prima
+se non posso utilizzare le stesse sequenze
+devo avere delle sequenze che uso per l'interi
+delle sequenze che uso per i floating point
+delle sequenze che uso per
+gli atomi delle sequenze che uso per le porte
+delle sequenze per i PID e così via
+come faccio a runtime a distinguere
+fra questi tipi di dati
+distinguiamo la risposta fra boxed e unboxed
+come distinguo i tipi di dati
+caso boxed
+caso unboxed
+partiamo
+dal caso boxed che è più facile
+quindi caso boxed abbiamo detto
+io rappresento sempre il tipo di dato boxed
+come un puntatore ne rip
+e il dato finisce ne rip
+io voglio
+distinguere fra i diversi tipi
+di dato
+quindi devo scrivermi da qualche parte
+dove c'è un tag che dice che sono dei tipi diversi
+dove lo metto questo tag?
+nello rip
+nello rip ho già
+varie parole
+che mi descrivono il dato
+non la vivete, io ho già una parola in più
+tipicamente
+si aggiunge
+nello rip all'inizio
+un'unteriore parola
+che descrive il contenuto del dato
+quindi caso boxed
+il dato
+è formato
+da parole consecutive
+quindi nello rip
+si aggiunge
+una prima
+parola
+che contiene
+un tag
+per distinguere i dati
+quindi P punta al tag
+esatto
+P di fatto adesso punta al tag
+di fatto vedremo che
+un'intera parola per il tag
+è tanta roba
+a parte di ella abbiamo detto che sono 7-8 tipi
+quindi bastano 3-4 bit
+quindi rimangono in verità un sacco di bit libri
+e in genere vengono utilizzati
+quindi vedremo per esempio che
+il tipo di garbage collection automatica
+che viene implementata in Erlang
+ha bisogno di sapere anche
+quanto sono grandi i dati sul rip
+perché abbiamo già spiegato quelli bit
+che quello un puntato allo rip
+però deve reclamare lo spazio
+e deve sapere quanto è grande il dato sul rip
+quindi ha bisogno anche la dimensione
+e quindi si usa la stessa parola dove c'è il tag
+alcuni bit è il tag e gli altri bit sono la dimensione
+nota
+la parola con il tag
+in genere
+contiene anche
+la dimensione
+del dato
+sullo rip per la garbage collection
+quindi
+è un grande spreco
+ovviamente
+occupa un po' di spazio
+però comunque sia
+se un dato l'abbiamo messo sullo rip
+è perché è un dato grande
+tipicamente i dati grandi sono array, sono veccole con tanti dati
+quindi diciamo sprecalma
+quando abbiamo già un dato grande limita
+lo spreco di spazio
+il caso unboxed è quello problematico
+perché il caso unboxed invece sono dati piccoli
+e io qua devo riuscire
+a distinguere i dati piccoli
+dove lo metto il tag?
+prima abbiamo risposto
+mi serviva il bit per il puntatore si no
+e ho usato il bit meno significativo
+adesso mi servono degli altri
+bit per distinguere
+e continuo
+quindi come ho usato già un bit
+per dire puntatore oppure no
+uso anche gli altri bit
+degli altri bit per dire il tag
+si usano
+i bit
+meno significativi
+per mantenere
+il tag
+quindi se per esempio
+si usano 3 bit
+2 al cubo fa 8 tipi di dati
+io rappresento
+i miei dati come xxx
+tag tag tag
+in questo modo qua
+si o no?
+se lo faccio così
+che problema c'ho?
+ripensate al discorso di poco
+come facciamo a distinguere
+tra il tag e il puntatore?
+per i puntatori
+potrei avere
+ttt uguale a 000
+e poi potrei dire
+per gli atomi
+ttt uguale a 001
+e così via
+qual è il problema però?
+il problema è con i puntatori
+se lo faccio così
+non è più vero che accedo al 50% di indivizi
+adesso accedo a un ottavo di indivizi
+finisco per accedere
+a 1 ogni 8
+1 ogni 8 lo spoi
+quindi si ha sentire se ho bisogno di 1 bit in più
+1 ogni 16
+quindi
+avere il tag
+di lunghezza fissa è troppo costoso
+per i puntatori
+per i puntatori vorrei avere tanto per i load
+e per i 23 bit
+di voglio tutti
+quindi quella risposta è no
+riduce troppo
+il payload
+dei puntatori
+allora se riduce troppo il payload
+dei puntatori
+avere questi tag di lunghezza fissa
+qual è la soluzione?
+possiamo fare il tag
+di lunghezza variabile
+non so, dipende da dove venite
+però nel corso di algoritmi
+in genere si studiano
+i tag di lunghezza variabile
+quindi c'è la possibilità di avere tag
+che alcuni sono più piccoli
+e alcuni sono più grandi
+per distinguere le varie combinazioni
+qual è la proprietà magica che devono avere questi tag?
+voglio distinguere
+un tag corto da un tag lungo
+quindi
+con dei payload con un tag lungo
+vuol dire che tutti i miei tag
+non devono essere nessuno suffisso degli altri
+in questo modo riesco a distinguere
+quindi
+uso tag
+a lunghezza
+variabile
+quindi vincolo
+nessun tag
+deve essere
+suffisso di un altro
+quindi esempio cosa posso usare?
+un tag per esempio potrebbe essere 0
+che uso per i puntatori
+nessun tag può finire con 0
+perché sennò 0 sarebbe suffisso
+quindi tutti gli altri devono finire per 1
+potrebbe avere per esempio il tag 0,1
+poi nessun tag
+può finire
+per 0,1
+se ci metto 1,1 ho finito i tag
+nel senso che nessun può finire per 0,1
+quindi finire per 1,1
+e quindi solamente tra tag
+però a volte non mi bastano tra tag
+quindi se ne voglio degli altri ancora
+allora devo avere qualcosa
+che non finisca per 0,1
+quindi tutti i miei tag devono finire per 1,1
+quindi per esempio potrei avere
+0,1,1
+o potrei avere
+1,1,1
+o posso fare degli schemi un po' diversi
+quindi questo per esempio
+è un esempio di set
+ragionevole per esempio
+esempio di set di tag
+quindi in questo esempio qua
+aggiungo sempre un bit
+però a mano che crescono posso
+riorganizzare le mie sequenze
+magari schippo 0,1
+passo direttamente attraverso
+e posso avere le sequenze in maniera diversa
+l'importante è che non si siano suffissi con 0
+e ci sono degli algoritmi nel corso degli algoritmi
+potete andare a vedere i suoi libri
+per generare dato il numero di tag che vi servono
+degli insiemi di tag
+che io soddistinguo gli uno e gli altri
+ora quando avrete dei tag a lunghezza variabile
+vuol dire che
+certi dati avranno più tag
+e meno payload
+certi dati avranno meno payload
+più payload
+e un tag più corto
+quindi come assegno i tag
+ai tipi di dati secondo voi?
+sappiamo infanto che il buleano
+non ha bisogno di tanto spazio
+per esempio il buleano
+il buleano hanno due
+quindi posso dare anche un tag
+lungo 62
+mentre dualmente i puntatori mi saranno
+tanti puntatori, quindi i puntatori
+hanno un tag piccolo, quindi l'idea è che io
+ordino i miei tipi di dati
+in base a quanti ne ho o quanti ne voglio
+e assegno i tag
+in base a quello
+i buleani possono avere un tag lunghissimo
+se c'è buleani, gli atomi non hanno bisogno
+di avere un'infinità di atomi, quindi gli atomi
+tipicamente hanno un tag lungo
+i numeri voglio che abbiano un tag corto
+se no sto sprecando un sacco di numeri
+quindi, osservazione
+per avere
+tanto payload per un tipo
+ovvero tante
+combinazioni
+gli assegno
+un tag
+corto
+se ho poche combinazioni
+esempio il bit, il buleano
+uso
+tag
+ok, va bene
+quindi
+se googleato
+comunque magari lo linko anche a via virtuale
+c'è per esempio una pagina in cui spiega esattamente
+un punto per Erlang
+non c'è bisogno che la studiate, però se siete curiosi
+per Erlang vi fa vedere
+esattamente quali tag vengono utilizzati
+per ognuno di quei tipi di dati
+c'è una cosa
+di cui mi sono scordato, per la lezione finita
+non la dico al volo
+perché non l'ho scordata qua
+quindi c'è un altro consegro
+anche per una casa qua
+che peggiora ancora se si va a usare
+più bit sotto
+il fatto di
+aver creato il tag 0
+per i puntatori
+vuol dire per l'appunto che tutti gli altri
+tipi di dati li devo rappresentare come il bit finale a 1
+e peggio ancora
+solo il tag sotto
+come si rappresentano
+i numeri
+esempio
+diciamo, nel payload
+quindi
+esempio
+0001
+è lo 0
+000
+11
+è l'1
+0001
+no
+0001
+e 2 e così via
+fin qua non c'è problema
+ma come si implementano
+le operazioni aritmetiche?
+e come implemento
+le operazioni
+per esempio
+come faccio a fare x più y?
+normalmente
+se voi fate x più y in C o in assembly
+avete un'operazione del microprocessore
+che fa x più y in maniera veloce
+ma se io qua prendo i due numeri
+e
+risommo
+con l'operazione del microprocessore
+c'è un problema per succedere
+i due bit meno significativi che sono 1
+che mi danno un riporto e mi danno 0
+quindi
+se io faccio 00011
+plus
+add
+scrivo in pseudo assembly
+se io faccio add di questo
+1 a questo che è 1
+il risultato
+sarà
+1 più 1 fa 0 riporto 1
+1 più 1 fa 0 1
+e poi c'è un 1
+e questo dovrebbe dire che
+1 più 1
+farebbe, eh, quello non è il 2
+quello è una roba che non c'entra niente
+ok?
+quindi
+fare x più y
+soluzione
+x più y è
+add
+x y
+sub 1
+in modo da togliere il riporto del sottosolo
+qui tutte le somme adesso mi costano
+doppio
+prima avevo un'operazione
+aritmetica, adesso ne ho due
+che non è il massimo dell'efficienza
+non è nemmeno
+non è nemmeno terribile
+ma se faccio prodotto, allora sì
+se io faccio
+x per y
+lì è un casino
+se faccio x per y, quel riporto mi viene una roba derivante
+quindi per implementare x per y
+devo fare
+sub x1
+sub y1
+mull xy
+e poi
+add
+1
+quindi il prodotto diventa tanto per azione
+perchè vi dico questa roba qua
+perchè questo è un problema
+quindi se volete utilizzare un linguaggio che utilizza
+presentazione uniforme
+o garbage collector, insomma queste cose qua
+per fare calcoli high speed
+aritmetici, no
+è un linguaggio sbagliato
+quindi non usate l'angocama e l'Aster
+per fare computazione numeca pesante
+ok?
+con s
+significativo
+quindi
+implementazione costosa
+delle operazioni
+aritmetico logico
+quindi
+no buono
+per number crunching
+ed ultima cosa con s
+è
+interazione
+con altri linguaggi
+complessa
+complessa
+immaginate volete scrivere
+un famento di codice in cui avete un presto di codice
+Erlang che interagisce con un presto di codice
+C e vanno a cambiare
+i dati in memoria
+attenzione perchè il codice C vuole i numeri
+con
+63 bit
+invece il codice Erlang ha 64 bit
+ha 63 bit e in fondo c'è un 1
+quindi dovete in continuazione convertire
+far la presentazione Erlang, quella C e tornare indietro
+e quindi
+questo tipo di rappresentazione è complica
+quindi per questo motivo
+che a volte, per esempio, penso camera
+per dire uno che conosco bene
+quindi i numeri sono a 63 bit con questo tipo
+di problematica, se avete bisogno
+di interagire con codice esterno o abba del genere
+l'alternativa
+ci sono anche gli interi boxed
+quindi che finiscono nello hip
+a quel punto lì non c'è payload
+non è tutto, le operazioni aritmetico logiche sono tutte
+poi pagate in direzione dello hip
+quindi avete due mali
+e di volta in volta dovete scegliere male minore
+a seconda dell'epice
+ok? quindi scusate su un altro lungo
+questa è
+tutto sulla presentazione dei dati, domani
+cerchiamo di capire
+in parte la merce

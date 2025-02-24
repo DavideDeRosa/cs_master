@@ -1,0 +1,1437 @@
+Va bene, quindi come vi dicevo, inizio a presentare un attimo il titolo e poi vediamo un attimo
+quali sono gli argomenti del corso.
+Innanzitutto, il nome dell'esame un po' buffo, paradigma emergenti di programmazione.
+Che cos'è un paradigma di programmazione, un paradigma che si fa con la programmazione?
+Che cos'è un paradigma?
+E' più difficile spiegare cos'è un paradigma rispetto a spiegare come si genera un paradigma.
+Un paradigma si genera quando qualcuno pone una domanda e questa domanda è così profonda
+che la risposta che voi date non è semplicemente una risposta puntuale, ma cambia il vostro
+punto di vista.
+Quindi, cambiare punto di vista, in genero direi cambiare vocabolario, quindi parlare
+con una tecnologia differente, spiegare in maniera differente e, accascato da quello,
+si arriva ad avere idee approcci mitodi costrutti su un linguaggio di programmazione un po'
+Quindi voi sapete che, per esempio, se noi consideriamo un linguaggio di programmazione
+e ci poniamo la domanda che cosa voglia dire, calcolare qualcosa con un linguaggio di programmazione,
+possiamo dare tante risposte differenti, ma sappiamo anche che qualunque programma non
+sappiamo implementare con qualunque formalismo di cato, qualunque linguaggio di programmazione,
+lo possiamo implementare con qualcun altro.
+Quindi da un punto di vista sono tutti equivalenti, ma dall'altro punto di vista ci sono classi
+linguaggi di programmazione in cui, quando io ragiono all'interno di quella classe
+di programmazione, usando quel paradigma, ragiono in una maniera differente, mi approccio
+al problema in una maniera differente e uso costrutti anche le programmazioni che sono
+differenti rispetto agli altri.
+La domanda è quanti paradigmi esistono in programmazione e soprattutto quante domande
+che portano a paradigmi ci sono.
+Quindi la più nota è la classica domanda, cosa voglio dire, calcolare, domanda che si
+posano i logici.
+All'inizio del 1900, dopo la crisi dei fondamenti matematici della fine del 1800, quando i matematici
+iniziavano a provare delle basi rigorose sulla matematica, per attivare degli insiemi e con
+la logica, scoprirono che la matematica sviluppata fino a quel momento era inconsistente, cioè
+si potrebbe dimostrare tutto il contrario di tutto.
+Quindi all'inizio del 1900 i matematici cercano di rifondare l'intera matematica dalle basi,
+dalle basi logiche, diciamo, in maniera più rigorosa e si tornano a provare dei requisiti
+come per esempio cosa voglio dire dimostrare, eccetera, eccetera.
+All'interno delle dimostrazioni c'è il calcol, quindi si pongono a domanda cosa voglio dire
+calcolare.
+E in quegli anni tutta una serie di matematici, al tempo erano matematici, ogni giorno li
+classificheremo alcuni già come informatici o post-informatici, danno una serie di risposte
+che sono, touring con le macchine di touring, charge con il lambda calcolo perché ha seguito
+il corso con me, eccetera, eccetera, e questi sono già le risposte che portano poi dei
+paradigmi.
+Per esempio la risposta del lambda calcolo porta le paradigmi alla funzionale, le macchine
+di touring portano le paradigmi all'imperativo, e così via.
+C'è il paradigma logico, di questo probabilmente nelle labbe treennali qualcosa è stato detto,
+riprenderemo un po' questo aspetto.
+Però non è l'unica domanda cosa voglio dire calcolare, ci sono tante altre domande
+che noi possiamo porcire all'informatica che ci portano poi a definire delle variazioni
+di paradigma.
+Magari non dei paradigmi così importanti come la divisione fra funzionale, imperativo,
+che diciamo è quella più nota, ma che comunque portano a dei cambi di divisione.
+Tanto per fare un esempio, qualcosa che voi avrete già visto in qualche modo alle treennali,
+che cosa vuol dire?
+Collaborare.
+Quindi se io ho due programmi che vogliono in qualche modo collaborare, cioè cosa risponde
+a questa domanda, otteniamo dei paradigmi differenti.
+Uno per esempio è quello della memoria condivisa, io potrei collaborare condividendo risorse,
+in primis la memoria ma non solo.
+E se io mi pongo sotto questo punto di vista, poi io avrò bisogno per esempio di costrutti
+che permettono di evitare le race condition, che permettono in qualche modo di fare in modo
+che il tempo di esecuzione relativo dei programmi non alteri il risultato finale, quindi per
+esempio dei meccanismi di locking per esempio, per evitare di usare contemporaneamente la
+risorsa, oppure dei monitor, oppure dei semafori o altri meccanismi del genere.
+Ma non è l'unica risposta possibile, io potrei per esempio invece dire, no, collaborare
+vuol dire condividere risorse, ogni programma è totalmente isolato, collaborare vuol dire
+scambiarsi messaggi per esempio, e ottengo la programmazione per esempio per message
+passi o qualcosa del genere.
+Vedremo per esempio, che sono la programmazione ad attori, vedremo quasi l'inizio del corso
+un altro paradigma che risponde in qualche modo alla domanda, cosa voglio dire collaborare.
+Ci sono altre domande di questo genere, per esempio nel momento in cui io ho bisogno
+di arrivare ad astrarre e isolare le parti dei programmi di uno dalle altre, mi posso
+chiedere come faccio ad aggiungere astrazione e isolamento, e anche in questo caso posso
+ottenere le risposte abbastanza varie fra di loro, che da una parte mi portano per esempio
+verso la programmazione di oggetti basati su classiche e conoscete, ma risposte differenti
+mi portano in direzioni completamente differenti.
+Quindi ci sono vari paradismi che uno può andare a studiare che hanno a che fare con
+la programmazione e in questo insegnamento cercheremo di vedere non tanto i grandi paradismi
+quanto le piccole risposte, magari le piccole differenze, piccole, meglio grandi che noi
+troviamo andando a prendere tutta una serie di linguaggi di programmazione, quelli che
+vedete in figura per esempio, che hanno qualcosa di interessante da dire, quindi in cui ci sono
+dei costruttivi che in qualche modo sono propri di quei linguaggi e risultano essere in qualche
+modo particolarmente interessanti.
+Bisogna anche dire che quando uno poi sceglie e abbraccia un paradigma di programmazione,
+per esempio per un determinato software che dovete sviluppare e scegliete un paradigma
+di programmazione, questo non vi impedisce di usare idee, concetti, metodi che vengono
+legati ai paradimi, quello che vuol dire semplicemente è che il vostro linguaggio di programmazione
+predirigeva il vostro stile di programmazione se il vostro stile di programmazione è coerente
+in un certo senso con quello del paradigma che avete scelto. Se non lo è, vi trovate
+in qualche modo per esempio a fare dei encoding di uno stile all'interno di un altro linguaggio,
+il che a volte è una pessima idea, qualche volta può comunque essere una buona idea
+e può essere interessante riuscire a trasferire tecniche idee da un paradigma all'altro.
+Quindi un'idea un po' del corso è quella di fare un po' una savellata, quindi a parte
+la parte iniziale che farò io adesso, che sarà un po' più monotematica per un po'
+di ore, il resto dell'insegnamento, in particolare la parte che farà Padovani di nuovo, quello
+che farò io in seguito, andremo a prendere alcuni argomenti particolari e andare a vedere
+nei vari linguaggi di programmazione come si sono incarnate le soluzioni a determinati
+problemi. Quindi è un po' una cavellata aprimente di questo genere. Veniamo all'aggettivo
+emergente. Cosa vuol dire emergente? E perché è emergente? L'idea che dovete avere è
+che in qualche modo è come se ci fosse un iceberg, un iceberg dove tutta la parte sommersa,
+che è molto grande, è rientra nello studio dei linguaggi di programmazione, studio dei
+linguaggi di programmazione che per esempio i trovici dei linguaggi di programmazione
+alla università fanno 24 ore al giorno da decenni e vanno a studiare problemi, tecniche,
+metodi, paradigmi, eccetera eccetera. Quale è la parte sommersa? La parte sommersa è
+ciò che di questo studio poi raggiunge il mainstream. Quindi raggiunge i linguaggi di
+programmazione usati nel mainstream. Anche quello che si intende per mainstream andrà
+ad un attimo discusso. Ci sono dei linguaggi che tipo Java, tanto per dimmi uno, che hanno
+una penetrazione di mercato altissima. Questi linguaggi che per esempio vedete qua, noi
+teologici, siamo già mainstream, però alcuni di questi hanno già una penetrazione molto
+più ridotta rispetto a data. Quindi c'è qualcosa che emerge, diventa mainstream, va
+a finire in linguaggi di programmazione e c'è tantissimo che rimane invece in uno stato
+ancora sommerso e potrebbe o meno emergere. Ci sono tanti concetti e idee costrutti che
+sono stati studiati a lungo e poi in un certo punto emergono e diventano mainstream, un
+po' in tutti i linguaggi di programmazione a un certo punto e altri che invece probabilmente
+non raggiungeranno mai, diciamo così, da sul proficio. Il tempo che intercorre dal momento
+in cui vengono studiati, nel momento in cui diventano mainstream, è tipicamente molto
+lungo. Noi vedremo per esempio in questo corso alcuni costrutti-idee che sono stati
+emergendo ora, che sono appena emersi, per esempio quando ho iniziato a insegnare questo
+corso, c'erano alcuni costrutti che dicevo questi diventeranno mainstream fa qualche
+anno e adesso lo sono, che però sono stati studiati negli anni 60, 70, 80. Tipicamente
+ci sono almeno due o tre decenni minimo, se non a volte anche quattro o cinque, prima
+che il costrutto in qualche modo diventi mainstream. Nei momenti in cui diventano mainstream
+poi tendono a diffondersi all'interno un po' di tutti i linguaggi di programmazione.
+Quindi magari prima iniziano su qualche linguaggio di programmazione meno di nicchia e poi tendono
+a diffondersi in tutti i linguaggi di programmazione istanti. Questo perché? Perché i linguaggi
+di programmazione in qualche modo tendono a essere estremamente vestiti al cambiamento.
+Quindi se noi guardiamo la storia della rivoluzione del linguaggio di programmazione mainstream,
+ci sono dei lunghi periodi in cui tutto tace, in cui non ci sono grosse novità e in cui
+i linguaggi di programmazione specie quelli dello stesso paradigma tendono ad assomigliarsi
+tutti, tendono a avere essenzialmente gli stessi costrutti con qualche variazione e poi
+ogni tanto ci sono i momenti di fermento in cui invece ci sono nuovi linguaggi che vengono
+proposti, che fanno emergere nuovi costrutti e in genere di questi linguaggi hanno un momento
+di picco, poi magari molti non riescono a raggiungere i grandi numeri, ma tipicamente
+alcuni dei loro costrutti poi vengono aggiunti ai linguaggi preesistenti, quindi diciamo al
+costrutto che sopravvive e diventano qualche modo più estremi. Se voi guardate per esempio
+Java, se guardate vedere Java del 95, 97, Java del 2005, Java del 2015, vedete che ha delle
+grosse evoluzioni dove va ad aggiungere costrutti e idee tecniche che vengono da altri linguaggi
+in queste fasi diciamo di ferve scienze. E perché c'è questa alternanza di fasi di
+crescenze, fasi invece dove ci sono, dove emergono vari costrutti, essenzialmente perché
+dal punto di vista industriale avere un linguaggio stabile è un valore aggiunto, un valore aggiunto
+stabile e ben conosciuto, valore aggiunto, valore aggiunto perché vi permette per esempio
+di avere una base di informatici teleclutale molto più ampia, vi permette di susicuire
+facilmente un informatico rispetto ad un altro per record base, quella e i costrutti sono
+più o meno noti, anche se non hai magari quel linguaggio che siete abituati, e perché
+in generale il momento in cui un linguaggio raggiunge e affianca dei costrutti esistenti,
+dei nuovi costrutti che permettono in modo diverso di fare le cose, si finisce per partizionare
+lo spazio per esempio delle librerie, quindi è chiaro che nel momento in cui io do un
+costrutto alternativo per risolvere un problema, è chiaro che io mi ritroverò con alcune
+librerie che potrebbero essere andate ad utilizzare che usano una tecnica e alcune che
+ne usano un'altra, e la cosa potrebbe non essere compatibile, quindi c'è una frammentazione
+e ci deve essere un periodo un po tumultuoso prima di arrivare a quella che è la nuova
+fase più o meno stabile. Di conto nelle fasi in cui si stanno aggiungendo costrutti,
+in quel momento si tende ad aggiungere il maggior numero di costrutti possibili, quindi
+in qualche modo accoppiarsi fa di loro, quindi i linguaggi tendono a prendere costrutti che
+hanno funzionato bene negli altri e ad aggiungerli fino a ritornare un periodo in qualche modo
+stabile. Ma cos'è che scatela questi periodi di stabilità? Tipicamente sono delle esigenze,
+quindi a un certo punto cambia il paradigma della programmazione, ci sono le nuove esigenze
+di programmazione e quindi c'è una esigenza per cui sarebbe meglio aggiungere certi costrutti
+o cambiare certi costrutti e questo scatena il periodo di affidaviscenza. In quel periodo
+vengono aggiunti costrutti per risolvere il problema ma anche no, quindi visto in quel
+momento c'è un momento in cui i linguaggi stanno cambiando, si scatena queste esigenze
+e si va avanti così. E se voi guardate negli anni ci sono stati diversi periodi in cui appunto
+per nuove esigenze è successo qualcosa del genere. Esempio, alla fine degli anni 90
+arrivò la programmazione web in qualche modo, quindi i programmi passano da essere programmi
+che giravano sulla vostra macchina, che non comunicavano sulla rete, che non interagivano
+eccetera eccetera e questo portò a un periodo di fermento con l'introduzione di nuovi linguaggi
+pensati a JavaScript, il cambio dei linguaggi esistenti e così via. Quindi sono stati un po'
+di periodi di questo genere. L'ultima fase, o forse la penultima fase evolutiva che adesso
+sta in calo, ormai quasi scemata, è quella che ci ha portato a nascita di questo corso,
+adesso vi faccio vedere cosa è che ha scatenato la penultima fase in qualche modo. L'ultima
+fase, che è quella in un certo senso attuale, lo vedete, è l'avvento dell'AI, del machine
+learning, che in qualche modo porta a dovere ridefinire in qualche modo il modo con cui
+si programma per trovare certe soluzioni, al momento però non ci sono ancora nuove paradigmi
+costrutti eccetera eccetera che sta nemmeno agendo su questo. Quindi si continua ad utilizzare
+i linguaggi esistenti interfacciandosi con librerie eccetera eccetera, però al momento
+non è emerso niente di nuovo dal punto di vista. Anche se c'è un po' una ripresa nell'ultimo
+tempo della programmazione di agenti, che non vedremo in questo corso, perché la programmazione
+di agenti beneficia molto dell'interazione con metodi di apprendimento automatico. Quindi
+potrebbe esserci una emersione della programmazione di agenti, che è qualcosa che è rimasto lì
+e che non è mai emerso più di tanto, ma che non ha mai portato a un paradigma chiaro.
+Cioè se dovessi dire qual è un linguaggio di programmazione di agenti, non c'è un
+vero linguaggio di programmazione di agenti. Ci sono stili, ci sono librerie per programmazione
+di agenti, ma non si è mai concretizzato finora un vero linguaggio di programmazione di agenti.
+Quindi questo era un po' l'idea. Che cos'è che ha portato, come vi dicevo, l'ultima
+inventata che ha fatto emergere un po' dei costrutti di quel linguaggio che vi ho fatto
+dire? E' l'invasione dei cori. Quindi questo grafico che vedete, che parte dai anni 70
+e arriva in questo caso nel 2010 e che è trovato dal famoso articolo dei freelancers
+over del 2005, mostra con il passare degli anni l'aumento del numero di transistori
+in verde, della velocità del clock del processore in blu scuro, del consumo di potenza e della
+performance per il ciclo di clock. E come vedete visualizza fino ai primi anni del
+2000 la famosa legge di Moore, quella che diceva che regolò, era una legge antilica
+che regolò il sviluppo di informatica in quei trent'anni, che diceva in maniera lineare
+i computer aumentano la loro potenza di calcio. Questo voleva dire tante cose, voleva dire che
+un programma che oggi era lento, non in maniera esponenziale, ma per esempio era linearmente lento,
+o di enno qualcosa del genere, bastava aspettare un po' e automaticamente sarebbe diventato
+sufficientemente veloce dopo un po' di tempo. E senza imporre nulla sul modo con cui programmavamo.
+Quindi il programma va esattamente in un stesso modo e semplicemente quel passare del tempo
+era in grado di processare quantità di dati sempre maggiore. Come vedete qualcosa si ruppe
+intorno al 2005, cioè le curve si sono appiattite sia questa che questa. Quindi essenzialmente
+quello è successo, si è arrivati a un punto tale per cui non si riusciva a miniaturizzare
+ulteriormente e la miniaturizzazione è quella che portava anche ad aumentare la velocità
+di clock, eccetera eccetera. E quindi quello che è successo è che nonostante ci sia stato
+un aumento ancora del numero di transistori nei microprocessori, la velocità di clock
+si è essenzialmente fermata, va giunto sul massimo. Anche perché? Perché miniaturizzando
+sempre più la dimensione dei fili, se mi concedete, orientata tale da arrivare quasi atomica
+e a questo punto è impossibile aumentare la velocità di clock ulteriore perché rilascierebbe
+troppe energie essenzialmente, scalderebbe troppo. C'è anche il limite fisico di questo
+genere. Quindi la velocità del microprocessore si è fermata in qualche modo e se io voglio
+continuare a beneficiare degli incrementi di performance dell'hardware, io lo posso fare
+solamente incrementando a parità di clock il numero di transistori, cioè introducendo
+dei core essenzialmente. Cosa sono i core? Vuol dire che dove prima voi nel vostro chip
+avevate un microprocessore con un'unità abitamente ecologica che faceva i conti, adesso avete
+tante unità abitamenti ecologiche. E il numero di core potenzialmente può aumentare molto
+negli anni. Quindi si è passato prima a macchine con due core, a quattro core e poi ce le
+vene otto su questo banale portatile e si può andare anche su macchine che hanno numeri
+ben più elevati di core, anche centinaia di core in una volta sola. Avete a disposizione
+tanti core, vuol dire, dovete passare alla programmazione essenzialmente almeno concorrente.
+Quindi ripensare i nostri algoritmi e tutto in maniera tale che sfruttino il parallelismo
+dato dai core. E la programmazione concorrente, nonostante sia studiata da decenni, è complicata,
+è molto più complicata da programmazione sequenziale e ha portato, diciamo, un di questi
+periodi in cui si è cercato di fare delle modifiche nel nostro linguaggio di programmazione
+e andare a cercare di creare quelle idee, quelli costrutti eccetera eccetera che rendono più
+semplice in qualche modo la programmazione concorrente. Questa è stata un po' la scintilla
+che ha portato all'ultima fase evolutiva di emergenza dei costrutti. Quindi, 2005,
+siamo mai a vent'anni fa, Concurrency is the next major evolution now with right software,
+non è nata lì la concorrenza, che la concorrenza è già nota con molti processori dagli anni
+settanta almeno, è ben diffusa. Però, per la prima volta, tutti devono iniziare a scrivere
+software concorrenti. Ancora, sempre di quegli anni, la grande maggioranza dei programmatori
+oggi, quindi stiamo parlando del 2005-2010, don't go up Concurrency, non riescono veramente
+a capire e a sfruttare la concorrenza. Come la maggior parte dei programmatori, 15 anni
+prima, dovevano avere un'idea di come utilizzare la programmazione concorrente. Quindi, i linguaggi
+emergenti che sono emersi a fronte di questa esigenza, tendono a essere linguaggi multi-paradigma,
+dove si uniscono costrutti che provengono da paradigmi differenti. In particolare, vengono
+aggiunti a linguaggi provenzioni imperativi e object-oriented, un gran numero di costrutti
+di provenienza linguaggi di programmazione funzionale. Ci sono vari motivi per questo.
+Almeno uno che è legato a questa sceltilla è la programmazione funzionale. Le strutture
+dati, tipicamente, tendono ad essere immutabili. Quindi, non ci sono modifiche in scrittura
+delle strutture dati. Voi sapete bene che se fate concorrenza come memoria condivisa,
+la maggior parte dei problemi, diciamo le race conditions, per dire ne una, nascono nel momento
+in cui un thread sta cercando di buttare una struttura dati e un altro ha bisogno di lavorare
+sua struttura dati, in lettura o scrittura. Ovviamente, se le strutture dati, per esempio,
+diventano immutabili e quindi nessuno modifica una struttura dati in place, automaticamente
+abbiamo solamente le letture delle strutture dati e le letture possono andare in parallelo
+senza aver condizioni. Questo, per esempio, è un punto banale per il quale c'è un flusso
+di costrutti e di idee da linguaggi funzionali a quelli di obiettoria. Non è l'unica cosa.
+In genere, le linguaggi funzionali tendono ad avere costrutti di più alto livello rispetto
+a quelli di linguaggi di programmazione imperativi e più costrutti e di alto livello più cose
+fa, in un certo senso, e quindi è più facile controllare l'interazione dei vari costrutti,
+anche banalmente, perché il compilatore ha più controllo sul quale ci si va a generare.
+Quindi, le linguaggi che sono emersi a fonte di questo periodo sono linguaggi muti paradigma
+funzionale imperativo con meccanismo di alto livello per la concorrenza. Quindi Rust, per
+esempio, che qualcuno di voi diceva, l'ho visto citato eccetera eccetera, è un esempio
+di linguaggio di sistema, quindi allo stesso livello di C o C++, quindi che permettono
+proprio di scrivere software che sia estremamente vicino all'ardo e dove il controllo è molto
+accentuato. Per esempio, oggigiorno con grosse diatribe sta diventando possibile contribuire
+a parti del kernel di Linux o dei driver di Linux eccetera il Rust, tanto per dirne uno.
+Quello che offre Rust, per esempio, a parte delle garanzie sulla gestione della memoria
+e dei costrutti di più alto livello che vengono dal mondo programmazione funzionale, offre
+quello che ve li chiamate la floorless concurrency, cioè la possibilità di programmare nella
+concorrente senza paura, perché i meccanismi che Rust mette a disposizione vi permettono
+di, si dice eliminare in verità, spostare, semplificare, ma i problemi in qualche modo
+rimangono ma non solamente spostarti dove si riesce a gestire i medio, i problemi legati
+per esempio alla race condition, quindi voi avete la garanzia quando scrivete codice,
+per esempio, che non aveva mai una race condition in automatico e il compilatore vi garanticia
+questo è un esempio di linguaggio che è emerso a fronte di questo, ok?
+Quindi cosa vedremo in questo corso?
+Quindi vedremo un po' queste idee di linguaggi, andiamo a vedere alcuni costrutti presi da
+questi linguaggi, però, come vi dicevo, la concorrenza sarà solamente uno degli aspetti
+e la vedremo un po' in Rust e la vedremo per Erlang, in verità ci interessano anche
+tutta un'altra serie di costrutti, idee, eccetera eccetera, che sono emersi in un senso
+superiore, ma che non sono legate alla concorrenza, semplicemente si è dubbita a questa fase
+di fermento il linguaggio era assorbito anche ad altri costrutti. Quindi esempi tematici
+sono la composizionalità, per esempio parleremo di traits contro triclasses, contro mixins,
+contro extension method, cose del genere, concisione e automazione, meta-programming,
+reflection, generic programming, in verità negli ultimi due o tre anni questa parte non
+l'abbiamo svolta, dobbiamo collegare quali argomenti andiamo a scegliere all'interno
+del tool, ed altro ancora come programmazione d'attori, d'agenti, effetti algebraici, monadi,
+furles con caverns, quindi questi sono tutti esempi di argomenti che in qualche modo possono
+trovare spazio all'interno del corso, che però non sono legati direttamente agli aspetti
+di concorrenza. Quindi questa è un po' l'idea, quindi l'obiettivo del corso è di esporre
+lo studenti a paradigma linguaggi, tecniche, strumenti, programmazione non tradizionali
+ed emergenti, e in certi casi vi farò vedere qualcosa che è già emerso, è verso da poco
+recentemente, in certi casi vi potrò fare vedere dei costrutti dicendovi che questi
+loro sono ancora emersi, ma secondo me sono i prossimi che emergeranno, o che emergeranno
+in un tempo ragionabile, e poi ovviamente potrei sbagliarmi, potrei essere uno di quelli
+che non emergeranno mai, così come potrei aver visto giusto, ed essere di quelli che
+invece emergeranno in tempi più rapidi. Gli effetti algebraici trattati per il N1
+è un costrutto che inizia a emergere adesso, sono primi linguaggi mainstream di uso meno
+diffuso che dove stanno effettivamente attestando gli effetti algebraici in maniera significativa
+e le promesse sono significative, insomma, e la gente sta iniziando a utilizzare. Quindi
+sarà un po' una cavallata di questo genere, e l'emfasi che io darò, e che la vedrete
+già nella prima parte del corso che tengo io adesso, vi faremo vedere dei costrutti di
+alto livello, ma ci tengo particolarmente che voi capiate come vengono implementati
+a runtime, a compile time, cioè a basso livello. Quindi non saranno mai dei costrutti messi
+in astratto, andremo a vedere sempre in pratica cosa succede a basso livello. Questo per varie
+motivi, uno perché programmare ad alto livello è sempre meglio di programmare a basso livello
+dal punto di vista della correttezza del codice, della comprensione del codice e così via,
+ma è importante che voi abbiate chiaro poi il modello di esecuzione, perché il problema
+è un trade-off fra programmazione di alto livello e totale parità di controllo sull'efficacia
+e l'efficienza dei vostri programmas. Quindi è chiaro che voi dovete capire, per esempio
+anche solamente per poter dire quanto è costoso il mio codice, qual è il modello di esecuzione
+che sta dietro al costrutto di alto livello. Il secondo fenomeno che andremo a vedere,
+che è una parte interessante, esistono spesso tantissimi costrutti di alto livello differenti
+che però risolvono lo stesso problema. Quindi c'è un problema e nei vari paradigmi si usano
+costrutti che appaiono completamente diversi per risolvere il problema. La parte interessante
+è che se uno va a vedere questi costrutti diversi, come vengono poi implementati a basso
+livello, quindi a one time, tipicamente costrutti di alto livello che risolvono lo stesso problema
+hanno poi praticamente una minima variazione di implementazione a basso livello. Quindi
+se usate un linguaggio di programmazione di basso livello, in genere c'è una soluzione
+o poco più, non c'è una gran varianza. E solamente quando passate all'alto livello
+che queste si configurano in maniera diversa. Ma poi quando andate a studiare, come vengono
+compilate, ritrovate più o meno le stesse idee. Questo è un fenomeno non affatto ovvio,
+insomma non è evidente questo fatto, ma lo vedremo alle denominazioni. Ok?
+L'ultimo punto è esporre i fondamenti teorici, spesso già consolidati da tempo, la base
+dei proposti energenti. Quindi in qualche caso faremo riferimento al fatto che questo
+sia stato studiato negli anni 70, 80, 90 e poi si è concretizzato in un qualche modo
+nel linguaggio di programmazione. Spesso e volentieri, aggiungo quel ultimo punto su questa
+chiacchierata anche un po' nuova e iniziale, c'è un lungo studio di un qualche costrutto,
+idea, fatto in ambito accademico. Quando finalmente va a emergere, spesso viene in un qualche
+modo riscoperto, cioè non è che gli implementatori di linguaggio a alto livello si studiano
+tutta la letteratura e si guardano le proprietà. In genere lo ritrovano, ritrovano lo stesso
+problema che era stato studiato in precedenza, ritrovano una soluzione e implementano qualcosa
+che rispetto alla soluzione teorica, spesso e volentieri, non è del tutto corretto, è
+accorchiato, non funziona bene. Quindi si può avere anche sempre un po' la differenza
+fra quello che era stato a lungo studiato per funzionare bene e poi quello che effettivamente
+diventa mainstream, che è molto decremente per gli studiatori di linguaggi che si ritrovano
+da studiare a posteriori quello che effettivamente è stato implementato e che non ha le buone
+proprietà rispetto a quello che dovrebbe essere implementato. Anche in questo caso forse
+vi farò vedere qualche esempio di questo è quello che dovrebbe essere implementato,
+questo è quello che è successo per i linguaggi con la nazionalista.
+Va bene? Quindi questa è un po' l'idea. Quindi se dovessi darvi, diciamo, un'ultima
+chiave di lettura e di insegnamento, c'è un vero vecchio usanza che andava molto di
+moda, almeno fra noi vecchietti in informatica, ormai che era, durante l'estate,
+andarsi a studiare sempre un nuovo linguaggio di formazione tutte l'estate.
+Ovviamente, come succederà per questo corso, non è che voi studiate qualche linguaggio
+di formazione e diventate fluenti, diventate che sapete scrivere i codici. L'idea è di
+andare a guardare quel tanto che basta per andare appunto ad assorbire, dare punti di
+vista, per aprire un po' la mente. Quindi chiaramente anche in questo corso,
+vedremo, toccheremo tanti aspetti, per quasi nessuno di quei linguaggi, tranne forza
+Erlang, arriverete al punto di essere fluenti, di riuscire a scrivere, diciamo, all'interno
+del linguaggio. Quindi per quasi tutti, tranne Erlang, andremo a vedere solamente i costruiti
+interessanti del linguaggio, in qualche modo. Modalità di esame. Allora, a meno che voi
+non siate particolarmente insistenti, si pensava anche con il collega di avere semplicemente
+un esame orale in fondo. Quindi l'esame consisterà dell'esame orale. Cosa ho sperimentato negli
+ultimi anni anche in base al feedback in qualche modo. Allora, purtroppo, questo esame
+arriva al secondo semestre dell'anno in cui dovete laurearvi. Quindi chiaramente non può
+essere troppo pesante dal punto di vista della preparazione dell'esame. Quindi, negli anni
+in cui faccio solamente fare degli orali, l'eventuale critica che arriva è, però ci sarebbe piaciuto
+anche magari fare un progetto, per mettere le mani in pasta, diciamo, e testare qualcosa.
+Qualche anno ho fatto fare dei progetti, per esempio, in Erlang, in qualche modo, essendo
+quello studiato di più all'inizio, dava più tempo per fare il progetto, sono stati apprezzati,
+però poi si diceva anche, però diventa un po' pesante l'esame proprio per il problema
+del doverassi laureare alla fine secondana e così via. Quindi, negli anni massimo, rimaniamo
+che l'esame sarà orale e poi magari stava facendo, ne riparliamo un attimo, ok?
+Questa era la chiacchierata iniziale. Se avete le domande...
+Ok.
+Potete fare una pausa o, come abbiamo detto praticamente nulla, vado a fare avanti.
+Allora, qual è il primo argomento che andiamo a vedere? Quindi il primo argomento che vedrete
+con me è che, sul quale direte un certo numero di ore, più degli altri, è la programmazione
+ad attori e il linguaggio di programmazione Erlang. Perché? Perché dedichiamo un tempo
+significativo alla programmazione ad attori e a Erlang? Per una serie di motivi. Innanzitutto,
+Erlang è considerato il linguaggio che, in qualche modo, ha ridefinito la programmazione
+ad attori di cui parleremo e, quando di giorno si parla di programmazione ad attori, si pensa
+semplicemente a programmazione ad attori, così come Erlang l'ha implementata. L'altro
+linguaggio di programmazione che è interamente all'interno del paradigma di programmazione
+ad attori è Elixir. Elixir, di fatto, ed Erlang sono praticamente lo stesso linguaggio
+di programmazione, dove Elixir cambia la sintassi con una sintassi più simile a quelle dei
+linguaggi di più mainstream a cui siete abituati e aggiunge delle idee, dei costruttivi, diciamo,
+in più rispetto a Erlang. Però il cuore dei linguaggi e la programmazione ad attori
+è esattamente quella di Erlang, perché, come vedremo, Erlang ed Elixir condividono
+lo stesso runtime. Quindi, di fatto, non possono che essere lo stesso linguaggio una
+volta che viene rimossa, diciamo, la differenza sintatica. La programmazione ad attori, vedremo,
+è una tecnica per scrivere programmi distribuiti, quindi non solo concorrenti ma distribuiti,
+distribuiti, vi ricordo, voglio dire, programmi che eseguono concorrentemente con thread che
+possono essere su macchine che sono sparse su una rete, e per fare programmazione distribuita
+la programmazione ad attori rimane il paradigma più efficace che sia stato mai sviluppato.
+Ci sono librerie per fare programmazione ad attori per molti linguaggi di programmazione
+disponibili. Quindi, per esempio, se guardate Scala o Java, c'è una libreria chiamata H
+che cerca di far implementare la programmazione ad attori in Scala, barba, Java, seguendo il
+più possibile modello di programmazione di Erlang, per esempio, con grossi problemi,
+diciamo, che sono i problemi dei linguaggi di programmazione multi-paradigma. Cioè, quando
+voi prendete un linguaggio di programmazione in cui cercate di mettere costruti da due paradigmi,
+l'idea naïve è che sia molto meglio di entrambi i paradigmi di partenza, perché potete fare
+una cosa e l'altra, in verità combinare costruti da due paradigmi in generale è problematico.
+Perché? Perché quando voi scrivete un fragmento di codice, voi state garantendo delle proprietà
+dell'output a partire dalle garanzie crevate sulle proprietà dell'input. Quindi, per esempio,
+non so, prendete una lista, se volete la garanzia che quella lista non contenga duplicati e
+bla bla bla, allora garantite in output che la lista sia ordinata in un certo modo. E
+l'algoritmo sfrutta il fatto, per esempio, che non contenga duplicati. Se voi rompete
+questa proprietà in input, l'algoritmo non garantisce più la correttezza del codice.
+Quindi, quando voi scrivete una funzione, dovete sempre garantire le proprietà in output
+a partire da proprietà in input. Ora, avere a disposizione un linguaggio multiparadigma
+in cui potete mischiare costruti semplifica la parte di produrre un output e quindi in
+qualche modo dovrebbe semplificare la parte di produzione di un output con certe garanzie.
+Il problema è che state indebolendo le garanzie in input. Per esempio, se voi state scrivendo
+codice in un linguaggio funzionale puro, dove non c'è mutabilità delle strutture dati,
+voi avete la garanzia che il vostro dato non possa essere mutato da qualcun altro, da
+qualcos'altro. E questo diventa molto importante perché sapere che certe parti del dato non
+vengono mutate, voi vedremo, è la chiave che permette di ottenere l'algoritmo con una
+certa complessità computazionale sintotica nei linguaggi per un'azione funzionale. Se
+voi mischiate con dei costrutti, per esempio, imperativi che possono mutare il dato, voi
+potrete questa garanzia. Questa garanzia vuol dire che o sperate che nessuno ve lo muti,
+e quindi sperate una disciplina di programmatore che in generale funziona poco, nel senso che
+poi arriva qualcuno a mettere le mani nel codice, qualcuno lo usa fuori, provvedete
+licenziate di un nuovo programmatore che non sa quali sono le invarianti e rompe questa
+garanzia, oppure non potete utilizzare la ripotesi che, per esempio, il dato è mutabile
+e vi trovate dove implementare un algoritmo che è molto più inefficiente, per esempio.
+Quindi tipicamente un linguaggio di programmazione, un paradigma, viene caratterizzato sia da quello
+che vi permette di fare, ma anche e spesso soprattutto da quello che non vi permette di
+fare, quindi dalle salvaguardie che vi mette a disposizione e che vi dà poi le proprietà
+per scrivere codice che sia efficiente, funghi, corrette e così via. Mischiari paradigmi
+indebolisce, diciamo, le garanzie e quindi non sempre la cosa è migliore. Infatti, esempio
+tipico, se usate la libreria H per programmare in Java d'attori, essenzialmente viene detto
+se potete usare la libreria H, però tutta una serie di metodi e oggetti non devono, per
+esempio, mutare nulla. Se mutate, sul cavo dei vostri, ovviamente il programma farà
+cose a caso. Quindi sono questi generi di problematiche.
+Quindi torniamo un attimo a noi, programmazione d'attori, abbiamo detto, è un paradigma,
+è il paradigma più di successo della programmazione distribuita e quindi il primo motivo per
+studiarlo è perché è un paradigma estremamente interessante. Ma c'è anche un altro motivo.
+Erlang è un linguaggio per programmazione d'attori, però in quanto tale ha una parte
+sequenziale, che non ha a che fare con la distribuzione e con la concorrenza, e ha dei
+costruiti in più che hanno a che fare con la programmazione distribuita. Se io prendo
+la parte sequenziale di Erlang, che dobbiamo studiare per studiare Erlang, quello è un
+linguaggio di programmazione funzionale puro. Quindi studiare Erlang ci permette di
+studiare un linguaggio di programmazione funzionale puro, dove studiare Erlang, come vi
+dicevo, vorrà dire che vi spiegherò, per esempio, anche come viene implementato. Ok?
+Quindi studieremo di fatto come si implementa anche un linguaggio di programmazione
+funzionale. Erlang è un linguaggio di programmazione funzionale, tutti i linguaggi di
+programmazione funzionale si assomigliano, come tutti quelli imperativi si assomigliano,
+se assomigliano, per esempio, però Erlang è qualcosa di più. All'interno della classe
+di linguaggi di promozione funzionali, A è non tipato, che è estremamente raro, perché
+la maggior parte dei linguaggi di promozione oggi giorno funzionali sono tipati, OCAVE,
+LASKEL, SCADA, eccetera eccetera, Erlang non lo è, ed Erlang è un po' più di basso
+livello rispetto agli altri. In altre parole, dovete pensare a Erlang come l'assembli
+dei linguaggi di promozione funzionali. Erlang ha dei costruttivi un po' più bassi, e una
+volta che ne ho capito come funziona Erlang, tutti i costruttivi di più alto livello dei
+linguaggi di promozione funzionali, ma non solo, sono facilmente spiegabili vedendo
+come si compilano su Erlang. Quindi, io vi spiegherò per bene Erlang, e poi nelle parti
+successive del corso, spesso e volentieri, potremo spiegare come funziona qualcosa dicendoli
+In Erlang è questo, e quindi vi dà una buona base per capire poi gli altri linguaggi. Quindi
+questo è il motivo per andare a vedere entrambi. Quindi adesso inizio a parlare di un'altra
+informazione dell'attore ed Erlang, a parte una parte storica un po' iniziale. Per la
+parte di Erlang, avrò qualche slide, scriverò del codice interattivamente per far vedere
+anche più lentamente come si programma all'interno di Erlang. Però c'è un libro online che si
+chiama Alone yourself, some Erlang for real good, qualcosa del genere, che è fatto molto
+bene, diciamo, a un livello, si legge bene, e anche a un livello di dettaglio giusto,
+e quindi, quello lo usiamo a modo di libro di testo, diciamo così. Quindi, io vi spiegherò
+le cose che stai facendo, poi potete andare a usare quel libro per andare a studiare i
+linguaggi. Il libro è available online free, quindi potete tranquillamente andare a consultarlo
+online. Ok? Allora, prima di vedere il scopo su storico, diamo l'idea della programmazione
+di attori prima che Erlang, in qualche modo, andasse ad aggiungerci qualcosa. La programmazione
+di attori, in qualche modo, doveva avere momenti evolutivi, uno dei 76 dove viene definito
+paradigma, e poi, a un certo punto, Erlang riscopre paradigma, quindi è un caso in cui
+Erlang non nasce dicendo voglio implementare la programmazione di attori. È un caso di
+emersione, quindi la programmazione di attori è stata studiata nel 76, c'erano i linguaggi,
+diciamo, sperimentali che non hanno mai avuto successo, e poi Erlang fa tutta una strada
+evolutiva e, a un certo punto, riscopre la programmazione di attori e la complementa
+con delle nuove idee. Oggigiorno la programmazione di attori è quella di Erlang, inizio dal
+modello invece del 76. Quindi, la programmazione di attori centrale è la nozione di attore.
+Un attore è caratterizzato da tre ingredienti. Il PID, la mailbox e il video. Cos'è il
+PID? Il PID, che potete leggere come process identifier, è un identificatore univo con
+l'attore, quindi ogni attore ha il suo PID. Attenzione, perché questo sarà un punto importante,
+è un nome logico. Chi mi sa dire la differenza fra nome logico e nome fisico?
+In programmazione distribuita, diciamo.
+Quindi, supponiamo di avere un sistema distribuito, quindi ci sono dei server, dei client, insomma,
+ci sono delle macchine remote su cui girano dei processi. E io ho bisogno di comunicare,
+il mio processo, ho bisogno di comunicare con un processo remoto che fornisce un qualche
+servizio. Come faccio a contattare il processo remoto? Ho bisogno di avere un nome del processo
+Questo nome può essere in un'attura, o è fisico o è logico. Il nome fisico, l'esempio
+più tipico è individuali P più socket, descrive come raggiungere e dove si trova il processo
+come voglio comunicare. Per esempio, l'individuali P determina esattamente, pure attraverso routing,
+come fare a spedire un messaggio all'altro nodo e il socket identifica, diciamo, una
+specie di porta, anzi è una porta, diciamo, sul quale il processo si mette in ascolto.
+Quindi, io non so con chi sto comunicando, con chiunque sia in ascolto in quella porta,
+ma specifico esattamente come raggiungere il punto con cui voglio comunicare. L'uso
+di nomi fisici, ovviamente, porta un sistema rigido, perché vuol dire che quando io programmo
+devo, in qualche modo, per usare nomi fisici, conoscere, per esempio, la topologia della
+rete, la topologia vuol dire la forma, essenzialmente, della rete. Quindi devo sapere quali sono
+le macchine a disposizione, chi è deployed dove, quali socket sta utilizzando e questo
+porta una rigidità della rete. Per esempio, immaginare su una rete in cui i processi miglino
+da una macchina all'altra liberamente e non è così facile, perché la migrazione si
+comunica con gli individuali P, non avviene semplicemente. O io faccio dei giochi, rivero
+i debuti in un quadro del genere per cui, in verità, poi gli individui più viene mappato
+in maniera diversa da un'infrastruttura di rete, sennò è tutto rigido. Devo sapere
+esattamente dove sta. Per esempio, un programma che è nato per essere distribuito rispetto
+a un programma che è nato per essere concorrente, quindi per lavorare su una macchina singola,
+è completamente differente per via dei nomi fisici. A Orlando non funziona così. A Orlando
+usa nomi logici. Con i nomi logici io identifico quelli con cui voglio comunicare o collaborare,
+ma non sto dicendo nulla o assumendo nulla sulla topologia della rete. Quindi vuol dire
+che io uso il nome logico di qualcuno per comunicare e questo potrebbe essere a punto
+di vista totalmente trasparente di chi scrive il codice, potrebbe essere su un server remoto,
+potrebbe anche muoversi eventualmente, potrebbe essere su un mio nodo stesso, quindi potrebbe
+essere anche su un altro core, per esempio, della mia macchina. Come vedremo, più avanti,
+ma per l'anticipo, una serie di scelte fra cui queste ha fatto sì che quando nel 2005,
+più o meno, linguaggi di programmazione hanno cercato di inglobare la programmazione multicore,
+tantissime linguaggi di programmazione hanno fatto molta fatica a inglobare la programmazione
+multicore e hanno dovuto modificare i linguaggi di programmazione in qualche modo. L'ultimo
+arrivato, curiosamente quelli funzionari dovrebbero arrivarsi prima di quelli imperativi,
+abbiamo detto, ma per esempio l'ultimissimo arrivato l'anno scorso è OCaml, uno dei due
+principali linguaggi di programmazione funzionali in uso che ci ha impiegato vent'anni per riuscire
+a integrare la programmazione multicore all'interno del linguaggio. Erlang è stato l'unico linguaggio
+di programmazione, l'unico, in cui è stato aggiunto il supporto alla programmazione multicore
+senza cambiare in una riga il linguaggio di programmazione. Il programma di Erlang non
+ha cambiato nulla, nella sintasia, nella semantica, niente, semplicemente il linguaggio di programmazione
+già funzionava perfettamente nell'idea di uscire la multicore. Ovviamente l'impronizzazione
+è cambiata profondamente, il runtime è cambiata profondamente, ma dal punto di vista del linguaggio
+di programmazione è tutto assolutamente trasparente. L'uso dei nomi logici, per esempio, aiuta in questo.
+Quindi torniamo a noi. Un attore ha un nome logico che lo identifica. Notate anche un'altra
+caratteristica. I nomi logici mi dicono come raggiungere l'attore. Quindi l'unico modo
+per contattare un attore, se io non so dov'è perché il linguaggio me lo nasconde, è conoscere
+il nome logico. Quindi solo chi conosce il nome logico di un attore è in grado di comunicare
+con quell'attore. E la topologia della rete, quindi come è fatta la rete chi collabora
+con chi è dato semplicemente la conoscenza dei nomi logici. Quindi per esempio cambia
+in continuazione. Se io per esempio conosco il nome di un attore e te lo comunico, allora
+lui da quel momento in avanti è in grado di comunicare con quell'altro. Quindi la topologia
+della rete, la comunicazione, cambia costantemente durante l'asecuazione. Il secondo ingrediente
+è la mailbox. Che cos'è la mailbox? La mailbox è una coda per la ricezione dei messaggi.
+Quindi l'idea è che un attore riceva dei messaggi e rimetta il coda. Poi vedremo come
+fa a toglierli. Infine, il terzo e ultimo ingrediente di un attore è il behavior. Che
+cos'è il behavior? Il behavior è una mappa che prende messaggi e li trasforma in una
+lista di azioni e un nuovo behavior. Quindi potrebbe dire se io ho ricevuto un messaggio
+e ho fatto così, allora compio le azioni e acquisisco un nuovo behavior. Quindi ogni
+volta che ricevo un messaggio, il mio behavior può cambiare completamente dalla precedente.
+Il behavior è una mappa. Quindi il behavior mi dice se ricevo questo messaggio succede
+questo, se invece ricevo questo messaggio succede questo, se invece ricevo questo messaggio
+succede questo. Quindi sono delle alternative e a seconda del messaggio che io processo,
+vedremo dopo cosa vuol dire, io compio le azioni e vento in un nuovo behavior. Lezioni
+ancora consistono. Ci possono essere computazioni interne, quindi dei calcoli interni tipicamente
+pensati per terminare in un tempo breve, dell'attore. L'attore può inviare in maniera
+sincrona messaggi verso degli altri attori di cui conosce il PID. Quindi attenzione,
+l'invio è solamente a sincrono, quindi non c'è sincronizzazione. Io spedisco un messaggio
+e non so se verrà ricevuto, quando verrà ricevuto, eccetera. Questa è l'unica forma
+di comunicazione. Oppure può creare un attore, o anche terminare. Può terminare l'attore
+oppure può creare un altro attore. Quindi un attore può dare vita ad altri attori. Ok?
+Quindi ci sono i tre ingredienti della promozione di attori. Un attore corrisponde a un unico
+thread di computazione, quindi all'interno di un attore non possiamo avere più thread
+un attore un thread. La promozione di attori è un caso particolare di programmazione reattiva
+o event-driven. Cosa vuol dire? Immaginatevi un sistema che abbia decine di migliaia di
+attori, centinaia di migliaia di attori, milioni di attori. WhatsApp, per esempio. WhatsApp
+fu implementato speciale inizio tramite Erlang. Quindi WhatsApp era un esempio di programma
+scritto un negozio di promozione di attori. Ogni singola app di WhatsApp installata corrisponde
+ad un attore. Quindi c'è un attore in esecuzione per uno di noi. Questa era l'idea. Quindi
+c'erano migliaia di migliaia di attori nel nostro sistema di attori. Ecco, questi attori
+sono normalmente crescenti. Quindi non c'è l'idea che gli attori stiano facendo calcoli.
+L'idea, diciamo, lo stato normale per cui poi è ottimizzata la promozione di attori
+è che tutti questi attori siano praticamente tutti inerti in attesa di scatenare via i
+colori con un messaggio. E quindi ricevono un messaggio, fanno qualcosa per poco tempo,
+scatenando magari altri messaggi e poi tornano a fare quelle scelte. Quindi il sistema,
+la programmazione di attori, predilige configurazioni in cui ci siano un numero elevatissimo di
+attori di cui però pochi, diciamo, siano contemporaneamente facenti qualcosa. È duale, diciamo, una
+programmazione multithreading dove, se siete abituati a scrivere programmi multithreading,
+che so, in C su Linux, il numero dei thread deve rimanere basso, piccolo, perché ogni
+thread sarà davvero costoso e lanciare più thread rallenta significativamente per vari
+motivi. Quindi pochi thread, ma che lavorano, la programmazione di attori è duale, è
+una programmazione vendibile, semplicemente reagiscono all'estima. Gli attori non condividono
+nulla, non condividono stato, non condividono memoria, anche se sono due attori sulla stessa
+macchina, che magari stanno collaborando fra di loro attraverso scambio di messaggi,
+non condividono risorse di nessun genere. Cos'è un sistema di attori? Un sistema di
+attori è un sistema complesso composto da più attori di esecuzione. L'esecuzione è
+indipendente all'ocazione fisica degli attori e la topologia è variabile. Gli attori nascono,
+non condividono. Gli attori possono essere eseguiti in maniera totalmente trasparente
+sullo stesso nodo, sulla stessa V8 Machine, sulla stessa Crosso, sulla stessa CPU, continuano
+a non condividere informazioni, stato, memoria e così via. Questo vuol dire che in Erlang
+non c'è di fatto distinzione e fa programmazione concorrente su una singola macchina, programmazione
+distribuita o di programmazione parallela. Chi mi ricorda la differenza fra programmazione
+concorrente e distribuita? Parallela e distribuita. Concorrente che sono sulla stessa macchina
+concorrano per avere le risorse distribuite, sono su macchine diverse, parallela che sono
+sulla stessa macchina, ma che li sono comunque a essere eseguiti attivamente nello stesso
+momento. Sì, quindi parallela è il multicore, quindi ci sono strade di esecuzione contemporanee.
+Concorrente, invece, magari ci sono strade solo una volta e si alternano nell'uso delle
+risorse. Distribuita, invece, sono più su macchine. Tra programmazione distribuita,
+troveremo su questo punto importante spesso, tra programmazione distribuita e programmazione
+concorrente, quali sono le difficoltà? Cosa c'è a programmazione distribuita da tener
+conto che invece non ha una programmazione concorrente e che rende la programmazione
+distribuita estremamente più difficile a programmazione concorrente.
+Magari ha una tenza, se oggi lo avete pensato che possano essere persi i programmi?
+Va in generale i guasti. Quindi, quando io sto lavorando con un programma su un singolo
+nodo, quindi su una singola macchina, la gestione dei guasti è molto semplice, nel senso che
+se c'è un guasto, il guasto potrebbe essere, se è un guasto fisico, la macchina va giù
+e gli discostevo un po' qualcosa del genere, potrebbe essere un guasto logico. Uno dei
+miei thread in esecuzione sbaglia qualcosa, solleva un'escezione qualcosa del genere.
+Ora, la gestione del guasto in un sistema concorrente è tutto sommato facile, perché
+io ho controllo di tutti i thread in esecuzione e quindi, in qualche modo, io posso essere
+sicuri che tutti sappiano che c'è stato un guasto e che, per esempio, si sincoliscono
+in qualche modo per riparare il guasto. Quindi, magari, che so, in caso di un guasto potrebbe
+per esempio pensare ragionevolmente che un qualche thread ricominci a parlare della computazione
+perché è cresciato e gli altri facciano un backtracking parziale per tornare a uno stato
+ragionevole, cosa del genere. La programmazione distribuita, invece, io aggiungo ai guasti
+locali i guasti di rete. Quindi, i guasti di rete vuol dire che io invio un messaggio,
+un maggior messaggio può essere perso, può essere perbutato, ci può essere un partizionamento
+per cui le macchine non sanno più comunicare fra di loro. E anche altre situazioni anche
+peggiori, per esempio, c'è stato un partizionamento per 20 minuti e poi la rete torna in piedi.
+Ora, qual è il problema della gestione del guasto in un sistema distribuito? Il problema
+della gestione del guasto in un sistema distribuito è che se io mi rendo conto che c'è un problema
+di un guasto, non è detto che io riesca a comunicare agli altri processi che stanno collaborando
+con me il fatto che ci sia un guasto, essenzialmente. Perché se c'è il guasto nella rete, io magari
+comunico che c'è il guasto, ma dall'altra parte questa informazione non arriva. Quindi,
+pensare ai procedimenti del tipo, c'è un guasto e quindi io dico a tutti quelli con
+questo collaboro che c'è il guasto, cerchiamoli di metterci in uno stato safe, cerchiamoli
+di fare un backtracking parziale per metterci in una situazione che avrà senso, cosa del
+genere. In genere non funziona. Non funziona perché in presenza di guasto anche queste
+comunicazioni di servizio non possono andare produte. Anzi, spesso e volentieri il guasto
+è alla rete, quindi far affidare il reto sulla rete che è guasta per dire agli altri di fare
+qualcosa, ovviamente la cosa non funziona. C'è proprio un teorema che mi dice che non
+esce, funziona. E quindi quello che succede in questi casi tipicamente è che se voi provate
+a gestire il guasto in un sistema distribuito, andando a sincronizzarvi, a fare backtracking
+eccetera eccetera, il sistema entra in uno stato ancora più carotico. Ci saranno per
+esempio dei thread che stanno andando all'avanti perché non hanno saputo che c'è il guasto,
+degli altri che stanno andando all'indietro per cercare di fare backtracking, dei thread
+che pensano che un altro sia completamente cresciato e quindi magari ricominciano la
+computazione con qualcun altro, poi la rete si ripara dopo venti minuti e erano i messaggi
+persi, la gestione del guasto in un sistema distribuito è super super super complicata.
+Vedremo che uno dei punti di forza del promessore dell'attore di Erlang è aver dato una soluzione
+drastica ma perfettamente funzionante a questo punto. Sarà la gestione dei guasti di Erlang
+uno dei punti di forza del promessore dell'attore. La vediamo più avanti però.
+Quindi, c'eramo attore, PID, mailbox, behavior, un sistema di attore, un'insieme di attore
+in esecuzione da qualche parte non ci interessa e che collabora di questo modo.
+Ora, prima di andare un attimo a vedere la storia della programmazione dell'attore e
+poi cosa Erlang aggiunge, vediamo un LWord della programmazione dell'attore in Erlang.
+Dittemi se è abbastanza largo da leggere e non troppo per...
+Ok, quindi scriviamo il nostro primo programma Erlang.
+Ora, che sintassi ha Erlang?
+Come nascono i linguaggi di programmazione?
+Allora, quando un programmatore sviluppa un nuovo linguaggio di programmazione da zero
+usa un linguaggio di programmazione che conosce e che in qualche modo ama se lo sta utilizzando
+per implementare il nuovo linguaggio di programmazione.
+Poi passa del tempo e magari nel momento in cui il nuovo linguaggio di programmazione
+è implementato e diventa sufficientemente espressivo, reimplementa nel nuovo linguaggio
+di programmazione il linguaggio di programmazione stesso.
+Se ho riguardato un compilatore C, per esempio, di giorno è scritto in C, un compilatore
+C++ è scritto in C++ e così via.
+Schiava bootstrap, quindi prima io compilo ed eseguo una versione linguaggio di programmazione
+e poi la posso utilizzare per andare a sviluppare le versioni successive.
+Però, diciamo, all'inizio, chiaramente io sviluppo un linguaggio di programmazione
+in un altro linguaggio di programmazione che in qualche modo amo.
+Questo vuol dire che in genere i linguaggi di programmazione che vengono sviluppati
+hanno delle cose in comune con quelle in cui sono state sviluppate,
+perché inevitabilmente se l'autore amava il linguaggio precedente
+qualcosa avrà tenuto le cose che gli piacciono di quello loro.
+Ora, nel caso di Erlang, storicamente le prime prototipi di Erlang
+furono scritte, come vedremo, in Prolog.
+E quindi, la sintassi di Erlang, che non è un linguaggio di programmazione logica come Prolog
+o non lo è più, all'inizio lo era, ma non lo è più,
+condividono, in verità, la sintassi con Prolog.
+Quindi, sarà un linguaggio di programmazione,
+senz'altro abbiamo detto funzionale, più alto in costruzioni,
+la cui sintassi, però, ricorda il più possibile la sintassi di Prolog.
+Non so quanti di voi ve l'ha mai visto, ho usato Prolog più di tanto,
+non ha una grossa importanza, però, diciamo, la sintassi è straordinamente bella,
+straordinamente concisa, io amo la sintassi di Erlang, però è molto diversa,
+diciamo, dalla sintassi a cui siete abituati, che è quella ispirata
+dai linguaggi tipo Modulo, AC e cose del genere.
+Come dicevo, l'Exir è una specie di reimplementazione del linguaggio sulla stessa runtime,
+che cerca di prendere una sintassi più simile, diciamo, a quella del linguaggio che conosciamo.
+Quindi, se qualcuno di voi conosce Prolog, riconosceva un po' della sintassi che sto usando adesso.
+Per prima cosa, io dichiavo che sto lavorando all'interno di un modulo
+e il nome del modulo deve essere il nome del file.
+Quindi, modul elo, sto dicendo che sto implementando il file elo.erlang.
+Quello che inizia con meno che qualcosa in Prolog è una divertiva, quindi non fa parte del codice,
+è una divertiva che aiuta il compilatore a fare qualcosa, ok?
+Secondo punto, un file scritto in Prolog o in Erlang, anche se si voglia in questo caso,
+definisce al suo interno delle funzioni ed è un'unità di compilazione che può esportare o meno le funzioni.
+Quindi, potete scegliere quale codice sia invocabile da fuori
+e quale codice sia invocabile solamente all'interno del modulo.
+Per farlo, voi all'inizio del file dovete scrivere esattamente
+quali sono le funzioni che vengono esportate all'esterno.
+Tutto ciò che non viene esportato è nascosto.
+Quindi, in questo caso, la divertiva è meno export e prende una lista,
+che è la lista delle funzioni da esportare.
+La lista è, facciamo etsi quadri, se provate la virgola, al momento, diciamo, non ci metto niente,
+ma tra poco ci metterò quello che vado a esportare.
+Fatemi dare una sbiocciatina giusto.
+Alto punto è il punto.
+Quindi, in Polog, tutti le istruzioni, i comandi, le definizioni terminano con punto.
+Quindi, punto.
+Allora, cosa vogliamo mettere in questo Hello World?
+Mettiamo in un programma che stampi Hello World, perché non è il punto la programmazione ad attori.
+Quindi, se voglio fare un esempio di Hello World di era,
+l'ango ho bisogno di fare almeno un attore.
+Quindi, un attore dovrà avere un behavior e rispondere ai messaggi.
+Allora, cosa facciamo come esempio?
+Facciamo un attore basico che, in qualche modo, voglia implementare una specie di counter,
+di conto coerente, di cella condivisa, in qualche modo.
+Quindi, manterà un balance del mio conto coerente e poi avrà delle operazioni del tipo
+io ti dico che sto versando qualcosa sul conto coerente,
+oppure, dimmi quanti soldi ho nel conto coerente.
+Quindi, operazioni di questo genere.
+Quindi, come faccio a implementare qualcosa del genere?
+Allora, l'idea, come vi dicevo, è io bisogno di definire un behavior.
+Il behavior deve dire, se io ricevo certi messaggi, faccio qualcosa.
+Però, devo avere alcun stato, in qualche modo.
+Il mio conto coerente deve avere un balance, che per l'appunto mi dice quanti soldi ho.
+E poi, una volta che io ricevo un messaggio, devo acquisire un nuovo behavior.
+Allora, l'idea di Erlang è che il behavior viene definito da una funzione,
+una funzione che è tipicamente ricorsiva.
+Quindi, la mia funzione ricorsiva prenderà in input lo stato,
+in questo caso prenderà in input il balance attuale,
+poi descriverà come reagire ai messaggi,
+e tipicamente, dopo aver ricevuto un messaggio, prenderà un altro behavior.
+In questo caso, il behavior è sempre quello.
+Io voglio che il mio conto coerente continui a ricevere messaggi,
+get, put e faccio quello che deve fare.
+Io mi chiamerò ricorsivamente.
+Quindi, il mio attore verrà specificato da una funzione ricorsiva.
+La funzione ricorsiva la chiamo, per esempio, cc per conto coerente,
+e prendi in input delle variabili che sono l'input della funzione ricorsiva,
+che rappresenta lo stato del mio attore.
+Adesso, per esempio, il balance.
+Ancora sulla sintassi pologlike.
+Quindi, i nomi delle funzioni si scrivono con le lettere minuscole all'inizio,
+quindi cc è una funzione.
+Invece, le, aperte virgolette variabili,
+chi usa virgolette variabili,
+diciamo, i parametri formali, in questo caso, che sto prendendo in input,
+iniziano con la letta maiuscola.
+Quindi, ball è una variabile.
+Ho detto variabile, fra virgolette,
+perché Erlang è un linguaggio di programmazione,
+uno dei più puri che esista,
+tranne un numero minimo di costrutti che vedremo,
+è un linguaggio di programmazione puro che non ammette mutazione di nessuna sorta,
+tranne per un pari di costrutti particolari che vedremo.
+Quindi, le variabili non possono essere variate.
+Quindi, sono tutte costanti.
+Vedete in input il vostro balance
+e non potete modificarlo in nessun modo.
+La freccia va a separare,
+in questo momento, diciamo, l'input dall'auto,
+sarà un po' più complicato, vedremo.
+Quindi, sto dicendo, quando vengo invocato con un balance,
+cosa la faccio?
+A questo punto voglio descrivere un behavior.
+Il behavior lo descrivo tramite un costrutto receive-end.
+Quasi tutti i costrutti terminano con end.
+Il mio behavior deve dirmi,
+se ricevo un certo messaggio, faccio una certa cosa.
+Vado a scrivere questo tramite una serie di pattern
+che verranno confrontati con i messaggi nella mailbox
+in un certo ordine, che vedremo dopo,
+e se nella mailbox viene trovato un messaggio
+che fa match con un certo pattern,
+allora viene eseguito un certo codice.
+Un pattern è una descrizione, una possibile forma dell'input.
+Quindi, ogni possibile descrizione di un pattern
+può matchare o no qualcosa che era mailbox,
+sia alla stessa forma.
+E non solo, nel caso in cui il pattern matchi qualcosa che era mailbox,
+legherà dei nomi di variabile al contenuto del messaggio.
+Quindi, per esempio, in questo caso,
+quali sono i messaggi che voglio poter processare?
+Per esempio, vediamoci un primo messaggio di debug
+che è semplicemente print.
+Quindi, print sarà il messaggio che mi chiede,
+in maniera solamente di debug,
+di stampare da qualche parte il contenuto del mio conto corretto.
+Un secondo messaggio sarà, per esempio, put.
+Un'altra cosa vi spiego meglio.
+Quindi, put n.
+Put sarà l'idea di aggiungere nel mio...
+Versare qualcosa.
+Versare n nel mio conto.
+Un ultimo messaggio sarà get.
+Quello adesso vi spiego.
+Quindi, get, io vado a chiedere di sapere
+quanto c'è nel conto corrente.
+O, infine, magari, un messaggio exit
+in cui dico di terminare il mio tour.
+Quindi, vedete che sarà della forma a sinistra della freccia
+o dei pattern.
+A destra della freccia andrò a scrivere il codice corrispondente.
+Come sono fatti questi pattern?
+Il primo e l'ultimo pattern, print ed exit,
+corrispondono semplicemente ad avere ricevuto come input print,
+avere ricevuto come input exit.
+Anche in questo caso sono scritti con le lettere minuscole,
+come acc, ma non hanno una tonda.
+Se io ho la lettera minuscola aperta tonda, è una funzione.
+Che cos'è qualcosa che io scrivo con la lettera minuscola,
+ma senza, diciamo, una tonda aperta?
+Non è una funzione, è un atomo.
+Quindi print ed exit sono atomi.
+Alcuni in quali informazioni hanno un'informazione di atomo,
+altri non ce l'hanno e la vanno a simulare in qualche modo.
+L'idea di un atomo, come vedremo meglio quando vediamo un linguaggio,
+è che un atomo è un dato che non ha niente di interessante
+se non il fatto di essere uguale a se stesso
+e diverso da tutti gli altri atomi.
+Quindi, io lo posso utilizzare per indicare qualcosa.
+Quindi, per esempio, l'atomo print è diverso dall'atomo exit.
+Quindi, in questo caso, lo sto usando come messaggio per distinguere.
+Esempio, tipicamente, se volete implementare un gioco
+e avete quattro semi, cuore, quadro, picchio e fiori,
+e volete indicare una carta, un cuore, un piccolo e un fiore,
+dovete usare uno di questi quattro valori.
+L'unica cosa che vi interessa è che vi siano quattro valori distinti,
+non vi interessa altro.
+Quindi userete quattro atomi, cuore, quadro, picchio e fiori.
+Se siete, per esempio, in C
+e volete fare una roba del genere
+e non avete gli atomi a disposizione, C è troppo di basso livello.
+Quindi, quello che fate, tipicamente,
+è associare a ognuno degli atomi che vorresti un numero.
+Quindi, dite, per esempio, che cuore è 0, cuore è 1,
+definendo delle costanti a seconda del linguaggio,
+usando per processore, usando un costume, un numero o qualcosa,
+e poi utilizzate, diciamo, i numeri direttamente.
+Le linguaggi che creano gli atomi, voi scrivete semplicemente gli atomi,
+ed è poi il compilatore, barra, rantani, che garantisce
+che abbiano solamente questa proprietà di associare
+se stessi diversi dagli altri,
+e decide come le rappresentiamo i rantani.
+Vedremo, più avanti nel corso,
+come vengono compilati gli atomi nel linguaggio di formazione con atomi.
+Per esempio, Polog è un linguaggio che ha atomi,
+Erlang ha gli atomi,
+chi con me, per esempio, ha visto il corso di fondamenti logico,
+abbiamo visto i tipi dati algebrici,
+se un tipo di dato algebico non trasporta niente,
+è un atomo e il costruttore vedremo in qualche modo che quello parte dagli atomi.
+Nel caso di Poot, il mio messaggio deve contenere anche
+quanti soldi voglio versare, ok?
+Devo fare Poot in 10 euro, Poot in 50 euro e così via.
+Quindi, il mio messaggio, in questo caso,
+sa va una coppia, quindi fa parentesi graffe separati da virgole,
+io faccio le coppie di triple e quadruple,
+mi permette di passare più dati contemporaneamente.
+Quindi, in questo caso, una coppia in cui il primo valore della coppia è l'atomo Poot
+e secondo c'è una variabile n, le parallelità maiuscole.
+Quindi, vuol dire che questo pattern fa match,
+per esempio, contro il messaggio Poot 10,
+se uno mi invia il messaggio Poot 10, questo ramo fa match,
+e la variabile n viene legata al valore 10.
+Quindi, il corpo dell'esequazione n diventa 10.
+Mentre, per esempio, non fa match con Get 10,
+perché Poot è diverso da Get, quindi non è il messaggio giusto.
+Cosa faccio nel caso Poot? Iniziamo, per esempio, da qua.
+Quindi, nel caso Poot n, io voglio incrementare il balance corrente,
+che da ball deve diventare ball più n.
+E poi devo assumere il nuovo behavior.
+Il nuovo behavior sarà identico.
+Quindi, io voglio continuare a processare print, put, get ed exit.
+Quindi, faccio una chiamata ricorsiva cc
+e passo al posto di ball ball più n.
+Notate che non c'è nessuna modifica del mio dato,
+non ho imperativamente cambiato il balance,
+semplicemente ho fatto una chiamata ricorsiva passando un nuovo valore.
+Quindi, sullo stack, in prima approssimazione, avrò un nuovo valore lì.
+Print vi avevo detto che è qualcosa di debugging,
+ma è semplicemente stampare qualcosa sullo standard output
+per sapere qual è il valore.
+In questo caso, la syntaxi è una roba tipo printf.
+Quindi, io format vuol dire invoco la funzione format contenuta nel modulo io.
+Per esempio, sto implementando il modulo elo,
+quindi elo.cc è la funzione cc del modulo elo.
+Quindi, uso la funzione format del modulo io,
+passo una stringa,
+questa stringa ci posso scrivere quello che voglio,
+il balance è...
+Se voglio sostituire all'interno della stringa un placeholder
+con un dato come faccio con la printf per intenderci,
+utilizzo la tilde p.
+Quindi tilde p vuol dire placeholder.
+Qua ci stampo qualcosa.
+Tilde n corrisponde al backslash n, cioè quello per andare a campo.
+Quindi la tilde è un po' il quota universale.
+Dopodiché io passo una lista di argomenti
+che deve essere lunga quanti sono i tilde p
+e ci passo quello che voglio stampare.
+Quindi, in questo caso, per esempio, stampo la variabile balance.
+E la lista è lunga una perché ho esattamente un p.
+Dopo aver stampato che è la mia azione interna,
+io voglio riacquisire lo stesso behavior,
+quindi cc del mio balance.
+Faccio la chiamata ricorsina.
+Ora, come separo le istruzioni?
+Avete già visto che sto utilizzando dei punti e virgola
+per fare i vari casi e metto una virgola qua.
+Perché la virgola per separare i comandi
+e il punti e virgola per separare i casi?
+Sembra strano. Noi siamo literati in C
+a usare punti e virgola per separare i comandi, per esempio.
+Torniamo al prolog.
+In prolog virgola e punti e virgola
+corrispondono ai connettivi logici and e over.
+Quindi virgola e land e punti e virgola e lower.
+Ora, se voi ragionate in maniera logica,
+cosa devo fare quando ricevo print?
+Eseguo your format e eseguo ccballa.
+Quindi dia una e virgola e land.
+Invece, perché ci sono dei punti e virgola fa questo?
+Perché se ho ricevuto print, faccio questo.
+Oppure se ho ricevuto put, faccio questo.
+Oppure se ho ricevuto, faccio quello.
+Quindi la sintassi è la sintassi che ha senso
+una lettura logica nel mio codice.
+Exit. Nel caso exit,
+io voglio terminare il mio attore
+e quindi non avrò più un behavior.
+Quindi terminerà quando termina,
+restituirà un valore finale,
+il valore di uscita dell'attore.
+Può essere qualunque cosa.
+Ci metto, per esempio, k.
+Quindi lato brok, quindi
+Veniamo alla get.
+La get è quella più interessante in qualche modo.
+Quindi vuol dire che io ho il mio conto in banca
+a cui posso fare dei rilassamenti
+e ogni tanto voglio sapere quanto ha il conto in banca.
+Quindi io voglio chiedere,
+quindi non posso leggere il conto in banca
+perché ho un attore isolato rispetto ad altri,
+quindi l'unico modo per saperlo è chiedergli
+di dirmi qual è il conto in banca.
+Quindi io mando un messaggio get
+e mi attendo che lui mi invi,
+sempre in maniera sincrona,
+il valore del mio conto in banca.
+Il problema è come fa lui a sapere
+a chi inviarlo.
+Per fare questo
+bisogna sapere il nome logico, il PID.
+Dicco lui a cui inviarlo.
+Quindi quando io comunico
+a lui la richiesta del get,
+includerò il mio PID.
+In maniera tale che lui usi quel PID
+per inviare a me la risposta.
+Quindi questo è il motivo per cui ho preso
+una variabile in input che è PID.
+Quindi lui cosa fa?
+Il PID, che sono io, la risposta.
+Quindi l'operazione
+di send è
+nella forma più semplice della sintassi,
+poi vedremo se ci sono delle variazioni.
+Il PID, quindi destinatario,
+bang, che vuol dire invio,
+e poi messaggio.
+Il messaggio posso metterci,
+per esempio, anche semplicemente il balance.
+Quindi invia al balance
+e virgola
+fa vala chiamata ricorsiva perché il balance
+non è alterato.
+Quindi a meno di avere voi sintattici,
+questo è il mio
+Hello World.
+Andiamo a invocarlo.
+Magari
+vediamo se...
+Se riesco a tenere entrambe le finestre...
+...
+Cercavo di tenere le vite aperte entrambe...
+Nell'ultima instruzione di GET
+ci vuole il punto virgola.
+Sì, nell'ultima ci vuole il punto virgola, grazie.
+Allora, come faccio
+a mandare l'esecuzione
+il mio codice?
+Didattica Emerging
+Erlang
+...
+...
+Erlang è un linguaggio
+un po' come Java in cui io
+compiro il codice verso il codice
+di una virtual machine, verso dei bytecode
+e dopodiché ci sono delle virtual machine
+che eseguono il codice.
+Vedremo meglio più avanti come funziona,
+ma diciamo che in ira di massima
+normalmente su ogni macchina fisica
+è in esecuzione una virtual machine.
+Una virtual machine in esecuzione è chiamata nodo.
+Quindi normalmente su una macchina fisica
+ci sta un nodo. Dico normalmente
+perché nulla vi vieta rilanciare
+due virtual machine sulla vostra macchina.
+In questo caso avete due nodi
+che sono entrambe esecuzione sulla vostra macchina,
+così fa.
+Il nodo, cioè la macchina virtuale in esecuzione
+poi
+utilizzerà tutti i colori che voi avete a disposizione.
+Quindi normalmente
+usa il numero di colori che avete
+e potete eventualmente usare un numero inserito.
+Quindi per mandare in esecuzione il mio codice
+ho bisogno almeno di due ingredienti.
+Prima devo compilarlo verso il codice
+della mia macchina bytecode
+e poi devo caricarlo nella mia
+macchina virtuale.
+C'è un terzo ingrediente.
+Quando io lancio il nodo della mia macchina virtuale
+vi è lanciata
+una shell.
+Che cos'è la shell?
+La shell è come la shell
+del sistema operativo
+mi permette di dare dei comandi
+e vedere delle risposte,
+essenzialmente.
+La shell sa va anche lei un attore.
+Quindi quando io lancio un nodo
+c'è un primo attore che viene creato
+che è l'attore shell.
+A partire da quell'attore
+io potrò comunicare con altri attori,
+lanciare altri attori e così via.
+Quindi per esempio in questo caso,
+io all'interno della mia shell
+lancrerò l'attore conto bancario
+e poi comunicherò con l'attore conto bancario.
+La shell ha tutti gli effetti un attore come tutti gli altri.
+Quindi per esempio se io ho tre nodi spazio sulla rete
+ho anche tre shell
+e per esempio potrò comunicare una shell alle altre.
+Questa idea che la shell sia anch'essa un attore
+in verità
+è un'idea molto
+di forma molto semplice
+che si applica il più possibile
+a tutto all'interno di Erlang.
+Quindi Erlang cerca di rappresentare come attore
+tutto ciò che in qualche modo
+è staraneo al linguaggio.
+Quindi se per esempio io
+devo interfacciare Erlang
+con un altro linguaggio di programmazione
+per esempio, o con la bash,
+con la shell del sistema operativo,
+io la wrapperò all'interno
+di un attore. Quindi
+creerò un attore che wrappa in qualche modo
+la mia shell e poi comunicherò con la shell
+attraverso dei messaggi all'altro attore.
+E ci sono dei meccanismi per creare
+attori parziali
+che in qualche modo rappresentano cose terze.
+Quindi l'idea
+è tutto un attore in Erlang.
+Quindi dovrei prima compilare e poi
+caricare. In verità la cosa più semplice
+è, usando comando Erlang
+io ho lanciato
+la macchina virtuale e ho creato
+la mia shell.
+Questa roba che vi stampa all'inizio
+vi dice che questa
+versione 27 di Erlang OTP, torneremo su
+che cosa è OTP,
+che è stata compilata per 64 bit
+e le altre informazioni vi dice per esempio
+quanti costa utilizzando
+e altre informazioni di varia macchina.
+Dopodiché, una volta che ho lanciato
+la macchina virtuale, io ho la mia shell in esecuzione.
+Allora,
+la prima cosa che voglio fare è compilare
+questo codice. Quindi,
+c'è una funzione che si chiama
+c, che sta per compila
+e se ripasso il nome
+di un file, poi la compilalo se non ci sono errori.
+Quindi, con c e lo
+io sto dicendo alla shell
+compilami il file lo.
+C'è un errore di sintassi
+riga 12
+manca il punto
+in fondo direi
+posso richiedere
+di compilare
+ok
+ha compilato senza problemi, ma mi sta dicendo
+la funzione non è utilizzata.
+In effetti, io non ho esportato niente da questo file
+quindi questa funzione è usabile solamente
+al ritorno del file ma nessuno la usa e quindi chiaramente
+mi sta dando un errore. Io devo esportare la
+funzione, in maniera tale da poterla utilizzare da fuori.
+Per esportare la
+funzione, io scrivo nella mia lista
+quali sono le funzioni che voglio esportare.
+A questo punto vi immaginereste
+se non conoscete Polog
+che io scriva cc
+per dire il nome della funzione.
+In verità
+in Polog
+e quindi anche in Erlang
+è possibile riusare
+lo stesso nome
+per funzioni che differiscano nel numero di argomenti.
+Quindi potrei definire
+una cc che prende un argomento, due argomenti, tre argomenti
+sono funzioni
+diverse ovviamente, perché hanno un corpo
+diverso e delle cose diverse.
+Quindi se io scrivo cc e basta, non è chiaro quale
+di quelle funzioni sto andando a esportare.
+Quindi quando voi dovete scrivere
+da qualche parte il nome della funzione
+per poter farci il riferimento
+la sintassi Polog è
+il nome della funzione barra arieta
+cioè il numero di argomenti.
+Quindi questa è la funzione cc barva uno.
+Che non vuol dire cc diviso uno
+vuol dire la funzione cc che prende un input.
+Ricompiro.
+Ok e lo è la risposta.
+Quindi
+la compilazione ha avuto successo
+e mi ha istituito una coppia
+in cui il primo ok per il riferimento ha avuto successo
+secondo il nome del modulo che è stato compilato.
+Non ho bisogno
+di caricarlo esplicitamente o qualcosa del genere
+una volta compilato, se io uso una
+funzione di quel modulo
+l'avvio tra machine carica automaticamente il modulo.
+A questo punto
+io voglio creare un attore che abbia quel behavior.
+Per crearlo
+uso una funzione spawn.
+La spawn ha varie sintassi
+o meglio diciamo
+proprio perché la spawn può prendere più input
+posso passareci varie cose.
+La sintassi che uso adesso è
+il nome del modulo
+il nome della funzione
+e il list dei argomenti
+da passare alla chiamata iniziale della funzione.
+Quindi io dal modulo
+hello
+devo chiamare la funzione
+cc e devo passare
+la lista degli argomenti che si aspetta.
+La cc1 si aspetta un argomento
+che è il balance e quindi li passo per esempio
+che so 10.
+Questa chiamata
+mi crea, mi fa spawn
+di un nuovo attore.
+Cosa mi restituisce?
+Secondo voi cosa restituirà mai questa nuova funzione?
+Ok, l'attore
+Cosa intendi per attore?
+Il PID, dovrà darmi il PID dell'attore
+perché abbiamo detto l'unico modo che comunicare con un attore
+è tra l'attore sul PID.
+Se io lo creo e nessuno dice qual è il PID
+quell'attore lì
+sarà irraggiungibile. Quindi chiaramente
+mi dava il PID.
+Lo metto in una mia variabile
+PID. Questo non è un assegnamento
+torneremo più avanti quando faremo un linguaggio
+per bene su che cos'è, però diciamo
+di fatto in questo caso si comporta con un assegnamento
+quindi diciamo da questo momento in avanti
+con una variabile PID utilizzabile che conterrà
+il PID dell'attore.
+Cosa mi ha stampato?
+0, 100, 0, quando io do un comando
+mi stampa anche
+il valore finale
+dell'espressione, diciamo in questo caso
+che corrisponde al PID stesso.
+Quindi quello minore 0, 100, 0
+è una rappresentazione sintatica
+del PID.
+Da qualche informazione di debugging
+non prendete la topo sul serio
+quel PID lì
+nel senso che per esempio abbiamo detto
+il PID è un nome logico
+qua viene stampato come 0, 100, 0
+se io dopo metto una stampa qua
+del PID quando lo ricevo nel metodo GET
+vedrete che non c'è scritto 0, 100, 0
+ci sarà una scritta diversa
+ma è lo stesso PID. Quindi il punto è
+sul nodo il PID
+viene stampato in un certo modo, su un altro nodo
+il PID può essere stampato in un altro modo.
+L'importante è che runtime sappia quel nome logico
+che è globalmente unico
+sulla VED.
+A questo punto abbiamo l'attore
+in esecuzione. Cosa posso fare?
+Posso comunicarci. Quindi per esempio
+potrei fare al PID
+invio print.
+Print richiedeva di stampare
+il balance quanto fa
+sullo standard output visto che
+l'attore dovevo mandare l'esecuzione da questa shell
+è anche collegato
+sullo standard output su questa shell
+l'output.
+Il balance è 10 print
+il balance 10 è quello che ha stampato questo
+che adesso ho fatto la chiamata
+ricursiva e quindi è tornato indietro
+che cos'è print?
+è stessa cosa di prima
+l'invio di un messaggio restituisce come valore finale
+il messaggio, quindi la shell
+mi stampa il valore finale
+dell'ultima cosa che ho eseguito.
+Ok? L'attore dovrebbe
+essere tornato ad esecuzione con la chiamata
+ricursiva, quindi se richiedo di stampare il nuovo
+se voglio dire incremento
+di 2
+al PID invio
+una coppia dove scrivo l'atomo
+output e il valore 2
+mi stampa output 2 perché è sempre il valore che ho inviato
+se io chiedo print
+dov'è?
+adesso il balance è 12
+quindi giustamente si è incrementato.
+Print è questo il valore in quel caso
+ha stampato
+quando chiama poi
+stampa print
+c'è questo valore
+mi stanno stampando
+la chiamata ricursiva
+si si no
+è la chiamata messaggio scatena di erio
+che fa al balance 10
+a questo punto questa riga della shell è terminata
+la riga vale print
+perché
+il valore del comando send
+è il messaggio che sto inviando
+e viene stampato
+infine proviamo una get
+quindi io voglio comunicare
+la richiesta di ricevere
+un messaggio indietro con il valore
+e quindi devo comunicare il mio PID
+quindi al PID mando il messaggio
+get
+e come mio PID ci metto la chiamata self
+la chiamata self restituisce
+il proprio PID
+ho inviato 084 0
+e 084 0 è il PID della shell
+che non ho scoperto che veniva presentato in questo modo
+poi non sembra sia successo nulla
+perché cosa è successo?
+io in maniera sincrona mi ho inviato il messaggio
+lui l'aveva processato
+e in maniera sempre sincrona
+mi ha inviato il dietro balance
+il punto che
+la shell vi ho detto è un attore
+è un attore un po' strano
+perché vi ho detto finora
+gli attori fanno proprio un'azione reattiva
+quindi sono in attesa dei messaggi
+e fanno qualcosa e quello è il behavior
+ma la shell non ha un behavior
+non ha una receive
+che dirà se ricevo questo messaggio faccio qualcosa
+la shell sta comunicando con me in qualche modo
+quindi gli è arrivato il messaggio
+il messaggio è finito nella mailbox della shell
+ma ovviamente nessuno lo sta processando
+quindi se voglio tirarlo fuori dalla shell
+devo dare un behavior
+alla mia shell in questo momento
+quindi posso per esempio scrivere
+receive e dire
+se ho un messaggio msg
+per esempio lo restituisco
+quindi attenzione
+cosa accenta questa sintasi con questa?
+è uguale, qua io scrivevo dei pattern
+a seconda di quale scattava eseguo il codice
+in questo caso il mio pattern è semplicemente una variabile
+quindi questo pattern
+matcha tutto, tutta quella forma
+quindi la variabile
+matcha qualunque cosa, quindi qualunque messaggio
+che vi ho ricevuto adesso diventa msg
+e lo restituisco
+restituendolo io vedo sulla shell
+il messaggio ricevuto
+12
+perché effettivamente il messaggio che ho ricevuto è 12
+ovviamente questo ha consumato
+il messaggio, per cui se io adesso
+provo a ricevere nuovamente
+deadlock
+rimango in attesa per sempre di ricevere un messaggio
+ma visto che in questo momento
+nessuno conosce il PID della shell
+tranne
+l'altro che l'ha prodotto perché ha fatto una chiamata senza
+questa è una situazione di deadlock
+e non esco più
+ok?
+se inviamo exit, terminava
+l'altro totale
+quindi questo in un certo senso è
+l'ello word della programmazione
+dell'atturo video 76
+quindi prima delle aggiunte
+ma se dalla shell facciamo put
+e invece di mettere un numero di carto
+abbiamo una stringa
+ok, ottima domanda
+però debbo abortiva
+allora
+il linguaggio come abbiamo detto
+è non tippato
+quindi
+io potrei per esempio
+inviare alla put qualcosa N
+che non è un numero
+e a questo punto provo a sommare qualcosa
+che non è un numero con un numero
+vediamo più avanti cosa succede in questo caso
+ovviamente è un errore
+e quindi diciamo a seconda delle provazioni
+o restituisci un valore
+tipo un atomo R
+un atomo K-O
+qualcosa del genere per dire un errore
+vedremo con un uso molto limitato
+che potrebbe anche
+sollevare un'eccezione
+di qualche natusora
+oppure potrebbe scatenare meccanismi di gestione dei guasti
+quindi diciamo il linguaggio è non tippato
+resta a voi scrivere il codice sensato
+altre domande?
+anche un po' come sintassi
+come idea
+ricorda un po'
+si ricorda
+anche GCS
+si si
+ricorda
+fa parte di quella famiglia
+il bang in certe agge del processo
+quando abbiamo scritto
+message
+la scelta è andata in deadlock
+perché non aveva più messaggi da processare
+io possiamo vedere quindi
+lo spawn di un attore
+come la creazione di un attore la messa in deadlock
+in attesa di cosa da processare?
+non è una messa in deadlock
+io creo l'attore, quello che si dice un behavior
+il behavior vuol dire
+sospendersi in attesa
+che ci sia qualcosa nella mailbox di processabile
+la deadlock è quella situazione
+in cui
+dato un insieme
+x1, xn
+di thread
+di processi attore
+ognuno in attesa
+che un altro
+all'interno
+dell'insieme
+prima riceva un messaggio
+e quindi il sistema è in possibilità di avanzare
+perché nessuno potrà ricevere un messaggio
+perché prima di poterlo mandare
+quindi l'attore non era in deadlock
+l'attore era in attesa di un messaggio
+in questo caso deadlock ce l'ho
+perché la scelta è in attesa di un messaggio
+quindi nessuno può mandare
+perché nessuno conosce il suo PID
+tranne l'unico che ha più stato comunicato
+che non gli manderebbe niente
+in certi casi
+in questo caso la scelta è data
+in deadlock e game over
+ma in certi casi
+quando se fate degli esperimenti con Erlang
+può capitare che
+dalla scelta
+il sistema faccia la detection del deadlock
+e vi scrive dicendo
+c'è un insieme di attore in deadlock
+e poi potete per esempio
+uccidere certi attori
+quindi da volte avete la detection
+quindi questo
+è un esempio, un hello world
+di attore stile 76
+la scelta nasce con un behavior
+in cui si sta aspettando l'input
+cioè un receive
+del tipo riceve l'input
+e la scelta è un po' strana
+perché invece di avere un behavior
+dettato solamente dalla mailbox
+quindi se vedo questo faccio quello
+non guarda la mailbox
+guarda lo standard input
+è come se avesse un behavior particolare
+dove osserva lo standard input
+e in base quello che scrivete fa qualcosa
+quindi è un attore strano
+in un certo senso
+fra l'altro è possibile anche fare dettato
+cioè quando io lancio Erlang
+sulla mia macchina
+la scelta
+io presento posto
+da un altro computer
+collegarmi la scelta su questo nodo
+quindi non è che la scelta
+essere solamente su un nodo
+la scelta nasce
+dalla macchina virtuale ma può essere
+contattata remotamente anche per fare monitor
+in dirremoto oppure lancio su un server
+da questa macchina e poi posso il giorno dopo
+collegarmi e interagire
+chi ve sono?
+quindi
+prima è proprio così
+domani iniziamo a vedere

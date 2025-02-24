@@ -1,0 +1,3264 @@
+Va bene, buongiorno. Allora, ieri abbiamo iniziato a parlare di programmazione ad attori.
+Vi percorro i prevenimenti che abbiamo visto, essendo molto poco, quindi abbiamo detto che
+cos'è un attore. Un attore è l'entità alla base della programmazione ad attori ed
+è caratterizzato da un PID, che è un nome logico, che ci indica l'identità dell'attore,
+ma non dove risieda fisicamente l'attore. Una mailbox in cui vengono inseriti messaggi
+che vengono ricevuti, ne faremo molto più a lungo rispetto all'esempio di ieri, e un
+behavior. Il behavior è una mappa che dice se viene ricevuto un certo messaggio si scatenano
+certe azioni. Le azioni sono o azioni interne, cioè non osservabile esternamente quindi piccole
+azioni interne, oppure l'invio di messaggi in maniera sincola da altri attori, che loro
+volte scatenano delle altre computazioni, oppure la creazione di nuovi attori e oppure
+la terminazione dell'attore. Questo che vi sto spiegando è il modello della programmazione
+ad attori degli anni settanta, diciamo così, proprio già accennato. Erlang ha dovuto aggiungere
+dei nuovi concetti a questo modello di base, che vedremo più avanti, e oggi giorno quando
+si parla di programmazione ad attori si intende anche con quelle novità di Erlang, che hanno
+tutto che fare con la programmazione distribuita, che vedremo un po' più avanti. Dopodiché
+nella programmazione ad attori c'è un sistema di attori, cioè ci sono contemporaneamente
+più attori e gli attori sono totalmente isolati, quindi non condividono nulla gli uni con gli
+attori e scammino messaggi in questo modo. L'ultimo punto da ricordarsi è che la programmazione
+ad attori fa parte del paradigma più ampio di programmazione event driven, il che significa
+che l'immagine mentale che dovete avere e anche quello che deve effettivamente succedere,
+perché sennò fate esplodere runtime, nel senso che runtime è pensato per questo scenario,
+è la possibilità di avere migliaia, centinaia di migliaia di attori in esecuzione, ma la
+quasi totalità deve essere quesiente in un certo momento. Quindi gli attori reagiscono
+agli stimoli in un qualche modo, ma con piccole computazioni. Non abbiamo dei thread che invece
+proseguono a lungo una computazione pesante senza intervenire. Questa è un po' l'idea
+della programmazione ad attori, poi ci torneremo per bene. In questa spiegazione io vi sto
+dando un paradigma di programmazione, poi chiaro che quando noi parliamo su Erlang, Erlang
+implementa questo paradigma con delle scelte ulteriori, quindi in qualche modo quando andiamo
+a vedere Erlang avete in mente questo e non confondo in un certo senso il paradigma in
+generale con il linguaggio in particolare. Poi è chiaro che all'interno della programmazione
+ad attori in questo momento esistono Erlang, Elixir, che però, come dicevo, è essenzialmente
+una sintasia teneccidabiale, non con qualcosa in più, ma essenzialmente il linguaggio lo
+stesso, e in un certo senso basta, tutte le altre implementazioni a programmazione ad
+attori sono linguaggi ibridi, cioè che ibridizzano o che sono di braviglio o freno, ibridi che
+si innestano su altri linguaggi a programmazione. In un certo senso c'è un po' di confusione
+con Erlang a programmazione ad attori perché è l'unica implementazione piena della programmazione ad attori.
+Abbiamo anche visto l'Elloworld, lo riveliamo un attimo per riprendere i concetti. Quindi
+dicevamo che il linguaggio è un linguaggio funzionale quasi completamente puro, c'è
+però l'IO, quindi è possibile fare input-output anche se in questo caso è un input-output
+di debugging, senza mentre l'abbiamo visto. Quindi è un linguaggio funzionale, però la
+sintassi è una sintassi ampiamente ispirata, la sintassi del prologue, come vi dicevo perché,
+e vedremo la storia oggi, le prime implementazioni di Erlang erano in prologue e anzi anche di
+più in questo caso. Erlang non nasce come un linguaggio di programmazione funzionale,
+nasce come un linguaggio di programmazione logico, quindi come qualche variante di prologue
+e poi muta nel tempo. Quindi la sintassi è una sintassi ben nota, diciamo così, se avete
+mai visto la vostra programmazione logica. Se non avete mai visto programmazione logica,
+la sintassi vi può farvi la storia. Brevemente, almeno per capire gli esempi che vi farò,
+quindi ci sono dei moduli, un modulo corrisponde a un file, dobbiamo iniziare dichiarando il
+modulo che stiamo implementando, che deve essere esattamente identico al nome del file, e dichiariamo
+l'insieme delle funzioni esportate. Le funzioni che sono esportate sono invisibili, non sono
+invocabili dall'esterno. Le funzioni, come in Prologue, possono avere lo stesso nome,
+ma un numero diverso di argomenti. Quindi la funzione cc, con un argomento, con due, con
+tre, sono funzioni di stint. Quindi quando si elenca in qualche modo, si usa in qualche
+modo un numero della funzione a sestante, e non c'è altro modo per capire l'arietà,
+cioè il numero di argomenti, va indicato esplicitamente con barra l'arietà. Quindi qua
+per esempio dico per sporto la funzione cc che prende un argomento. Dopo di che, come
+funziona, io devo descrivere un behaviour, ricordatevi che nella descrizione del paradigma
+ci deve essere un behaviour che mappa messaggi in azioni, Erlang decide di ottenere la descrizione
+di un behaviour tramite una primitiva receive che dice se riconosco questo messaggio faccio
+questo, se riconosco questo messaggio faccio quest'altro. Ed Erlang, la parte sequenziale
+del linguaggio, il linguaggio funzionale, quindi se io voglio avere un behaviour e poi
+dopo aver ricevuto un messaggio, riprendere un behaviour, devo avere una funzione ricorsiva
+essenzialmente che mi permette di riacquisire un behaviour simile o differente. In questo
+caso il behaviour è sempre quello, nel senso che volevo implementare un conto bancario
+in cui non c'è cosa che cambia il valore, la qualità di soldi nel balance, il comportamento
+sarà sempre lo stesso e quindi una funzione ricorsiva che ogni volta si rimette a fare
+la receive e quindi descrive il behaviour. Cos'altro avremmo visto? Avremmo visto che
+la receive è un costruttore che si basa sul pattern matching, significa osserva cosa c'è
+nella coda e prende i valori dei messaggi ricevuti nella coda e li confronta con questi
+pattern. I pattern sono descrizioni possibili dell'input, forme possibili dell'input, dove
+posso usare sia dei costruttori di dati tipo l'atomoprint, le tuple e anche altro come
+vedremo, ma posso anche metterci delle variabili tipo np. E l'idea è che quando io vado a
+confrontare questo pattern con il messaggio che ho nella mailbox, si verifica che ha la
+stessa forma, quindi se deve essere una tupla, deve essere una tupla, se deve essere una
+tupla con due argomenti, deve essere una tupla con due argomenti, se c'è un atom deve essere
+esattamente quello, ma dove c'è una variabile, la variabile assume il valore del sottodato
+contenuto su quello che stiamo matchando. E poi vedremo, vi spiegherò meglio, anche come
+si implementa questa roba, la capacità computazionale di questo, perché vedremo poi anche ragionare
+sulla capacità computazionale. Comunque diciamo intuitivamente questo è quello che succede.
+E questo è l'esempio di ieri. Ci sono tutta una serie di cose che non vi ho spiegato,
+che non vi ho detto e le vedremo a tempo debito. Per esempio, il behavior dice se ricevo questo
+messaggio faccio questo, se ricevo questo messaggio faccio quello, quello che non vi ho spiegato
+per esempio è quello che succede se ci sono più messaggi nella quota. Quindi magari mentre
+lui sta processando un messaggio ne arrivano degli altri, ne arrivano due o tre. Quindi
+alla volta successiva, lui deve scegliere dopo la chiamata ricorsiva un nuovo messaggio
+dopo cessare. E non è evidente cosa andrà a scegliere. C'è un'ordine dei messaggi
+della coda, per esempio, c'è un'ordine delle forme del pattern match, non è chiaro quale
+sia il cosa andrà a fare. Così come non vi ho spiegato, cosa succede per esempio se un
+attore invia un messaggio ad un altro attore il cui bielio non ammette quel tipo di messaggio.
+Quindi l'attore riceve un messaggio che non sa considerare. E cosa succede in questi casi?
+Ecco queste sono tutte le scelte che vi andrò a spiegare per bene. Vi andrò a spiegare per
+bene perché sono state scelte estremamente occupatamente. Cioè Erlang, come vedremo,
+nasce presso un linguaggio di formazione in una mente distribuito e quindi tutte queste
+scelte semantiche che apparentemente non potrebbe dire, potrebbe essere A o B, basta
+scegliere una delle due, in verità c'è sempre all'interno dello spazio delle scelte la
+cosa giusta da fare in un abito distribuito, che sarebbe diverso se fossimo in un abito
+non distribuito. E quindi quando andrò a spiegare la semantica fine di questi costruiti
+dovremo sempre chiederci qual è la scelta giusta in un abito distribuito. E se in questo
+momento la cosa può sembrare strana, perché ormai dovrei ponere il problema in un abito
+ricordatevi sempre che l'abito distribuito è un abito soggetto a faldimenti. A faldimenti
+l'avete soggetto al fatto che messaggi arrivano quando arrivano, se arrivano, fuori ordine
+e così via. Quindi, per esempio, giusto tanto per Dm1, il fatto che arrivi un messaggio
+e il fatto che un messaggio riprime in un altro non è significativo in un abito distribuito.
+Perché magari ho ricevuto dei messaggi da duratori diversi e l'ora del cuore arrivato
+non è influente, perché i duratori sono indipendenti negli altri. Quindi l'ordine
+dei messaggi nella coda non è così significativo e magari le esecuzioni successiva verranno
+ordinate in maniera diversa. Quindi, per esempio, fare troppo affidamento sull'ordine della
+coda sarebbe un errore in un abito distribuito. Oppure il fatto che arrivi un messaggio che
+io non so processare in questo momento, anche questo può essere un accidente dell'esecuzione.
+Magari io processo un altro messaggio e cambio il mio behavioro e a questo punto sono in grado
+di processare anche quell'altro e l'ora del cuore arrivano, appunto, dipende dalla
+esecuzione, per esempio. Quindi questo genere di aspetti ci porteranno a dare certe semantiche
+e non altre. Quindi, per esempio, inviare un messaggio a chi non lo sa processare in
+questo momento quindi non sarà un errore. L'ultima cosa che abbiamo visto ieri sul linguaggio
+era come si interagisce con il linguaggio. Quindi vi ho detto quando avete le macchine
+fisiche, i vostri PC, e potete lanciare dei nodi. Che cosa sono i nodi? I nodi sono delle
+virtual machine, chiamate BIM, che voi lanciate sulla vostra macchina fisica. Ne potete in
+teoria lanciare più di una sulla vostra macchina fisica, in generale se la lancio una sola
+che non occupa tutti i coro possibili. Potrà capitare, per esempio, nel corso che io ne
+userò due per simulare una rete, quindi usando due virtual machine sulla stessa macchina
+è come se fosse sulle macchine remote. E non solo, viene anche creata una shell quando
+voi lanciate la virtual machine. La shell è un attore leggermente diverso dagli altri
+attori, perché gli attori normalmente hanno un behavior che risponde ai messaggi che arrivano.
+Nel caso della shell c'è una specie di secondo behavior, perché invece di guardare i messaggi
+va a guardare quello che io digito sul standard input ed eseguo il comando. E' un po' modificato.
+Però a parte quello è un attore a tutti gli effetti, ha il suo build, e quindi noi tipicamente
+riferiamo nel sistema degli attori come una shell. Dopodiché andremo a comunicare con
+gli altri attori, lanciare altri attori, e così. Questo è un po' quello che vi ho
+detto fino a qui. Cosa facciamo oggi? Prima, anche se non è topicitante, ma è comunque
+interessante, vi faccio un pochino di escurso storico sul linguaggio e vi punterò ad un
+articolo che è molto gradevole da leggere, che è la versione estesa di quello che vi
+racconto, e poi inizieremo lo studio del linguaggio. Faremo una prima parte del studio
+del linguaggio sulla parte sequenziale di error. L'anquici scorderemo per il momento
+il discorso della comunicazione del behavior e così via, e vedremo la parte sequenziale
+che è un linguaggio funzionale. Perché ci concentriamo molto su questo? Come ho detto
+ieri, perché la parte sequenziale del linguaggio è un po' l'assembly dei linguaggi funzionali.
+Nel senso che poi qualunque altro linguaggio funzionale lo riusciamo a spiegare abbastanza
+bene, vedendo come si compila. Vi spiegherò Erlang, la parte sequenziale, abbastanza in
+dettaglio, e andremo a vedere anche come si implementano i vari costuti di Erlang. Quando
+vi parlerò dell'implementazione cercherò di essere anche generico, quindi magari se
+in Erlang si fa una cosa ma in un altro linguaggio funzionale si fa una cosa diversa, vi spiegherò
+anche le differenze, perché in Erlang si fa una cosa e negli altri si fa un'altra
+quindi questo è il motivo anche per cui stiamo un po' di più. Dopo questa parte sequenziale
+ci sarà la seconda parte in cui andremo a vedere i costuti concorrenti distribuiti di
+Erlang e andremo anche ad aggiungere le feature che rendono interessante la programmazione
+da tutto. Quindi vi prendo un attimo le slide sulla parte storica, poi invece quando vi
+spiego i vari costuti vi farò vedere interattivamente, e vi ho già appuntato a questo libro che
+potete usare a modo di libro di testo per lo studio di linguaggio. Se avete delle domande
+bloccatemi quando volete. Allora, la prima proposta di linguaggi d'attori risale al 1973.
+E' quella che vi ho descritto, la parte teorica che vi ho descritto fino a ora.
+Subito dopo questa proposta nascono tutta una serie di linguaggi accademici che la implementano,
+nessuno di questi diventa, diciamo, un mainstream. Quindi la proposta rimane non emersa fino
+a quando non avrebbero nel 1987 Erlang, la storia è un po' più travagliata, la vediamo
+in dettaglio, però diciamo 15 anni dopo arriva Erlang come linguaggio di programmazione d'attori,
+ma non nasce come linguaggio di programmazione d'attori. Quindi vedremo una storia travagliata
+di linguaggio, linguaggio nasce per un'esigenza specifica e dopo aver provato tutto quello
+che trovavano in giro, tutti i linguaggi, tutti e tre, arrivano a implementare un linguaggio
+ex novo e a posteriori trovano esattamente il modello del 1973. Quindi è un tipico esempio
+di emergenza di un concetto, che è stato studiato prima e poi successivamente con una qualche
+esigenza diventano in qualche modo mainstream. Erlang, però, come dicevamo, aggiungerà
+dei nuovi concetti rispetto a poterlo di base. Eddixirva è implementato sulla stessa
+veritoba shield di Erlang che si chiama BIM ed è molto più recente, e recentemente la
+grande maggioranza di linguaggi di programmazione, li vedete in caso di alcuni, hanno librerie
+per fare programmazione d'attori all'interno del linguaggio. Storia di successo, per quanto
+riguarda H, H è la libreria per Java, Babaskala, che imprimete la programmazione d'attori,
+è sicuramente quella maggiormente utilizzata per fare programmazione d'attori, perché
+Erlang, per quanto mainstream, rimane un linguaggio abbastanza l'inizio, diciamo così,
+e quindi sono molti più utenti H, diciamo, di utenti Erlang stessi. Quindi li vedete
+per esempio delle grosse compagnie, LinkedIn, Verizon, Inter, Samsung, eccetera, che usano
+H, H è la programmazione d'attori in ambito Java. Erlang comunque, come vedremo, nacque
+in casa Ericsson, quindi voi siete così giovani che forse Ericsson non vi dice un granché,
+ma fino al millennio scorso, la Ericsson era il principale, uno dei principali attori
+nel mondo della telefonia. Prima di tutto nella telefonia fissa, poi la telefonia mobile,
+i primi telefoni cellulari erano della Ericsson e poi, diciamo, è una di quelle grosse compagnie
+che oggigiorno, diciamo, ha perso peso, se esiste ancora. Però è un colosso, diciamo,
+della telefonia. E come vedremo, in particolare, la Ericsson produceva le switch per la commutazione
+di circuito delle linee telefoniche, quindi ovunque nel mondo la linea telefonica era
+gestita, era un sistema distribuito, gestita da queste macchine della Ericsson che dovevano
+creare i circuiti per le telefonate, sensamente, in prima partita. E immaginatevi bene che
+l'Ericsson quindi aveva migliaia e migliaia di macchine installate ovunque, in mezzo del
+campo, in mezzo delle città, negli imposti migliori aggiungibili, che dovevano fare girare
+un programma distribuito per rendere la configurata di volta in volta la linea telefonica. E il
+problema della Ericsson era, principalmente, che questo doveva essere iperaffidabile, non
+doveva fallire e non doveva richiedere intervento umano in qualche modo, cioè non si poteva
+pensare che o è andata in crash la macchina, mandolo mino a fare rebutte della macchina
+a qualche parte. Quindi il problema principale era, lavorare in un sistema distribuito soggetto
+a fallimenti ed essere massimamente reliable. Quindi il fatto che queste software fossero
+in esecuzione senza uno. E Erlang è noto come linguaggio dei 6.9. Perché è linguaggio
+dei 6.9? A qualcuno mi dice linguaggio dei 6.9, 6.9 language Erlang. Perché? La X801
+era uno di questi switch di circuito prodotti da Ericsson, fu prodotto più di successo da
+Ericsson. Eva implementato il software usando Erlang, diciamo così. E alla fine, quando
+dismiserò anche l'ultimo AXE D301 della storia e andavano a fare i conti di quanto tempo
+il software rimase perfettamente funzionante su tutte le macchine installate, trovavano
+che il 99,99999999% del tempo il software era available. E' un risultato estremamente
+straordinario in un ambito di sistemi distribuiti, dove la solita battuta è che scopri di avere
+un sistema distribuito quando la tua computazione va giù perché in Giappone qualcuno ha staccato
+la spina a qualcosa. E quindi un risultato estremamente rilevante. Come è possibile
+avere un sistema che sia available praticamente al 100% del tempo per decenni, per anni e
+anni e anni. Come minimo, ogni tanto dovete fare l'upgrader software, per esempio. Quando
+fate l'upgrader software tipicamente cosa fate? Buttate giù il servizio. Ebbene, come
+vedremo, Erlang e i linguaggi badati sulla BIM ancora oggi sono l'unica classe di linguaggi
+che permettono di fare hotcode swap del codice. Quindi voi in produzione, vedremo come, siete
+in grado di modificare il codice che è in esecuzione e sostituirlo con un nuovo codice
+in esecuzione. E quindi il sistema rimaneva available nonostante l'upgrader codice. Il
+quale, come potete immaginare, è un delirio fare l'idea stessa di fare update all'untime
+del codice perché, per esempio, fare update all'untime del codice vuol dire anche modificare
+strutture dati. Magari prima usate una struttura dati, a nuova resa del codice un'altra struttura
+dati e i dati sono allocati in memoria. Quindi in qualche modo avete già dei problemi di
+modificare strutture dati oltre che del codice e secondo punto si ha un sistema distribuito.
+Quindi il vostro nodo, il software sul vostro nodo comunica con le istanze sugli altri nodi.
+Visto che non potete fare upgrade del codice contemporaneamente in tutto il mondo, anche
+banalmente perché c'è il partizionamento di replica quando fanno upgrade, vuol dire
+che questo software non solo voi siete in grado in Erlang di modificare il software a runtime
+senza buttarlo mai giù, ma che questo software deve essere in grado, durante i periodi di
+transizione, di collaborare sia con le vecchie versioni, con altri nodi che hanno le vecchie
+versioni e il software sia con i nuovi, per esempio. Quindi questo vi fa capire come
+il linguaggio è compensato fin da subito per lo scenario della distribuzione e per lo
+scenario di averlo sempre available. E guardate le date, siamo 73 i modelli adattori, 87 le
+prime implementazioni di Erlang, quindi sono concetti che sono ben radicati della storia.
+Erlang è stato utilizzato, viene utilizzato da Amazon, Yahoo, Facebook, WhatsApp,
+abbiamo la versione iniziale di Motorola, Jabro TV, eccetera eccetera.
+Quindi l'articolo che vi dicevo che vi consiglio di andare a leggere, una lettura
+interessante, è I saw your flag and offer Erlang di Joe Armstrong, che è stato uno dei principali
+sgruppatori del linguaggio. E perché è interessante la storia del linguaggio, è interessante
+anche perché Yahoo aveva un reso conto della storia evolutiva di un intero linguaggio di
+programmazione. Il secondo punto è perché mostra due aspetti. Uno è appunto questo
+concetto di emergenza, cioè il fatto che in qualche modo nell'avvolupo del linguaggio
+a poco a poco riemergono cose studiate in precedenza e che in maniera talentemente fortuita vengono
+riscoperte e reintegrate in qualcosa. L'altro aspetto è vedere come il fatto che Erlang
+sia il linguaggio che abbiamo oggi è dovuto anche a una serie infinita di accidenti nello
+suo sviluppo di conflitti umani, di mipiche, di problemi finanziari, eccetera eccetera,
+che hanno portato allo sviluppo del linguaggio così come è. Quindi c'è una specie di telenovela
+all'interfino. Quindi cosa è successo? Essenzialmente l'Aerex, come vi dicevo, si occupava di
+implementazioni di software di telecomunicazione, switch telefonici e così via, e vedremo
+quando studieremo un linguaggio che tuttora molto della tecnologia di Erlang è legata
+a questo. Per esempio, la libreria standard di Erlang non si chiama libreria standard
+comunicata di linguaggi, ma si chiama OTP, che è una sigla che sta per protocollori di
+trasferimenti, per switch telefonici, essenzialmente. Quindi fu pensato fino all'inizio con l'idea
+di scrivere programmi concorrenti that run for ever, che fossero iper robusti, robusti
+e guasti e available sempre. È caratterizzato Erlang oggi giorno da concorrenza massiva,
+avere sistemi con più di 100 mila attori è normale, non c'è nessun problema con un
+sistema tipo Erlang, provate a fare 100 mila processi of thread in Linux e vedete cosa
+succede. Ed è particolarmente performante e utile nel caso di algorithmi distributed,
+software time, software upgrades frequenti, fault tolerance, very large network hardware
+interaction e cose del genere. Oggigiorno Erlang si presenta come un linguaggio programmazione
+attori, ma più concretamente è un linguaggio funzionale con una parte di programmazione
+concorrente. Come vedremo il paradigma di attori non vi chiede di essere funzionale
+nella parte sequenziale, il paradigma di attori potrebbe internamente essere un linguaggio
+imperativo per esempio, però come vedremo la scelta del funzionale semplifica tantissimo
+e quindi è un ingrediente chiave senza la quale molte delle idee che stanno alla base
+dell'Erlang non sarebbero implementabili con quel tipo di efficiency. Giusto per fare
+un po' di similitudini, linguaggi concorventi ce ne sono fatti sviluppati tanti nella storia,
+Ada, Modular, CIL per esempio ai tempi di Erlang erano quelli che andavano per la maggiore,
+Ada fra l'altro era quello che era obbligatorio utilizzare per scrivere software per il pentano
+più generale per le agenzie americane che erano quelle che foraggiavano un tipo di software
+all'inizio. I linguaggi funzionali al tempo per il gruppo di Erlang andavano per la maggiore
+Amel, oggigiorno O'Camel dicendente di quella famiglia e Nivanda che si evolverà in Askel,
+quindi O'Cabel e Askel sono due linguaggi funzionali attuali. La sintassi è ispirata
+da Pollock e il motivo per cui vi dicevo che le prime implementazioni furono scritte in
+Pollock e in Smalltalk. Pollock dovete sapere che cos'è, Smalltalk è uno dei primi linguaggi
+di programmazione a oggetti prima che la programmazione a oggetti fosse contaminata dal concetto
+di classe, di realtà, di età, di nevitanza che viene successivamente.
+Fal'alto il modello oggetti, la programmazione oggetti alla Smalltalk e quella della programmazione
+ad attori sono quelli, sono entrambi del 1973-1974 e sono molto simili. In entrambi i casi, quindi
+quando la programmazione a oggetti fu definita in quegli anni, l'idea della programmazione
+a oggetti era quella di spezzare ricorsivamente un problema sotto problemi e quindi anche
+quella che un computer che eseguiva codice, che aveva qui uno stato interno e interagiva,
+lo potevamo pensare logicamente spezzato ricorsivamente. E quindi un oggetto era pensato come una
+specie di piccolo computer a sé stante che eseguiva il suo proprio codice e che interagiva
+con gli altri piccoli computer a sé stante, con gli altri oggetti, tramite lo scambio
+di messaggi. Se va andate a vedere le descrizioni originale della programmazione a oggetti,
+quindi non si invocavano dei metodi, la terminologia è che un oggetto inviava un messaggio ad un
+altro oggetto e veniva eseguito. E i metodi dovete pensare come messaggi, quando fatevate
+oggetto punto f di qualcosa, stavate inviando un messaggio f all'oggetto. Quindi la spiegazione
+era molto simile fra il modello oggetti e il modello della programmazione ad attori. La
+differenza è che la programmazione ad attori, gli attori erano un esempio di programmazione
+event-driven e lo scambio di messaggi era sincono. Nel caso degli oggetti lo scambio
+di messaggi era sincono, quando un oggetto invocava un altro oggetto si bloccava ad attendere
+la risposta dell'altro oggetto, quindi è un caso di programmazione sincona, e monosthread
+diciamo così perché non c'erano più thread in esecuzione contemporanea. Il controllo
+passava da un oggetto a successiva. Quindi sono due concetti sviluppati molto similmente
+nei stessi anni. Quali sono state le principali design decisions di Erlang? Nessuna memoria
+condivisa e quindi nessun lock, nessun mutex e così via, perché la gestione è troppo
+complessa innanzitutto. Sappiamo benissimo che la programmazione a memoria condivisa
+è complicata e non funziona nei scenari distribuiti. Quindi se voi avete un programma concorrente
+che usa memoria condivisa e volete scalarlo a uno scenario distribuito, la memoria condivisa
+non funziona e quindi diciamo scala molto male a scenari distribuiti, mentre la programmazione
+ad attori e più in generale message passing funziona ugualmente bene in ambito distribuito
+e con minore efficienza in ambito concorrente. Notate anche, vi ho detto ieri, la grossa
+novità tra virgolette degli ultimi vent'anni è l'uso dei corva, il fatto che per avere
+più prestazioni usiamo più corva. Finché abbiamo una macchina piccola con pochi corva,
+abbiamo ancora possibilità di avere memoria condivisa tra tutti i corva, ma l'aumentare
+il numero di corva quando andiamo su sistemi con corva massivi tipo 50 corva, 70 corva
+e così via, se tutti i corva c'erano tutte le parti di memoria c'è troppa contesa del
+bus e quindi di fatto nei sistemi che hanno tanti tanti corva, gruppetti di corva hanno
+possibilità di condividere memoria ma i paio di gruppi sono isolati fra di loro e quindi
+ancora una volta diciamo il modello a memoria condivisa non è il modello più naturale
+di trovare, diciamo, che avete in un obito massimo di corva.
+Inoltre, il meccanismo memoria condivisa a Locke e Mutex è pessimo dal punto di vista
+del fault tolerance, perché? Perché nel caso di fallimenti se un thread fallisce e, per
+esempio, acquisito dei Locke o acquisito eData o Mutex dentro una sezione critica o qualcosa
+del genere, questo è un problema perché se fallisce e cresce, per esempio, nessuno
+vi lascia il Locke o nessuno vi lascia le risorse e quindi l'intero sistema va installato.
+Come vedremo nella programmazione ad attori non è che si eliminano i problemi di starvation,
+deadlock e così via, ma se ne semplifica la gestione, quindi in un sistema di questo
+valato su message passing il crash di un attore può comunque portare a uno stato tipo deadlock
+ma la recovery o comunque la gestione del deadlock è più semplice in qualche modo.
+Message pass in via sincrono con recensione auto forwarder. In uno scenario distribuito
+non possiamo fare affidamento sull'ordine d'arrivo dei messaggi, l'ordine che contiene
+un sistema distribuito è il cosiddetto ordine causale. Cosa vuol dire l'ordine causale?
+Se un processo A invio messaggio a un processo B e questo scatena l'invio da un processo
+B a un processo C, allora il secondo messaggio è causato da un processo B e quindi osserveremo
+sempre il secondo messaggio dopo il primo messaggio. Questo è un ordine che rimarrà
+stabile. Se io rieseguo il programma più e più volte, quest'ordine non è accidentale,
+è stabile e potrei fare affidamento su questo ordinamento dei messaggi nello scrivere l'ordine.
+Se invece ho dei messaggi che arrivano e non sono causati l'uno dall'altro, per esempio
+due thread che mi vinono dei messaggi senza interagire tra di loro, l'ordine d'arrivo
+dei messaggi non è significativa. Quindi se io sto lavorando in un sistema distribuito,
+la mia semantica non deve fare troppo affidamento all'ordine dei messaggi. Quindi Erlang fin
+da subito si vada su missile passing a sincono e ricezione autoforward. In particolare Erlang
+aveva dei meccanismi che ci dicono che cercheremo di estrarre dalla mailbox i messaggi che
+siamo in grado di processare in questo momento. E quando non saremmo in grado di farlo e dovremmo
+fare un'estrazione del messaggio troppo anticipata, poi ci serviranno dei meccanismi
+per ritardare il processing di quel messaggio.
+Questa che si è scritta in questa slide, come vedremo in dettaglio con i costuti più
+avanti, è la grossa aggiunta che Erlang fa alla programmazione dell'attore. Tanto che
+oggi giorno la programmazione dell'attore include questo. E let it fail. Quindi, come
+ho detto l'altro giorno, in un sistema distribuito la gestione e recovery dei fallimenti è super
+complessa. Perché se io cerco di riportare sistemi in uno stato safe facendo backtracking
+delle computazioni, quello che succederà è che certi attori stavano facendo backtracking,
+altri attori stavano ancora andando in avanti perché per esempio hanno perso la comunicazione
+dove fare il backtracking per dei fallimenti. E questo allo suo volto scatenerà degli altri
+fallimenti e è molto difficile che questo processo converga in qualche modo. Quindi
+continueranno ad eserci fallimenti sempre più complicati a cascata.
+Erlang ha cambiato le carte in tavola. Erlang dice che cercare di fare recovery degli avori
+in questo modo, quindi compensando le computazioni fatte facendo backtracking e coordinando globalmente
+il recovering, è fallimentare in partenza. E allora facciamo una cosa diversa. Let it
+fail. Quando c'è un errore il processo che è andato in errore viene esterminato, viene
+distrutto, viene cancellato. Non solo viene completamente distrutto non solo l'attore
+che è andato in fallimento, ma anche tutti quegli attori che in quel momento stavano collaborando
+con lui. Perché se un attore stava collaborando con me vuol dire che per esempio si aspettava
+da me una risposta per continuare l'escursione. Quindi potrebbe andare il deadlock per esempio.
+Quindi l'idea è che quando io muoio mi trascino dietro tutti quelli che stavano in qualche
+modo lavorando con me, questo risolve brutalmente il problema di computazioni scompariate.
+E cosa succede per esempio in caso di partizionamento della retina? Vuol dire che per esempio c'è
+stato un fallimento di un nodo e l'altro non vede più risposta dal primo, perché c'è
+la partizione. Allora cosa fa? Non potendo più comunicare con l'altro capisce che c'è
+un problema, un guasto di qualche tipo, quindi la cosa più saggia è let it fail. Quindi
+lui morirà, così come morirà quello dall'altra parte che non stanno comunicando e tutto
+si resetterà a uno stato precedente. Che è molto più saggio rispetto a cercare di
+fare backtracking parziale e poi magari la retina torna su e uno stava facendo backtracking
+e l'altro no con i po' dei miei colleganti. Quindi l'idea è che in presenza di errori
+succede un processo e tutti coloro strettamente lo ricornessi. Questo vuol dire che tutti
+gli attori muoiono? No, bisogna compensare let it fail con qualche altro meccanismo.
+L'idea della programmazione di attori secondo Erlang è quella di avere una struttura geratica
+della computazione, cioè un attore fa la sua computazione nei momenti in cui è da affrontare
+un problema complesso, invece di risolvere un problema genera una serie di figli, gli
+attori figli. Gli attori figli collaboreranno un fa di loro per portare attenzione al problema.
+Cosa fa l'attore padre che ha generato i figli? Si mette in uno stato quesiente a
+osservare i figli e attende che i figli vengono terminati. Se uno dei figli fallisce per un
+motivo, si trascinerà dietro la morte di tutti i suoi fratelli ed eventuali figli nipoti
+e così via, il padre che ha generato questi figli che sono tutti morti osserverà questo
+fatto e potrà far ripartire la computazione. Quindi se i figli sono stati lanciati su
+morti, il padre li ricrea e li prova nuovamente, sperando che la seconda volta il guardo sia
+risolto e la computazione avanza. Ovviamente se dopo un po' di volte non cambia niente,
+il padre continua a creare figli che non riescono a portare attenzione al lavoro, cosa
+farà il padre? Si suicida. Suicidando si porta dietro tutti gli zii, tutti i suoi fratelli
+e il nonno verrà informato e farà la stessa cosa. Quindi l'idea è questa gerarchia
+di computazioni in cui possiamo sterminare un livello alla volta quando qualcosa va male.
+Ovviamente quest'idea funziona molto bene se il padre è in grado di ricreare i figli
+con lo stato che aveva in quel momento. Per questo bisogna avere un'aiuto a formazione
+funzionale. Se il linguaggio di formazione è funzionale, privo di mutazione, allora
+nel momento in cui il padre crea i figli ha il suo stato e quello stato non verrà alterato
+dai figli, perché in un linguaggio funzionale la memoria non viene mai modificata, si crea
+sempre memoria, si lavora sempre su memoria nuova, poi dovremo farlo in maniera efficienza.
+Quindi nel momento in cui i figli vengono sterminati, il padre può ricrearli in tempo
+di uno, non deve fare backtracking, non deve ricreare situazioni, semplicemente il padre
+ha esattamente lo stato in cui era quando ha creato i figli la prima volta e quindi può
+velocemente crearlo. Quindi il primo ingrediente che serve per
+elected fail è avere a disposizione lo stato precedente, e questo riguarda la formazione
+funzionale ve lo dà facilmente, il secondo che creare attori e distruggere attori deve
+essere un'operazione veloce, con pochi usi di memoria, per esempio, e di C+.
+Creare un attore in era, per esempio, è molto più veloce e occupa molta meno memoria
+di, per esempio, un thread. C'è proprio un odio di grandezza, diciamo, di complessità.
+L'ultimo punto dell'elected fail, se avete studiato per mangiare concorrente qualcosa
+da credere, sapete che quello che viene detto in genere è, nei sistemi concorrenti non
+bisognerà mai uccidere un altro thread. Perché? Perché l'altro thread potrebbe
+avere acquisito delle risorse, dei lock o cose del genere, se voi uccidete l'altro thread
+rischiate di creare deadlock o cose del genere. In Erlang, invece, questo fatto di uccidere
+gli altri funziona e funziona bene, perché nuovamente dato in parte dal fatto che non
+ci sia memoria condivisa e quindi non ci sono meccanismi espliciti per fare locking e per
+acquisire risorse di questo genere. Ognuno lavora con le sue risorse, punto 1. E, punto
+2, il meccanismo elected fail fa sì che, per esempio, se ci sono dei meccanismi di alta
+natura per controllare una risorsa, per esempio, fa fratelli, le momenti in cui muoiono uno
+muoiono tutti e quindi il problema si risolve automaticamente. Perché tutti quelli che
+erano interessati in quel nodo di computazione, in quel nodo del ciclo del deadlock, comunque
+muoivranno tutti per meccanismi elected fail. Quindi Erlang è uno dei pochi linguaggi dove
+uccidere un altro attore è un'operazione che si fa frequentemente a cuore del genere.
+Ok? Quindi, oggi in giorno quando si parla di formazione ad attori, il elected fail e
+questo controllo gerarchico è un punto chiave. Quindi, quando vedremo i costruttivi concorrenti
+di Erlang, dovremo dedicare del tempo a quali sono i costruttivi che permettono di gestire
+questo tipo di funzionalità. Quindi ci sono dei costruttivi appositi per gestire.
+Rapidamente la storia. Quindi dal 1982-1985, alla Elson hanno bisogno di implementare questi
+sistemi che vi dicevo. Quindi cosa fanno? Provano tutti i linguaggi di formazione esistenti
+al tempo. Quindi questo report, hanno trovato questo, hanno trovato questo, hanno trovato
+questo e trovano che qualunque linguaggio di formazione esistente al tempo fosse pessimo
+per implementare i sistemi seguiti di questa matura. Quindi la conclusione è che non va
+bene niente, ma quelli che vanno meglio sono quelli che vengono chiamati very high level
+programming language, quindi Prolog per la parte della formazione logica o Lisp, che
+è il primo linguaggio funzionale mainstream, diciamo così, che oggi in giorno esiste per
+esempio sotto forma di Clojure, sulla giornata di Automachine, il discendente di Lisp, o
+Steam per esempio, e quindi la loro conclusione è che si dovrebbe utilizzare un linguaggio
+di formazione del very high level tipo Lisp o Prolog, che però nessuno dei due era concorretto
+o distribuito, era un linguaggio di formazione sequenziale. Dall'85-86 quindi si concentrano
+su Lisp e Prolog e cercano di capire quali varianti di questi linguaggi permettono di
+fare programmazione in ambito distribuito. In particolare c'era Parallel Prolog, che
+era il candidato al tempo per fare programmazione distribuita di alto livello. In verità la
+conclusione in questo caso è pessima, quindi per quanto riguarda Lisp non ci sono primitivi
+per comunicazione full tolerance, uno se le può implementare ma il risultato non è soddisfacente.
+Per quanto riguarda Prolog, nel linguaggio di formazione logica il backtracking è parte
+integrante del modello di computazione e il backtracking è male in un ambito distribuito
+come abbiamo detto. Per quanto riguarda Prolog, Prolog veniva implementato mappando i vari
+thread di computazione sui processi e i processi sono molto pesanti in un sistema operativo
+e quindi di fatto non si riusciva a scalare la comunicazione. Quindi fino a 1986 concludono
+che di fatto nessun linguaggio di formazione esistente al tempo permettesse di fare programmazione
+distribuita in maniera soddisfacente. Quindi cosa fanno? Dall'87 a 1992 sviluppano il
+linguaggio ex novo e sviluppano Erlang e quando nasce Erlang partono essenzialmente da Prolog
+più che altro, quindi all'inizio sembra essere un linguaggio di formazione logico
+però con una gestione fatta bene nella distribuzione. Supervelocemente il linguaggio viene adottato
+dalle altre telcom, per esempio Belcora, perché permetteva di risolvere il tipo di problema.
+In un caso i runtime distribuito, che è tipico del linguaggio di giorno, arriva tardivamente
+in questo sviluppo, verso la fine degli anni 80, iniziale anni 90. E già di quegli anni
+è OTP, quello che dicevo un po' alla libreria standard di Erlang, ma in verità è un asset
+di libreria framework per lo sviluppo delle applicazioni distribuite, in particolare le
+applicazioni che hanno senso in quel tipo di contesti. Nel 1900, che succede? Poi ne
+direte immagino. Nel 1993 Erlang, che finora è stato usato anche dalle altre telcom,
+ma non è stato commercializzato, inizia a essere commercializzato. Quindi la Erlang
+forma una divisione per lo sviluppo e la vendita di Erlang, contatto di supporto per hardware
+etereogeneo. Ma poco dopo, Erlang avvene, e l'Erickson decide di non utilizzare più
+Erlang. Quindi per motivi anche umani, diciamo, leggendo la storia si capisce un po' meglio,
+ma l'Erickson abbandona l'idea del sviluppo del linguaggio. Quindi abbandona completamente
+lo sviluppo del linguaggio, ma abbiamo detto che il linguaggio ha già stato utilizzato
+anche dalle altre compagnie. E quindi le altre compagnie si fanno carico dello sviluppo
+di Erlang. Quindi continua lo sviluppo del linguaggio, che però era fatto ufficialmente
+abbandonato. Fino a quando nel 1998 Erlang viene rilasciato come open source. Quindi nel
+1998 effettivamente abbiamo le proprie implementazioni open del linguaggio stesso.
+Da 1998 a 2006 non succede uno anche in Erlang. Nel 2006 è il periodo dei core, il periodo
+della programmazione multicore. Quindi un po' alla volta tutti i linguaggi di programmazione
+cercano di capire come integrare nel linguaggio, nel runtime, nella compilazione il multicore.
+E quindi dicevo, Erlang se l'accavò in maniera spettacolare. Cioè viene aggiunto supporto
+alla multicore, andanno a modificare pesantemente l'implementazione della biotomachine, che
+capite bene per gestire più core, parallelizzare i processi eccetera eccetera, fu scritta
+in maniera pesante, ma il linguaggio non fu toccato. Quindi il linguaggio di programmazione
+è essenzialmente lo stesso e i programmi scritti in Erlang possono tranquillamente girare
+da un ambiente distribuito, un ambiente locale con o senza core, quasi completamente senza
+modifiche osservabili. Vedremo che c'è un punto su cui stare attenti, a un certo punto,
+ma che se lo fate introducete dei possibili errori quando lo mettete in maniera distribuita,
+quindi non bisogna fare. Quindi a punto di vista del retrospectiva, l'Erlang del 1986
+è un linguaggio logico, tipo Prolog, aumentato con primitive di concorrezza. L'Erlang del
+1995 si è trasformato e stava facendo, ha perso la maggior parte del fiscio di un linguaggio
+logico e ha inventato un linguaggio funzionale con primitive di concorrezza. L'Erlang del
+2005 si presenta come un linguaggio di attori pienamente inquadrato in quel paradigma di
+l'attore che prodotto nel 1973, dove gli attori sono scritti però in un linguaggio
+funzionale puro e a cui va ad aggiungere tutte quelle meccanismi di let it fail e gestione
+dei guasti. La scelta di fermentare gli attori in un linguaggio funzionale non è obbligata,
+tipo H per Java non lo fa, però come dicevo ha una serie di vantaggi che fanno sì che
+sia molto più facile farlo oggi. Come si presenta Erlang oggi, l'avviator machine si
+chiama BIM. La BIM gira come un unico kernel process multithreaded con un thread per core,
+quindi un unico processo Linux diciamo così con tanti thread, esattamente un thread per
+ogni core. Un attore invece è un language thread, quindi vuol dire che il sistema operativo
+non conosce nulla degli attori. I vari attori sono rappresentati alla vantagna del sistema
+ed è alla vantagna del sistema che fa lo scheduling. Quindi si occupa i vantagni del
+sistema di schedulare i vari attori alternandoli nel uso del processore, senza che il sistema
+operativo conosca niente di tutto questo. Questo significa che il context switch per il language
+thread è solamente lightweight. Che cos'è il context switch? La programmazione concorrente
+si parla di context switch? Ok, quindi è l'alternanza sul processore dei vari thread di esecuzione
+e come viene? Quindi è più un linguaggio di programmazione dove è il sistema operativo
+che gestiva i thread. Quindi proviamo a vedere dove va la programmazione. Quando è il sistema
+operativo che gestisce processi e thread, come viene il context switch? Si utilizza un thread,
+va salvato la memoria random da un'altra parte e quando va ripreso il thread bisogna riprendere
+la memoria come era prima, rimette la memoria random e farlo riprocedere l'esecuzione. Più
+o meno, però l'inizio è impersonale, si frizza, si splotta eccetera. Cosa succede veramente?
+Chi sono i soggetti di quel sim personale? Spesso vi chiederò durante il course quando
+vi parlo di basso livello, memoria, sistema operativi, architettura, etc. Qua dovete andare
+fino all'architettura. Poi vi rimando tutti da Davo a fare il ripasso. Interrupt, come si ricorda?
+C'è il clock del sistema e il clock del sistema a intervari regolari genera un interrupt.
+Cosa devo dire un interrupt? Un interrupt vuol dire che c'è una linea che viene accesa
+sul mio processore. Il mio processore ha il suo ciclo fetch the code execute, ma prima
+di fare fetch the code execute guarda la linea che viene accesa sul mio processore. La linea
+ha il suo ciclo fetch the code execute, ma prima di fare fetch the code execute guarda
+le varie linee. Se trova una linea di interrupt accesa interrompe il normale ciclo fetch
+the code execute, salva una copia dei registi compreso program counter in un'area particolare
+e consulta la tabella dell'interrupt. La tabella dell'interrupt è semplicemente un vettore
+in lievizie, quindi assicura dell'interrupt che è su 13 guarda il 13° entry nel vettore
+e salta a eseguire il codice alla 13° linea. Chi è che riempie questo vettore è il sistema
+operativo al boot. Il sistema operativo al boot ha del codice per gestire varie situazioni
+compreso il clock del sistema che di tanto fatica e al codice memoria quando fa boot
+mette nella tabella dell'interrupt un indirizzo a cui saltare. Quindi il mio processore ha
+salvato lui lo stato dei registri in esecuzione in quel momento e passa controllo all'indirizzo
+del codice che fa parte del sistema operativo, non solo ma entra anche in 0, cioè disabilita
+certi metri di sicurezza in maniera che il sistema operativo possa accedere a qualunque
+cosa, per esempio possa cambiare la tabella dell'emozione virtuale. Il sistema operativo
+cosa deve fare? Il sistema operativo rifà il lavoro, quindi il sistema operativo prende
+a questo punto tutti i dati salvati, i registri eccetera eccetera, che l'audio al progetto
+non sa dove metterlo, non conosce quale sistema operativo sta girando e come. Quindi l'audio
+è messo in un posto, il sistema operativo deve andare a recuperare da lì e metterli
+dove muore lui, quindi nella sua coda dei processi eccetera eccetera. E deve anche
+cambiare le pagine della memoria virtuale, la tabella dell'emozione virtuale per associare
+dalla tabella, dalla visione della memoria virtuale di un processo a quell'altro eccetera
+eccetera. E quindi c'è tutto un lavoro che deve fare il sistema operativo per poi tornare
+a ripassare il controllo al normale ciclo. Quindi sono tutta una serie di passaggi che
+devono essere fatti, prima dall' hardware, poi dal sistema operativo, poi di nuovo dall'
+hardware, che sono molto pesanti. Quando invece la concorrenza, tutto questo per poter permettere
+di fare conteswitch preemptive. Preemptive vuol dire che non è il programma che decide
+di dare controllo a qualcun altro, vi viene tolto il controllo con questo meccanismo.
+L'alternativa è la programmazione con conteswitch collaborativo. Cosa vuol dire? Non c'è nessun
+intervento esterno da parte per esempio del sistema operativo o del croste di sistema
+interrupt, ma un programma di esecuzione, quindi esegue il suo codice a freccia del
+codice execute, a un certo punto può passare il controllo a qualcun altro. Tipicamente
+in una primitiva tipo ILD, nel linguaggio di provazione, che dice adesso lascio il controllo
+a un altro processo. Tutto questo è fatto semplicemente di user space, quindi semplicemente
+in un qualche modo è molto più leggero. Il processo semplicemente salta, passa controllo
+al program camper e dell'altro thread in attesa, il quale andrà poi a recuperare la quantità
+minima di registri e informazioni necessarie. Normamente i linguaggi con conteswitch collaborativo,
+la memory footprint e anche il conteswitch sono molto più veloci rispetto al passaggio
+con l'arduo e tutto, però c'è il problema che il programmatore deve ricordare solitamente
+di fare ILD. Nulla vieta che non fare mai ILD e a questo punto il programma si padonisce
+dalla CPU e non passa mai controllo. Il caso di Erlang è il caso di un linguaggio
+interpretato, quindi viene prima compilato il bytecode, il bytecode viene eseguito da
+un interpreter che è un unico programma che fa lui un ciclo a freccia del codice execute
+in qualche senso, quindi l'estruzione del bytecode l'esegue. Quindi è molto facile
+in verità fare conteswitch collaborativo quando avete l'interpreter, semplicemente
+sarà l'interpreter che sta eseguendo una dopo l'altra istruzione del vostro thread
+e ogni tanto l'interpreter ogni tanto ad istruzioni semplicemente passa controllo
+a un altro, cioè continua a eseguire lui il ciclo, ma invece di pescare istruzioni del
+primo thread vai a pescare istruzioni del secondo thread. Quindi il fatto, Erlang si
+basa sul conteswitch collaborativo, ma non è il programmatore a fare questo. Il programmatore,
+da punto di vista del programmatore come se fosse Proactive, non deve fare nulla e il
+controllo viene fatto automaticamente, ma l'implementazione della V8 Machine, dell'interpreter della V8 Machine
+fa questo. Ok? Quindi il conteswitch è molto molto lightweight e quando ci sono questi
+tipi di thread implementati nel runtime si parla anche di green thread, thread verdi
+perché hanno poco utilizzo di risorse. Anche a memory footprint è stranamente lightweight,
+un nuovo attore nasce con circa 300 parole in memoria occupata, questo è fondamentale
+per poter avere centinaia di migliaia di attori. Come è possibile creare un attore con così
+poca memory footprint? Per esempio, in un linguaggio tipo C, quando voi create un attore
+create lo stack e lo stack è almeno tipicamente uno più pagini di memoria che vengono allocati
+interamente al processo per gestire lo stack. Una volta che lo stack viene terminato, stack
+overflow è il programma crash, se c'è qualcuno che gli dai più stack. Quindi viene allocato
+una volta per tutti all'inizio lo stack in una dimensione sufficiente per poter gestire
+le esecuzioni del codice e quindi è tanto. Quindi un thread Linux nasce sempre con tanta
+memoria, anche solo se fosse per l'uso dello stack. In Erlang ovviamente non è così,
+quindi i thread Erlang partono, gli attori Erlang partono con pochissima memoria utilizzata,
+quindi in particolare non hanno uno stack per il locato. Quindi come vedremo lo stack
+dei thread di Erlang, come quello di Guo, lo stessa lo scorso, nasce con uno stack molto piccolo
+e lo stack viene e è fatto crescere idinomicamente durante l'esecuzione del codice. Quindi all'occovenza
+quando il processo termina la parte di stack a cui è dedicata, semplicemente viene allocato
+un nuovo stack più grande, viene copiato lo vecchio stack a quello nuovo e il programma
+utilizza il suo stack. Quindi creare un attore molto poco costoso, far crescere lo stack
+e comporre di tanto in tanto delle operazioni di copia per far crescere lo stack. Ok, d'algoritmi
+quanto costa gestire, qual è la competenza computazionale di gestire uno stack che quando
+è pieno viene copiato interamente, poi cresce un altro po', poi si copia interamente, cresce
+un altro po'. Amortizzato è costante. Amortizzato è costante, ricordate? Quindi la competenza
+computazionale non la può studiare in maniera precisa, diciamo puntuale o amortizzata, puntuale
+a ogni istruzione date un bound, quanto tempo può impiegare e quindi per esempio allocare
+un byte di memoria in più sullo stack potrebbe essere o di n, perché se dovete copiare l'intero
+stack per fare spazio non è uno di 1, è uno di n. Però quando avete una sequenza
+di istruzioni, come quella di seguite da un programma, non è che il costo complessivo
+lo calcolate con il numero di istruzioni per costo massimo del centro di istruzione, perché
+per esempio non è che in continuazione voi dovete copiare per allocare un dato in più.
+Se siete furbi potete fare di meno. Quindi nel caso per esempio dello stack l'idea è
+se avete riempito uno stack di dimensione n e allocate uno spazio e lo copiate, l'allocate
+2n, quindi allocate il doppio e copiate. A questo punto per altri n passi non allocarete
+più. Quindi se voi andate a contare complessivamente la sequenza di istruzioni quanto vi è costata,
+ritrovate che il costo complessivo è solamente lineare nel numero di istruzioni e non n per
+n. Questa si chiama analisi di copertità ammonitizzata e il costo ammonitizzato è semplicemente
+O di 1, anche se voi state copiando tutta una parte, perché in verità lo pagano l'istruzione
+prima di voi o dopo di voi. Quindi di fatto è chiaro che rispetto a usare uno stack
+fisso è più lento, però è più lento in un fattore costante, in un fattore asymptomatico.
+Quindi grazie a queste due scelte si possono avere fida a milioni di language thread contemporaneamente.
+L'altra caratteristica che vi dicevo di Erlang oggi è l'hotcon swap, quindi questa possibilità
+di caricare all'untime una nuova versione del codice senza direttamente in produzione,
+non è vero? La libreria standard si chiama OTP che sta per Open Telecom Platform, il
+nome ricorda il fatto che sia nata per implementare servizi telefonici. Cosa trovate nella libreria
+standard di Erlang? Trovate essenzialmente tutto ciò che serve per andare a implementare
+dei sistemi distribuiti di un certo tipo. Quindi trovate dei client server generici,
+per esempio, implementazioni generiche che poi andate a customizzare. Trovate le macchine
+stati finite, perché spesso volentieri il vostro programma può essere visto con una
+macchina stati finita che attraverrà vari status e un server. E trovate anche, questo
+ha un ruolo importante nell'ecosistema di Erlang, Mnesia. Che cos'è Mnesia? Mnesia
+è un database distribuito. Quindi normalmente quando voi programmate, avete usato i database,
+normalmente i vari thread comunicano con i database per fare inserimenti e restazioni
+dal database, database tipicamente SQL anche se ho bisogno, vado molto meno a SQL. Ecco,
+nel caso di Erlang invece c'è anche l'opzione di usare Mnesia. Mnesia è un database distribuito
+ma sì che essenzialmente ogni attore di ogni modo legge scrivere il database distribuito
+come se fosse leggero scrivendo nella memoria locale e poi il vantaggio del sistema, cioè
+l'insieme di tutte le BIM, le macchine virtuali che sono sempre in comunicazione fra di loro,
+Celtroni può pagare questa informazione. Quindi Celtroni mantiene una certa coerenza
+sulla visione distribuita del database. Quindi un database distribuito perché ci possono
+essere le visioni locali di forma e se uno appena scritto qua l'altro non vede la stessa
+cosa, ma poi si c'era che ricompagare questa informazione. Ovviamente è molto complicato
+perché c'è un sistema distribuito soggetto a parlimenti, qui non è detto che effettivamente
+quello che voi avete scritto qua sia leggero da un'altra parte, però il sistema implementa
+diciamo questo livello di database distribuito. Scusi, c'è un'implementazione di Paxos nel
+linguaggio, qualche algoritmo di consenso. Infine è l'Exirva, come dicevo l'Exirva è un secondo
+linguaggio d'attore implementato sulla BIM. Una delle principali motivazioni per implementare
+l'Exirva fu il fatto che la sintasci similprologue era mal digerita dai programmatori che venivano
+da oggi della tradizione di modula compresi C, Java, C++ e così via, e quindi la sintasci
+di Exirva è ispirata da Ruby, quindi se Erlang è una sintasci polo-like, l'Exirva è Ruby-like,
+comunque è più vicina a quello che uno conosce. Rispetto a Erlang ha un livello di metaprogrammazione
+macroigeniche, quindi ci sono delle macro che potete andare a interpretare per creare automaticamente
+del codice per attivare gli schemi, codice delle macro, cosa che non sono disponibili
+in Erlang, e l'Exirva permette anche delle forme di polimorfismo tramite qualcosa che
+sono simili all'interfaccia, che in mente invece Erlang non ha nessun sistema per la
+gestione automatica del polimorfismo, quindi non troviamo classi, non troviamo trades,
+non troviamo mixins, non troviamo type classes, tutti i nomi di cose che vedremo, vedrete
+un po' nel corso, sono meccanismi per risolvere lo stesso problema usati da varie linguagge
+funzionali, quindi a questo punto di vista Erlang come vi dicevo è un po' un'assembla
+di linguagge funzionale, potete implementarci con quello che volete sopra, ma il default
+non vi dà nessun aiuto automatico per la gestione, per esempio, di un certo tipo di polimorfismo.
+Come vi dicevo da questo momento in avanti iniziamo a vedere il linguaggio, magari facciamo
+pausa, quindi interattivamente vi farò vedere i vari costruiti, potremo scrivere i programmi
+e così via, vi spiegherò l'implementazione che ci sta sotto soprattutto per capire, per
+esempio, la complessità computazionale in spazio e in tempo dei vari costruiti e vi
+invito a utilizzare questo libro, Usam Erlang for Real Good, che mi presenta tutti i costruiti
+in maniera abbastanza ben fatta e ci sono anche delle slide di un corso in una certa università
+che sono un riassunto del libro essenzialmente, di cui tu utilizzerà il materiale intermito
+per il libro. Quindi interrompo qua la parte di slide e di veri fare pausa e poi dopo ci
+mettiamo a studiare il linguaggio.
+Allora, le slide, queste che ho fatte vedere oggi sono già caricate su virtuale.
+L'ho già caricate dite via anche prima delle lezioni di ieri?
+Sì, sembra aver resettato le modifiche di ieri.
+Ok, io ho un programma di sianoattori in categoria.
+Prevado, adesso vedremo. Su un periodo l'anno scorso, adesso vedremo Giovan.
+Grazie, in realtà.
+Un quel bug di Vinz che si vede piccolo quando uno va in modalità presentazione noto con
+il prossimo update. Sono un po' di volte, però.
+No, dalla 48. C'era anche qualche anno fa e poi l'ho
+risolto e poi evidentemente sono quelle cose che a volte ritornano.
+L'alternativa che uso è la Provisor con Firefox e uso Firefox come elettropia.
+In realtà cambierà quando le forze di Chrome hanno rispinto uno da zero.
+Allora, questo andiamo bene.
+Ok, bene, ricordami il nome, scusami.
+Ah, ok, ok.
+Sì, sì, sì, ricordo.
+Sì, sì, con la parte della...
+Ah, ok, sì, con la parte di...
+Ok, sì, sì, ricordo.
+Ah, ok.
+Sì, infatti il 2 novembre è finito a metà della gente.
+Sì, un anno rinnovato, un altro anno.
+Sì, adesso si è produttato.
+No, bello, bello, mi trovo bene.
+C'erano 120 miliardi di cose rispetto a quello che dovrei fare,
+però il gara è molto tempo, ma ci sono altre nuove che servono,
+quindi alla fine...
+Cosa, una buona conferenza, no?
+No, no, quello...
+Allora, sì, ma non c'è dato nessuno di noi l'antarca.
+Magari abbiamo fatto altre conferenze rariche,
+ma per anni non abbiamo fatto interline italiani
+perché non prenevano tutti quelli che partecipavano.
+In realtà l'idea di nessuno l'è stata presa.
+L'amo io, ma quello di Torino,
+e non mi ricordo il nome, perdonami, sono disastri,
+quello dell'appresato, quello di Teburetti, non me lo ricordo,
+e quello su Vulcanin, quello siciliano,
+qua c'è una cosa del legno di Vodarsi.
+Io non associo nomi, facce, caratteristiche,
+che non va bene quello.
+Sono cose che uno deve tenere separate, ma va bene.
+Ok, quindi è iniziato tutto l'altro qui, no?
+Compliment science, o data science?
+Ah, ma quindi sotto Palmirani.
+Ah, io ce lavoro con la Palmirani.
+È la mia gaffa, l'intera lì.
+Ho una riunione alle 5.30 con la Palmirani.
+Sì, perché appunto poi da inizio ho visto
+che stavo facendo con la foundation.
+Poi parlo con un'azienda di...
+Ok.
+Per chi è?
+Con la foundation.
+Ah, ok, conosco il suo team.
+E quello per dentro è il mio supervisor,
+e poi il potente.
+Lo conosco.
+Però sì, appunto il capo e la testa.
+Sì, sì.
+Da parte mia ci scriverò Palmirani.
+Sì, sì, io lavoro dietro,
+mostro l'azienda Palmirani.
+Ah, ok, ok.
+Si avrebbe saputo da poco.
+La parte che si spesa, la parte che non si spesa,
+ma alla fine si è riuscita a finire...
+Almeno, sì.
+Allora, il fatto è che c'è tutto.
+Allora, le 8 è anche fatta una tesi.
+Ah, ok, le tesi, anche io tiro le tesi,
+quello che ho fatto.
+Sì, è stato cambiato.
+Mi ha dato la tesi,
+mi ha dato la tesi,
+mi ha dato la tesi,
+quindi il fatto è che c'è tutto.
+Allora, il fatto è che c'è tutto.
+Sì, è stato cambiato.
+Mi ha dato le risultati che forse va bene.
+Sì, è stato cambiato.
+Allora, il fatto è che c'è tutto.
+Allora, il fatto è che c'è tutto.
+Allora, il fatto è che c'è tutto.
+L'aggostazione,
+il fatto è che c'è tutto.
+In effetti, la cosa è farlo amalgamare,
+per rendere il risultato del tutto.
+Questo è il quale ci sono diverse organizzazioni.
+Il mio, lo simile a Rast,
+Sì, perché c'era un Facebook che usava un collega al Nuff che ci interventevano su blockchain della roba dei dati scientifici, non so come facevano, per roba.
+Perché è figo, potrebbe avere senso per il leader Snapchat che si è venuto di cantare.
+Ok.
+Prendeci la palla, che chiaramente tutti i corsi, c'è la parte di questi che...
+che scave così la palla di lancio, di roba...
+in intorno.
+Ok, sì, sì.
+Ci puoi andare, questa non ci puoi andare.
+Sì, è...
+No, figa, è proprio un po' difficilissima, credo.
+Eh, io... sì, ci avevo, perché poi Vintron, Stadiana Parminari, loro hanno fatto un formato XMED...
+Sì, sì.
+XMED per...
+Sì, sì, accumantoso.
+Sì, si, accumantoso.
+E io ho voluto la parte su accumantoso, quindi...
+Poi, lei, la prima in Italia?
+Sì.
+In Italia c'era...
+Poi c'era l'uomo e i corsi.
+Poi è questo?
+Quell'altro è...
+In user experience, l'altro è l'uomo scorso.
+Però quest'anno, come è il progetto?
+La scorsa era bella buona.
+No, bravo.
+Dal dottorato non si dicevo che mi piace.
+Sì, dal dottorato è mai stata diversa.
+Sì, sì, l'ho fatta su...
+In Italia un altro conosco bene, diciamo.
+Dal dottorato, l'esame è più grande, è bella.
+Sì, sì, no.
+Ci sta.
+Anche in Italia.
+Non c'è un buono, non c'è niente.
+Sì, sì, anche in Italia.
+Sì, sì, anche in Italia.
+Sì, sì, anche in Italia.
+Sì, sì, anche in Italia.
+Sì, sì, anche in Italia.
+Sì, sì, anche in Italia.
+Sì, anche io conosco bene, sempre, lui e l'altro,
+carcato, ammantoso.
+Sì, sì.
+Pensa bene.
+Pensa bene.
+C'avevo pensato, non c'avevo pensato.
+Il mondo è piccolo.
+Sì, sì, sì.
+Tra di noi, più o meno, ci si mischia.
+No, io volevo chiedere ai professori,
+non so di chi, ma di chi.
+Cioè, ci devo raccontare che,
+quando vedremo il video, possiamo incastrare
+il progetto, una ricerca, con i suoi temi,
+per non mancare di questioni.
+Sì, è due grazie.
+Sì, è molto basso, basso grado.
+No, no, questo è rettissimo,
+è proprio stato assurdo.
+Di solito, lui fa logica,
+è molto bravo da fare,
+lui insegna in corsica,
+in Italia è molto più astratto, come cosa, eccetera.
+Mi piace molto lontano,
+la cosa che facciamo al momento,
+però mi piace molto l'aspetto dei linguaggi.
+Questo è proprio, penso, lo ultimo momento,
+perché piace i linguaggi, questa cosa qui.
+No, io l'ho fatto un po' per vedere il rastro,
+per ciò che vediamo per i smartwatch,
+perché si può farlo.
+Sì.
+Perché scappare da questi formati mondiali,
+questo è un po' basta.
+No, Tratarino era il suo,
+è quello di fondamenti da riuscire,
+che si può semplicemente mettere,
+quello anche bellissimo,
+che si chiede tra parte l'ampacalcolo, eccetera.
+È carino, quel cuozzo lì.
+Avrei visto questo,
+mi piace meglio il rastro,
+perché è molto più...
+Sì, in Italia...
+Sì, infatti, è stato abbastanza bello,
+perché ho visto questo,
+e qua...
+Tu come sei finito a fare le cose...
+Allora, come sono finito a fare la palmerane?
+Allora, la palmerane,
+io sono finito a lavorare,
+perché cercavo un tirocino da fare in triennale,
+e il tutor di tecnologia web,
+che è il corso che tiene in triennale sempre in Italia,
+che ha un LCSS,
+già ho scritto per quello qua,
+mi ha detto,
+guarda, sta prof cerca sempre tirocinanti, eccetera, senti,
+quindi l'ho sentita,
+ho fatto il tirocinico,
+ho fatto una cosa sul web semantico,
+cioè sulla parte semantica delle licenze,
+della software,
+degli RDF, quelle robe lì, va be',
+e poi l'ho preso dentro Quintromos,
+che ormai è...
+tre anni,
+si paio di anni, cavolo.
+E non c'è alcun flusso?
+Perché ufficialmente non sono dipendente,
+perché tecnicamente sono consulente,
+quindi avevo chiesto,
+e allora mi hanno risposto,
+se riesci a fare la borsa a studio,
+cioè se riesci comunque a fare la borsa a studio,
+ho posto, ho detto ok.
+No, no, appunto, pure poi,
+o c'è, loro stanno dicendo voi, però non è vero?
+Eh, sì, ci abbiamo.
+Adesso abbiamo una consegna gigante,
+giovedì, quindi,
+si è sempre un po' incasinata,
+infatti i colleghi mi prendono per notte,
+per cui al nasco non c'è tutto,
+ma alle 7 e mezza, alle 7 e mezza di sera,
+i colleghi mi prendono per notte,
+perché quando via che sono ritorno,
+alla mattina che sono ritorno...
+Poi, tu conosci, vabbè,
+pure Salvatore Italiani,
+Salvatore...
+Sì, sì, sì, sì,
+Sapienza lo conosco,
+sì, sì,
+che poi fa il tutto,
+ha alcuni corsi,
+che adesso mi ha messo il senso che lo faccio.
+Sì, ho assisto al professor.
+Sì, sì,
+si l'ho conosciuto,
+perché fa una...
+fa una summer school
+di roba legale a settembre,
+di solito,
+che ti incastrerà, per ilmeno,
+all'attacco di roba,
+sì, per la ravella.
+E più o meno a settembre,
+penso, per la ravella.
+E lì c'è Sapienza,
+Sapienza,
+che gestisce un po' le cose.
+E sì,
+non hanno fatto...
+Cioè, ogni volta ci vediamo,
+insolito,
+per la cosa che vi prevedesse,
+per il resto,
+per la gente che li dite,
+non lo scusate.
+E...
+In realtà, forse,
+che non ci si incastra,
+perché è roba più diattalatosa.
+No,
+se via avrebbe incastrato,
+c'è il TLT workshop,
+che si fa,
+come si dice,
+in città della Bologna,
+a novembre,
+e...
+è stato vivo,
+perché c'erano tutti,
+per questo motivo,
+in inizio di agnare,
+e poi,
+mi sono preso l'impegno,
+la stagione.
+E quindi,
+so parlare,
+di progetti,
+di cose.
+Due giorni,
+che sanno tutto,
+proprio un po',
+spazio.
+Ma ci dovrebbe essere
+a maggio.
+A maggio non so dove,
+se è un po' di finito,
+però un po' più.
+E' ancora in confidenza italiana,
+o...
+Allora,
+in italiano,
+a me,
+ci sono molte,
+un'unica morale.
+Non è più, magari,
+sui progetti,
+anche a livello regionale,
+ma,
+se,
+allora,
+c'è un po'...
+In un'altra sala.
+In un'altra sala.
+Ma,
+è perché...
+Già,
+non è più...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+Siamo sempre in gruppo dottoranti, perché poi i dottoranti da parte di noi si agischiano,
+che muossano quelle cose, dico generoso a quelle cose che fanno un beat.
+Cioè, non c'è la possibilità di vedere loro passare dalle varie cose.
+Luce!
+Non si leggerà nulla poi sulla varia, non possiamo spiegare solo metà.
+No, non si può, eh.
+Interrotare sono atti da due anni.
+No, sono atti da anni.
+Ma è da luglio che si legge.
+È da luglio, è da l'anno scorso.
+Dai, ma cosa?
+Viva!
+Qualcuno è nato con un sasso, da un'altra parte, e si è andato a ballare.
+Non sa quali podeteiringhera fare...
+Non p어서 addeditorlo in tre e niente.
+Niente.
+Existe unoigmio dove sia possibile.
+verrà ventina da stamattina
+se solo io sento che fa il soggetto di...
+e Tim se non lo sa va bene
+va bene, stiamo bella
+dice una partita ma non so come faccia bravissima
+la prima partita
+la prima partita
+la prima partita
+la prima partita
+la prima partita
+va bene
+incominciamo
+a lagga un po'
+allora
+iniziamo a vedere i vari dati costrutti
+eccetera di
+Erlang
+partiamo dai tipi di dato che si fa in generale
+nei linguaggi di programmazione
+i tipi di dato in linguaggi di programmazione
+si distingue fra i tipi di dato
+predefiniti o definiti
+dall'utente e atomici
+o non atomici
+che differenza c'è con i predefiniti o quelli definiti dall'utente?
+questo è facile
+qualcuno che si lanci
+in un modo
+ma questa intende quando
+diamo
+un alias per un tipo
+intendiamo il tipo con il nome
+oppure cercare i tipi composti
+potrebbero essere entrambi
+quindi in generale nei linguaggi di programmazione ci sono dei tipi che sono già a vostra disposizione
+e che non sono definiti in user space
+quindi li avete già arte che è il compilatore
+di linguaggio che vi danno
+e poi a seconda dei linguaggi di programmazione voi potete definire i nuovi tipi
+i nuovi tipi potrebbero essere
+delle definizioni molto banali
+tipo per esempio semplicemente degli alias
+per tipi esistenti
+oppure dichiarate un tipo
+dandoci espansione del tipo
+e non è più un alias nel senso
+non è più intercambiabile un nuovo tipo ma è fatto in quel modo
+oppure per esempio
+ci possono essere dei tipi di dati più complicati
+chi ha fatto con me per esempio i fondamenti logici
+ha visto i tipi di dati algebraici
+che vi sono in vari linguaggi di programmazione
+in cui uno va a descrivere
+in user space quale sono le possibili forme del vostro dato
+quindi dice non so
+un alio binario
+una foglia fatta così o un nodo interno fatto colà
+eccetera eccetera
+quindi elenca e definisce le forme del vostro dato
+quindi sono vari meccanismi per definire i nuovi tipi di dato
+ora noi vedremo
+oggi i tipi di dati
+predefiniti dal sistema
+per quanto riguarda i tipi di dati
+definiti in user space
+poiché il linguaggio di programmazione non è tipato
+non esistono dichiarazioni ai nuovi tipi
+non ai semplici tipi
+l'utente va a creare
+nuovi tipi scegliendo
+certe combinazioni di valori
+che rappresentano un tipo
+e vedremo degli esempi di programmazione in cui andremo
+per esempio a definire degli albi binari
+di varie nature ci lavoreremo sopra
+però non c'è un costuto per definirlo
+si usano semplicemente i valori in un certo modo
+quindi
+tanto per fare un esempio banale fin da subito
+i booleani
+è il tipico esempio di dato
+che spesso nel linguaggio di programmazione
+è definito in user space
+dicendo il booleano in qualche modo
+ha anche il più piccolo insieme di valori che sono true e false
+cosa succede in Erlang
+noi abbiamo gli atomi che abbiamo visto ieri
+che hanno sufficiente proprietà di essere
+uguali a se stessi che devono essere
+tutto il resto
+quindi possiamo usare l'atomo true
+per indicare il vero e l'atomo false
+per indicare il false
+e le operazioni tipo
+hand, over e così via
+semplicemente se voglio i dati in input
+le combinazioni true e false rispondono a modo
+se gli dati in input qualcosa che non è
+true o false daranno dei risultati
+di errori di qualche tipo
+quindi ok, hand, ko
+per esempio da un'eccezione
+perché dicendo riconosco la forma del valore
+quindi
+tornando a noi
+quindi non abbiamo meccanismi per i tipi di dati
+per le definite in Erlang
+semplicemente certe combinazioni di valori
+li usiamo in maniera coerente
+come se fosse un tipo di valore
+rimane la distinzione
+per i tipi di dati atomici e non atomici
+cosa sono i tipi di dati atomici
+cosa sono i tipi di dati non atomici
+in un linguaggio di programmazione
+i tipi di dati atomici rispetto alla concorrenza
+no
+anche in C
+abbiamo i tipi di dati atomici e i tipi di dati non atomici
+cosa vuol dire atomico
+in italiano diciamo
+atomico vuol dire non divisibile
+quindi i tipi di dati atomici
+sono quelli che non contengono altri dati
+al loro interno
+per esempio, sono atomici, non hanno niente al loro interno
+un array è non atomico
+un array contiene degli elementi
+quindi tutti i linguaggi di programmazione
+abbiamo tipi atomici e tipi non atomici
+vediamo cosa succede in Erlang come tipi
+partiamo dai tipi atomici
+che tipi atomici abbiamo?
+abbiamo i numeri interi
+per esempio 4 o meno 3
+sono il tipo di numeri interi
+sui quali abbiamo le usuali operazioni
+più per meno o meno uguali
+attenzione come sempre
+alla sintassi
+che è riminescente
+di prologue
+quindi quasi sempre la sintassi usuale
+con qualche variante
+per esempio 4 maggiore o ugale
+se scrive maggiore o ugale
+ma per dire meno o ugale
+non scrivete meno o ugale
+perché se scrivete meno o ugale quella è una freccia
+le frecce in logica hanno già dei significati
+implica al contrario
+quindi
+la sintassi è uguale minore a 2
+che almeno
+è simmetrica completamente al maggiore
+uguale
+sempre per la serie sintassi
+attenzione all'uguale al diverso
+quindi il test
+che ci dice se due valori
+sono uguali, cioè se tu dici un buleano
+è uguale
+due punti uguale
+quindi 4 uguale a 2
+falso, 4 uguale a 2 punti uguale a 4
+è vero
+e per diverso
+è uguale barvato uguale
+quindi diverso è abbastanza facile
+e uguale barvato per l'uguale
+si mette i due punti
+l'operatore di uguale
+lo vedremo più avanti
+esiste, ma fa un'altra cosa
+abbiamo visto già anche nell'own world
+abbiamo scritto PID uguale a qualcosa
+è una specie di assegnamento
+quindi diciamo
+uguale a due punti uguale è un po' l'uguale uguale del G
+abbiamo i numeri floating point
+per esempio 2,31
+anche in questo caso
+abbiamo le varie operazioni
+definite sopra
+possiamo mischiare l'operazione algebra
+che intero e floating point
+ovviamente viene tutto promosso
+al floating point
+attenzione nuovamente all'uguaglianza
+se io confronto un floating point
+con un intero
+ovviamente sono diversi
+perché sono due numeri diversi
+in conseguenza di pizze differenti
+se vi interessa
+un test di ugualianza in cui i numeri vengono tutti colassati
+e quindi sono uguali
+allora in quel caso
+si usa
+uguale uguale
+quindi
+uguale uguale è il test di ugualianza
+che però
+nel caso di numeri misti
+floating point interi
+trasforma tutto in un floating point
+quindi verificate se sono uguali
+e il diverso è barraguale
+ultima cosa
+ci tornerò magari su certi esempi
+potete scrivere
+quando scrivete i numeri interi
+la base gratella
+per esempio 2 gratella vuol dire quello che segue il numero in base 2
+quindi 0,1,1,0
+se è in base 2
+oppure in base 16
+se vada a mettere a C
+è il numero 172
+quindi possiamo usare le basi per scrivere i numeri
+non vi dico l'identato sui numeri
+hanno le solite proprietà che voi siete abituati
+vediamo gli altri tipi dati atomici
+uno l'avete già visto è del PID
+quindi per esempio a funzione 6
+il PID
+è identificatore
+univoco di un attore
+non ha sul PID delle operazioni
+definite
+significative
+non possiamo farci un granchetto sul PID
+fate testarlo come uguale a un altro PID
+la cosa importante che possiamo fare
+useremo il PID per operazioni che hanno a che fare con l'attore
+del tipo inviare messaggi
+usiamo il PID per inviare dei messaggi
+abbiamo già visto come
+PID bang il messaggio da inviare
+oppure per esempio andare a uccidere un attore
+useremo il PID corrispondente
+vedremo più avanti
+questa operazione
+un altro tipo di dato che vedremo più avanti
+sono le reference che vengono create
+con il costruito make life
+vedete che vengono stampate
+in modo da
+dare qualcosa per debugging
+ma questi numeri non dovete farci
+affidamento così come questi
+cosa sono le reference
+le vedremo in uso
+quando parleremo di protocori di rete
+se avete fatto un po' di protocori di rete in vita vostra
+sapete che
+per evitare per esempio situazioni
+tipo l'attacchi man in the middle
+si inietta
+dentro i messaggi dei nons
+dei numeri usati una volta sola
+numeri casuali usati una volta sola
+che ci permettono di
+scoprire se qualcuno sta cercando di reciclarlo
+un messaggio vecchio per esempio
+perchè ogni volta finiriamo un nuovo
+ecco le reference di Allen su esattamente questa
+il costruito make life ci genera una nuova reference
+e la nuova reference
+è un qualche dato
+che è probabilisticamente
+diverso da tutti quelli utilizzati in precedenza
+e non c'è un algoritmo
+non dovrebbe essere un algoritmo
+per indovinare in amicizio
+quale sarà la prossima reference
+per evitare attacchi
+nei protocori di rete
+nuovamente è un tipo di dato atomico
+in cui l'unica operazione sensata
+è l'uguadianza
+quindi una reference uguale a se stessa è diversa da qualunque altra cosa
+quindi
+il successivo
+tipo di dato
+sono le porte
+le porte sono un tipo dei PID
+vi dicevo ieri che
+nella formazione di attori
+se io voglio interagire con qualcosa che non è un attore
+mai definito esternamente
+io posso ropparle
+in una specie di attore
+in modo da interagire con lui
+all'interno del linguaggio come le send e le receive
+e poi questa specie di attore
+comunicherà in qualche modo
+con un'entità esterna
+quindi per esempio, se voglio lanciare un programma
+mandare degli input sulla standard input
+leggere i standard output
+io lo wrappo dentro una specie di attore
+in quale quando riceve
+certi messaggi di mando al programma esterno
+sulla standard input
+quando riceve qualcosa di standard output mi invia un messaggio
+questi attori particolari
+che wrappano qualcosa di esterno
+sono il più simile possibile di attori
+ma non sono degli attori con tutte
+le funzionalità degli attori
+in particolare, per esempio, abbiamo detto
+io posso liberamente
+uccidere un attore
+e fare scatenare i processi di Directive Fail
+se invece un attore che wrappa un processo esterno
+una cosa esterna
+non entra in gioco nei processi Directive Fail
+perché il programma esterno non è in grado di
+fare questa operazione
+quindi non tutte le operazioni che posso fare su un processo vevole
+posso fare su questi processi
+che sono processi parziali
+che wrappano qualcosa di esterno
+per distinguere tra questi due casi
+quando creo uno di questi
+attori
+particolari per i processi esterni
+invece di avere un PID
+dell'attore, ha una port
+una porta con un PID, però
+con delle funzioni pari di tanto
+quindi avevo detto
+tipi atomici sono
+interi, floating point, PID
+reference port
+l'ultimo tipo di data atomico
+sono gli atomi, che abbiamo visto l'altra volta
+quindi gli atomi si scrivono
+normalmente con le lettere minuscole
+per esempio ciao
+potete usare quelli che volete
+vedremo più avanti
+come vengono implementati
+ma l'idea è che
+un programma utilizzi un numero piccolo
+di atomi
+e gli atomi vengono rappresentati
+a runtime in memoria
+con delle sequenze di bit
+come associare le sequenze di bit lo vedremo
+ma l'idea è che
+atomi diversi avranno semplicemente
+sequenze di bit, differenti
+quindi
+gli atomi non sono spring
+non è che a runtime voi
+andate a prendere l'attomo ciao
+e tirare fuori il terzo cavato e il secondo cavato
+o qualcosa del genere, per esempio
+l'attore dovete pensarlo a runtime
+come semplicemente una sequenza di bit
+quindi un po' come le costanti del C
+quando definite le costanti
+i nomi al posto di 1, 2 e 3
+per dare il deduzione particolare
+è anche possibile
+se ricordo bene
+usare gli appiccetti singoli
+per racchiudere gli atomi
+che hanno
+degli spazi iniziali
+quindi questi appiccetti singoli
+diventano degli atomi
+se io scrivo per esempio ciao
+è uguale a ciao con e senza
+appiccetti, la risposta è sì, perché semplicemente
+è l'attore sintattico
+questi sono tutti e soli
+i tipi di dati atomici
+notate in particolare
+che non ho indicato un tipo di dato carattere
+quindi non esistono i caratteri
+in Erlang
+passiamo ai tipi di dati non atomici
+system defined
+Erlang ha due
+i tipi di dati non atomici
+system defined
+e a partire da questi
+uno rappresenta
+i due tipi
+sono
+gli array o tuple
+e le liste
+le tuple l'abbiamo già intraviste
+ad esempio un'altra volta
+iniziano tra i parentesi graffe
+e gli elementi della tupla vengono separati
+dalle dispazi
+il linguaggio è non tipato
+in particolare
+le tuple possono essere
+come tutto, come anche le liste
+non omogenee
+presento 4
+una tupla con un atomo
+è un floating point
+e un altro atomo
+che rappresenta un boolean
+esiste anche la tupla vuota
+quindi la tupla vuota
+è un valore che potete utilizzare
+qua non avete niente significativo
+da inserire all'interno
+domande?
+l'ultimo tipo di dati che mi dicevo
+erano le liste
+allora le liste
+come è fatta una lista?
+una lista o è vuota, in questo caso
+la sindica con quale quadra
+oppure una lista ha una testa e una coda
+la testa è un valore qualsiasi
+la coda a sua volta
+è una lista
+la sintassi e le liste di Erlang
+è l'ordinante un po' la sintassi e le liste di Prolog
+che è un po' particolare
+quindi per indicare la testa
+la coda e una lista
+dentro la parentesi quale si indica prima la testa
+per esempio 2
+e poi con una barra verticale si va a mettere la coda
+quindi per esempio la lista 2 tra 4
+userebbe la lista 2
+e poi la coda e una lista
+che è come testa 3
+come testa 4
+e poi abbiamo la lista vuota
+ovviamente la sintassi è abbastanza
+terribile e pesante
+per cui esiste poi un zucchero sintattico
+per cui potete abbreviarlo semplicemente a 2 tra 4
+stessa cosa anche in input
+quindi se voi scrivete 2 tra 4 in input
+in verità vuol dire lista, testa 2
+coda bla bla bla compresa la lista vuota
+in fondo
+essendo un linguaggio non tipato
+non avete nessuna garanzia
+che la coda di una lista sia
+in verità una lista
+quindi voi potete scrivere anche delle cose di questo genere
+quindi questa è una lista
+in cui la testa è 2
+e la coda non è una lista bensì
+un numero
+chiaramente in questo caso
+la lista si chiama impropria
+perché non è una revalista
+e non scatta lo zucchero sintattico
+perché non è abbreviabile diciamo
+una presentazione della lista
+una presentazione di libreria che avete sulle liste
+per esempio la lunghezza di una lista o cose del genere
+se vi è passata una lista impropria
+tipicamente solleva un'eccezione
+perché non è indefinita
+quindi in genere diciamo
+è buona norma non avere liste improprie
+è possibile anche bischiare
+le notazioni
+quindi potremmo scrivere anche delle cose
+tipo 2 tra 4 barra
+5 e 6
+quindi inizia con 2, poi c'è 3, poi c'è 4
+e poi la coda successiva è 5 e 6
+quindi è la stessa cosa di scrivere
+2 tra 4, 5 e 6
+o di scrivere 2 barra, operata quadra
+3 barra, operata quadra, 4 barra
+ok?
+sulle liste
+non ci sono operazioni purede finite
+tranne qualcosina
+per esempio list length
+vi ricordo bene
+list length
+list length
+length basta
+la devo ritrovare
+la devo andare a ritrovare
+comunque diciamo c'è
+la sentazione, non ricordo in quel modo lo sia
+c'è il modo di avere la lunghezza di una lista
+torneremo dopo perché è importante
+sapere che esiste la funzione
+puredefinita in caso della lunghezza della lista
+a parte questa, in user space, in una libreria di Erlang
+ci sono varie funzioni sulle liste
+quelle che voi siete abituati
+in particolare possiamo concatenare list
+per esempio
+l'operatore più più concatenare list
+quindi
+2, 3, più 4, 5, 2, 3, 4, 5
+e lo useremo negli esempi
+potete sottrarre una
+lista all'altra
+la sottrazione è la sottrazione in sinistica
+per esempio io faccio 2, 3, 4, 5
+e sottrargo 4, 2
+la lista 4, 2
+voglio intendere
+dalla prima lista cancello tutti i elementi
+della seconda
+non devono essere in ordine la seconda lista
+che la seconda lista vede vista come inizia
+quindi in questo caso
+la risposta è 4, 5
+ok?
+attenzione
+che a volte
+Erlang ha delle cose bellissime
+delle piccole scelte atroci
+il meno meno
+è associativo a destra
+mentre matematica il meno meno
+è associativo a sinistra
+quindi se voi scrivete questo
+non state togliendo 4, 2 e poi 4
+state da 4, 2 togliendo 4
+e togliendo tutto il resto
+quindi il 2 rimane
+il 2 è tolto ma il 4 rimane
+ok?
+bene
+questi sono tutti
+e solo i tipi
+di dati
+atomici
+e non atomici di Erlang
+ne rimane fuori uno
+che sono le funzioni
+o meglio le chiusure
+ora, siamo in un linguaggio funzionale
+una delle caratteristiche del linguaggio funzionale
+è quella che le funzioni sono oggetti
+di prima classe
+un oggetto di prima classe si intende
+non oggetto di prima classe, si intende semplicemente
+un oggetto di prima classe può essere manipolato
+come se fosse un numero
+quindi possiamo prendere in input, dare in output
+metterlo in un contenitore e stavarlo
+quindi le funzioni
+sono oggetti a tutti gli effetti
+io ci posso fare quello che voglio con la funzione
+per esempio mettere una funzione
+all'interno di una lista
+che sintassi abbiamo a disposizione
+per le funzioni
+ci sono diverse sintassi
+e adesso andremo a vedere alcune di queste sintassi
+quindi la prima sintassi
+l'abbiamo vista l'altra volta
+e apparentemente ha la forma
+nome-funzione
+aperta-quadra
+aperta-tonda
+lista degli argomenti
+se parati da virgola
+freccia il corpo and
+questa sintassi
+la possiamo utilizzare nei file
+che andiamo a compilare
+ma non la possiamo utilizzare
+nella shell
+quindi si può fare una roba di origine nella shell
+ccdx restituisce x1
+and
+questo è un errore di sintassi
+quindi una sintassi usate esclusivamente
+al top level
+un'altra sintassi
+che invece posso usare ovunque
+come espressione dove voglio
+ecco la keyword fun
+quindi se io scrivo fun
+voglio dire funzione
+e poi prendo la lista degli argomenti
+per esempio x
+e a questo punto restituisco x1 and
+questa è una sintassi corretta
+per una funzione anonima
+una funzione senza nome
+che prende input x
+e restituisce x1
+lambda calc
+viene stampata in questo modo
+nuovamente questi dati sono
+più di debugging
+non dovete fare fidamente troppo a questo scritto qua
+ma vi sta dicendo che è una funzione
+che è una funzione, il tipo di dato funzione
+come vi dicevo è l'oggetto di prima classe
+quindi posso fare quello che voglio
+per esempio potrei inserirla
+all'interno di una lista
+e non c'è nessun problema
+questa è una lista di funzioni
+poi potrei per esempio estavare
+il primo elemento dalla lista
+add è la funzione
+che data una lista e restituisce la testa
+quindi se estravago la funzione
+dalla lista di funzioni ottengo nuovamente
+una funzione per esempio
+e se la voglio invocare semplicemente
+passo
+passo un input a prendere la
+aparenza di tonne e chiudendo l'aparenza di tonne
+passo un input
+semplicemente
+non così semplicemente
+ci ripenso un attimo
+vogliamo dare un nome per esempio f
+posso dare un nome
+una volta che io ho dato un nome
+posso invocare
+con le parensi
+quindi le funzioni
+sono un tipo di dato
+attenzione che essendo un tipo di dato
+di prima classe che posso piazzare ovunque
+io posso avere anche funzioni
+imbrutate definite all'interno
+di altre funzioni
+le funzioni che sono
+definite all'interno di altre funzioni
+hanno accesso alle variabili
+definite nello
+scopo più esterno
+quindi per esempio, io potrei scrivere una funzione
+che prende un input
+potrei chiamare g
+una funzione che prende un input
+x
+e mi restituisce una seconda funzione
+la seconda funzione che mi viene restituita
+è una funzione che prende y
+e per esempio restituisce x più y
+questa è l'end della funzione interna
+questa è l'end della funzione esterna
+quindi questa è una funzione
+che restituisce una funzione
+se io invoco per esempio g su 2
+il risultato è una funzione
+che funzione è?
+è la funzione che prende l'input y
+e restituisce x più y
+ma chi è x? x io ho passato 2
+quindi vuol dire che la funzione che mi è stata restituita
+si comporta come se
+qua io avesse scritto 2
+quindi è una funzione che somma sempre 2
+infatti se per esempio
+io questa la chiamo h
+di passo 3
+il risultato è 5
+se di passo 7 il risultato è 9
+vedremo
+quando inizierò a parlare dell'implementazione
+a un certo punto, questo lo ritarderò un po'
+vedremo che
+una funzione
+definita all'interno di un'altra funzione
+che usa la variabile esterna
+a runtime
+ha una rappresentazione particolare
+queste cose si chiamano chiusure
+perché a runtime non può essere semplicemente
+il program counter
+il valore da dare al program counter per puntare a questo codice
+perché questo codice in memoria
+deve poter accedere alla variabile x
+e la variabile x cambia di volta in volta
+a seconda di cosa dovete passare con la funzione esterna
+quindi
+a runtime
+mentre le funzioni del c
+le possiamo rappresentare semplicemente come un puntatore a funzione
+cioè un indiviso di memoria
+e possiamo semplicemente invocare il codice
+le chiusure
+non possono essere semplicemente un puntatore del codice
+sono un oggetto più complicato
+a runtime e studieremo l'implementazione
+delle chiusure più avanti del corso
+dal punto di vista dell'alto livello
+però non dovrebbe sorprendervi
+semplicemente
+possiamo avere queste funzioni imbricate
+quando invoco le funzioni esterne
+per esempio lui si ricorda il valore che è passato
+e lo utilizza per le funzioni
+va bene?
+questo esaurisce i tipi di dato
+tutti
+per quanto riguarda le funzioni
+abbiamo un po' di sintassi alternativi
+quindi
+partiamo
+da questa sintassi
+avevamo detto
+fun, nome dei parametri, che sono n
+e poi il corpo che devo istituire
+notate che io qua scrivo un'espressione
+non c'è nessun costuto tipo runtime
+io scrivo lì un'espressione
+in un linguaggio funzionale
+il corpo è sempre un'espressione
+ed il risultato dell'espressione è quello che viene ritornato
+supponete che voglio fare una funzione ricorsiva
+con questa sintassi
+vogliamo fare una specie di
+fattoriale o qualcosa del genere
+quindi avevo bisogno di una specie di
+keeps and else per fare il caso base e il caso non base
+ignoriamo un attimo che non ve l'ho ancora spiegato
+supponiamo semplicemente di voler fare una chiamata ricorsiva
+tipo n, moltiplicato
+la chiamata ricorsiva, la funzione suo meno
+visto che questa funzione è anonima
+non gli ho dato un nome
+non ho un nome da utilizzare qua
+per questo c'è la possibilità
+quando definite
+una funzione in questo modo
+di dare qua un nome
+per esempio g
+di dare un nome alla funzione
+questo nome la possiamo utilizzare per chiamate ricorsive
+quindi fan g di n, n per g di n
+è una funzione ricorsiva che utilizza g
+però attenzione il nome g
+è utilizzato solamente all'interno
+non è un nome esterno
+quindi questa funzione anonima
+non si chiama g, non la posso utilizzare come g
+è solamente quando scriviamo il codice al top level
+che allora il nome che vediamo qua
+è sia il nome utilizzato per chiamate ricorsiva
+sia un nome che possiamo utilizzare nel resto del codice
+questa distinzione è tipica
+della maggior parte dei linguaggi, formazioni e funzionali
+quindi permettono di avere un nome interno
+per chiamate ricorsive che non viene esportato
+ed eventualmente un nome esterno che invece
+possono avere chiamate successive
+quindi in questo caso se per esempio voglio utilizzare questa funzione
+gli devo dare un nome
+quindi non posso chiamare
+l di 2
+che mi velogeva ma non posso chiamare g di 2
+ancora sulle funzioni
+che la sintasi sia questa
+o che la sintasi sia quella al top level
+fino a ora abbiamo visto
+nome della funzione
+e lista dei parametri
+sotto forme variabili
+m, x e così via
+come avviene per esempio in C
+dove le funzioni prendono una lista di variabili
+che sono i parametri formali
+nel linguaggio e informazione
+funzionali tutti
+questo è semplicemente un caso particolare
+le funzioni quando voi andate a definire
+cosa volete che facciano
+utilizzate dei pattern
+come per l'aggressive
+che abbiamo visto ieri
+quindi voi dite se la funzione riceve questo pattern input
+fa questo
+se riceve quest'altro pattern input
+fa quest'altro e così via
+tutti i linguaggi informazioni moderni e funzionali
+hanno la possibilità di definire per casi
+come vedremo questo
+permette in maniera molto concisa
+di scrivere
+algoritmi che siano facilmente
+comprensibili e riduce di molto
+il codice che uno scriverebbe in un linguaggio
+tipo 5, dovevi andare a
+analizzare gli input
+riconoscere in quale caso è
+di farle dall'input i puntatori e le sottoparti
+per poi utilizzare
+quindi
+se volessimo fare degli esempi
+rilancio per video perché
+se volessi fare degli esempi
+potrei per esempio definire una funzione
+che se di passo
+una
+coppia n
+2 per esempio
+mi restituisce n
+oppure
+se di passo in input
+per esempio
+una tripla
+ciao
+n
+restituisce
+n più m
+e se di passo una
+lista che contiene
+ando scopo dire qualunque cosa
+è una variabile che maccia qualunque cosa
+ma non dico un nome, sto ignorando quell'input
+quindi una lista in cui il primo elemento lo ignoro
+il secondo elemento lo ignoro
+il terzo elemento lo chiamo
+magari dev'essere una coppia
+x, y
+e la lista finisce qua, quindi una lista esattamente
+lunga tra e per esempio
+restituisco x più y
+dove mi ha dato l'errore?
+qua perché non ho messo le prove
+ok, quindi questa
+è una funzione definita per pattern matching
+la do un nome per poter utilizzare
+f per esempio
+e se io per esempio
+passo la funzione
+3, 2
+scatterato in un caso mi restituirà 3
+se gli passo la lista formata da
+1, 2, 4, 5
+dovrebbero restituirmi 9
+ok, sì?
+questo è un oggetto solo, oggetto e funzione
+in questo caso
+questa è l'unica funzione unaria
+infatti vedete che tutti i casi
+prendono un input solo
+non posso mischiare un input con due input
+sarebbero due funzioni diverse
+quindi tutti i casi
+devono avere esattamente un numero di input
+però l'input non è una variabile, è un pattern
+e può legare quello che vuole
+ok
+essendo linguaggio non tipato
+il compilatore
+non può sapere
+quali sarebbero i casi che hanno senso
+come vi dicevo, non esiste una nozione
+di tipo di dato user defined
+nel cui dico compilatore, il mio tipo di dato
+può avere queste forme
+quindi il compilatore non può verificare
+che non viiate effettivamente
+scritto tutte le possibili forme che potete utilizzare
+quindi se voi invocate
+una funzione su un input
+che non ha nessuna delle forme
+prese in considerazione, ve l'ha sollevato l'eccezione
+io per esempio passo
+alla funzione f in numero 2e
+non è né di questa forma
+né di questa né di quest'altra
+e quindi mi dira eccezione
+non c'è nessuna clausola
+che matcha questa clausola
+ok
+fa un po' vi spiego
+come si implementa
+questa cosa qua
+diciamo però in generale che
+tutti i costrutti di Erlang
+o in generale tutti i costrutti di linguaggi
+di formazione funzionale di alto livello
+o vede linguaggi
+alcuni magari siete abituati
+si usa una variabile
+si prende una variabile
+c'è sempre un pattern matching
+quindi
+quindi la variabile è sempre il caso particolare
+di usare del pattern che matcha con un'altra cosa
+tutti i costrutti dove siete abituati
+a segnare
+legare, usare una variabile
+in generale c'è un pattern matching
+ancora
+sulle sintasse della funzione
+quindi possiamo utilizzare dei pattern
+sia che sia scritto in questo modo
+sia che sia scritto in una funzione top level
+è anche
+possibile, spesso utile
+utilizzare delle guardie
+cosa vuol dire delle guardie?
+prendiamo per esempio il primo caso
+se io passo N2 voglio restituire N
+ma magari lo voglio fare solamente
+quando N
+è un numero positivo per esempio
+ora, una condizione del genere
+io non la posso imporre con un pattern
+perché dovrei scrivere tutti i casi
+0,1,2 sarebbe un pattern infinito
+quindi io vorrei
+poter vedere
+scatto ma solo se
+N è un numero per esempio
+maggiore di 0
+oppure prendo una lista L, scatto solo se
+la lunghezza della lista è maggiore di 4
+quindi quello che è possibile fare
+è dopo il pattern
+attraverso la keyword
+when
+scrivere delle guardie
+per esempio in questo caso potrei dire
+N deve essere maggiore di 0
+chiamo G la funzione
+se a questo punto passo
+5,2 va bene
+e restituisce 5
+se passo
+meno 5,2
+mi dice che non c'è nessuna clausola
+che faccia match
+quindi in presenza di una guardia
+se la guardia non scatta
+perché la guardia è falsa
+vengono provate
+le altre clausole
+perché in generale potrebbe essere un input
+match più di una clausola
+e in questo caso si va in sequenza
+dalla prima all'ultima
+trovando la prima che faccia match
+quindi esempio
+se io scrivo la funzione
+che
+per N2
+when
+N maggiore di 0
+restituisce N
+oppure se c'ho
+XY
+restituisce X più Y
+ci sono dei valori
+che matcherebbero entrambi
+se io passo 4,2
+sia scatterebbe questa clausola
+ma potrebbe anche scattare questa
+quindi in questo caso l'ordine è sequenziale
+dalla prima clausola all'ultima che scatta
+quindi se io passo
+4,2 mi restituirà 4
+cioè scatta la prima clausola
+e non scatterà mai 6
+se io passo meno 4,2
+la prima non scatta
+e passa la seconda che restituisce
+meno
+tutti i linguaggi con le relazioni funzionali
+che hanno pattern matching
+permetteranno di usare delle clausole delle guardie
+ulteriori
+ma Erlang
+ha una particolarità
+che non è una buona
+scelta, è stata abbandonata da qualunque linguaggio
+più moderno, che è la seguente
+quando voi
+valutate le guardie
+Erlang vuole essere stra sicuro
+che la vostra guardia
+non abbia
+side effects strane
+di sorta, per esempio
+che la guardia invida i messaggi
+per esempio, che la guardia
+crea dei reattori o cose del genere
+il motivo per esistere
+su questo
+è perché quando
+viene generato il bytecode
+per compilare un pattern matching
+il bytecode generato
+è complicato, quindi
+non si usa
+l'implementazione naive
+testo la primo
+pattern, se fa match bene
+else, testo secondo pattern, se va bene
+else, e così via
+perché questo sarebbe ridondante
+per esempio, guardate le due pattern che ho scritto prima
+è chiaro che una volta che tu hai testato il tuo input
+hai visto che è una tupla lunga 2
+e poi capisci
+che non va bene perché
+n non è maggiore di 0
+è inutile ricominciare a testare il tuo input
+ritestando se sia una tupla lunga 2
+sai già questo
+perché i pattern non potranno ricominciare
+quindi in verità, quando si compila
+il pattern matching, si va a creare
+una specie di automa stati finiti
+in cui l'automa analizza
+l'input e scopre
+delle informazioni
+e poi, quando si passa ai pattern successivi
+ha già delle informazioni
+e quindi passa da uno stato di informazione
+a un altro stato di informazione
+se testare le guardie
+avesse dei size effect
+come per esempio mandare messaggi
+o cose del genere
+sarebbe complicato
+ragionare sul codice
+perché chiaramente
+a seconda di come viene compilato
+andrebbe a valutare più o meno volte
+le guardie in ordini strani
+i linguaggi per le informazioni moderni
+se ne fregano, ve ne dicono
+scrivi la guardia che ti pare
+usa il codice che vuoi
+se ci vede dei size effect
+sono cavoli vuoi
+Erlang no, Erlang insiste su questa cosa
+e quindi
+Erlang non permette di scrivere
+codice arbitraio come guardia
+l'unica cosa che potete scrivere
+all'interno delle guardie
+sono combinazioni di un insieme
+di funzioni predefinite
+chiamate BIF
+che vuol dire sensamente
+funzione predefinita
+implementata in C
+e cioè sono poche
+che potete utilizzare
+la lunghezza della lista è per esempio una BIF
+una funzione di Boriglia che adesso
+non ho beccato un nome per calcolare
+quella potete utilizzare per esempio una guardia
+perché è utile poter testare
+la lunghezza di una lista
+però potete usare
+maggiori, minori, test di ugualianza
+test di diversità
+qualcosa sulle liste
+tipo la lunghezza
+potete chiedere che tipo di dato è
+quindi ci sono funzioni tipo
+isnum, isfloatingpoint
+isatom per differenziare il tipo
+di input ma non potete scrivere
+codice arbitraio
+potete combinare invece le varie guardie con
+and or
+not
+questo fa sì che le guardie
+siano un linguaggio molto
+poco espressivo
+in Erlang
+e vedremo che questa cosa
+quando faremo certi esempi
+è una cosa problematica
+perché dove in un linguaggio
+volete usare una guardia per dire
+non faccio scattare questo caso, le faccio scattare un altro
+a volte in Erlang non riuscite a scriverlo
+e quindi siete obbligati a fare scattare il caso
+anche se non dovreste
+quindi fate scattare il caso
+e poi iniziate ad eseguire il codice
+vi accorgete troppo tardi che non è il caso giusto
+e a questo punto dovete fare qualcosa
+questo è problematico
+in particolare con i messaggi
+quindi abbiamo detto, l'idea è che
+i messaggi che sapete processare adesso
+visto che i messaggi erano autoforder e li processate
+se voi non riuscite a riconoscere
+con esattezza che il messaggio sia
+un messaggio buono
+a volte rischiate di estrarre il messaggio
+il messaggio non è quello buono
+e a questo punto vi trovate con un messaggio estavato
+che dovete processare più avanti
+e questo comporterà
+una grave riprogrammazione
+quindi
+questa è una particolarità di Erlang e di Elixir
+se la BIM è proprio l'interprete della macchina virtuale
+con questa limitazione
+le guardie sono solamente combinazioni
+in unissime co-definitive funzioni
+vi dico un'altra cosa sulle liste
+che non vi ho detto prima
+e poi vi sono scordato un tipo di dato
+per processare liste
+per processare liste esiste un costrutto di alto livello
+anche questo si trova
+o di giorno sulla maggior parte del linguale di formazione
+anche python
+per vivere l'acquisito in tempi recenti
+che va sotto il nome di list comprehension
+comprensione delle liste
+comprensione nel senso della scema di
+comprensione e attoria degli insiemi
+quindi cosa vuol dire?
+vuol dire che voi potete
+ottenere una lista
+andando a
+indicare
+qua un'espressione
+due barre verticali
+e poi qua andando a
+faccio un esempio con gli insiemi
+e poi ci torniamo
+per esempio voi scrivete in teoria degli insiemi
+gli insiemi di tutti per esempio di X alla seconda
+tale per cui X meno o uguale di 10
+questa è una cosa tipica
+che voi scrivete in teoria degli insiemi
+pescate gli X che hanno una certa proprietà
+e poi per ognuno ci applicate una funzione
+e mettete tutti gli insiemi all'insieme finale
+con la list comprehension fate la stessa cosa
+quindi voi dite la lista di tutti
+che so, per esempio
+le coppie X, X più 1
+tale che
+e dopodiché andate a
+pescare le vostre variabili, magari facciamo
+X, Y più 1
+come fate a pescare
+variabili?
+le variabili potete estrarre
+da una lista preesistente
+quindi per esempio se voi avete la lista 1, 2, 3
+X freccia
+1, 2, 3, vuol dire
+io pesco la X da questo insieme
+quindi la prima volta la pesco come 1
+la seconda volta come dura, la terza volta come 3
+e ogni volta vado a calcolare
+X, Y più 1
+nuovamente, questo sembra una specie di assegnamento
+X di volta in volta
+lo pesco da un insieme
+e quindi lì giustamente c'è un pattern
+perché tutte le volte c'è una specie di assegnamento
+in realtà ci sono dei pattern
+quindi io posso fare per esempio anche il pattern
+che so Y underscore
+preso dall'insieme
+4, 5
+6, 7
+ok?
+quindi questa espressione mi sta dicendo
+prendo la lista di tutte le coppie X, Y più 1
+dove X lo estrangue da questo insieme
+da questa lista
+e le coppie Y o qualcosa
+lo estrangue da questa lista
+concretamente
+è come se ci fosse due ciclifora
+diciamo, un ciclo 4 che pesca la X
+da un insieme 2 e 3 con dentro un ciclo 4
+che pesca la Y
+quindi se io eseguo questo codice
+ottengo la lista 1, 5, 1, 7
+2, 5, 2, 7
+3, 5, 3, 7
+quindi
+notate
+che lui prima
+il ciclo 4 sulla X
+è esterno rispetto al ciclo 4 sulla Y
+quindi lui prima sceglie
+X uguale a 1
+e poi genera i due output
+X uguale a 1
+prendendo una volta 5
+e quindi diventa
+una volta 4 che diventa più 1, 5
+e una volta 6 che diventa più 1, 7
+poi esaurite le scelte della Y
+Y ricomincia a prendere secondo valore
+la lista X
+e iltera nuovamente sulla Y
+ok
+è anche possibile
+aggiungere dei filtri
+quindi se non volete processare
+tutte le combinazioni che estraete
+ma solamente quelle che non c'è la proprietà
+potete aggiungere a questo
+potete aggiungere nella list comprehension
+dei test che non esituiscono
+dei buleane semplicemente
+per esempio, mi interessano solamente
+i casi in cui
+che so
+X più Y
+è minore di
+6
+se io aggiungo anche questo vincolo
+sto filtrando via
+i casi dove X più Y non è maggiore di 6
+quindi uno 5 li tengo
+ma gli altri casi non li ha puntati
+ok
+quindi questo è il costruito
+di discomprehension
+lo useremo spesso quando andremo a programmare
+a fare degli esempi
+è una forma molto concisa
+di
+iterazione su list
+con filtraggio
+e applicazione
+di trasformazione ricomincia
+vi ho detto che mi sono dimenticato
+di un tipo di dato
+un tipo di dato non atomico
+mi ha colpa perché poi negli esempi
+nel resto del corso non lo utilizzo mai
+ma un tipo di dato molto interessante
+perché è interessante?
+abbiamo detto che Erlang nasce per
+controllare l'hardware
+dell'implementazione di switch
+di pacchetti
+quindi i tipici programmi che voi scrivete in Erlang
+sono programmi
+che voi vi immaginereste di scrivere
+in un linguaggio di sistema
+perché dovete andare per esempio
+a leggere i pacchetti dalla rete
+decomporre i pacchetti, processare i pacchetti
+e cose del genere
+quindi
+Erlang ha queste esigenze
+Erlang da una parte appare come un linguaggio
+di formazione di alto livello
+sono tipi di dato di alto livello che hanno
+certa implementazione, ma da altro canto
+deve poter accedere alla rappresentazione in bit
+perché per esempio se vi arriva un pacchetto
+TCP-IP
+dovete andare a estrarre dal pacchetto
+se due bit dicono una cosa
+se tre bit dicono un'altra cosa
+in verità non c'è nessuna incompatibilità
+per essere di basso livello e accedere ai vari bit
+Erlang ha la possibilità
+di
+prendere un qualunque tipo di dato
+e andare a osservare
+la sequenza di bit che lo compongono
+andando a
+decomporre la sequenza di bit
+usando paper match
+come avviene
+questa è una cosa che uso poco
+quindi probabilmente farò qualche errore di sintasse sicuramente
+iniziamo per esempio
+con il numero N
+il numero N per esempio in base
+che so, 16
+prendo il numero
+che so, 7
+a 5
+che diventa il numero 157
+lo penso con per esempio
+le componenti RGB
+quindi ci saranno
+4 bit
+per rappresentare questa componente
+seguita da 4 bit per questa componente
+seguita da 4 bit per questa componente
+io vorrei poter accedere ai bit
+che compongono questo
+allora
+quello che posso fare
+è utilizzare
+la minore minore maggiore maggiore
+quando io utilizzo
+minore minore maggiore maggiore
+non guardate l'auto esatto
+quello che sto dicendo è
+voglio accedere
+diciamo così
+alla rappresentazione in bit, alla sequenza di bit
+che compongono il mio dato
+e qualunque dato io posso mettere
+per minore maggiore per ottenere la sequenza di bit
+una volta che io vedo a questo punto
+una sequenza di bit
+ci posso lavorare per factor matching
+per esempio
+io vorrei cercare
+destrare per esempio
+le 3 parti che rappresentano
+quindi
+per esempio
+vorrei dire
+R 4 bit
+seguito da green
+4 bit
+seguito da blue 4 bit
+quindi questo è un pattern
+e sto facendo pattern matching
+prendo questa sequenza di bit
+e decompolo in questo modo
+mi dicono match
+perchè avendoci messo io dentro un numero
+in verità i numeri non hanno solamente
+4 8 12 bit
+lui ha preso l'intero numero
+e ha usato tutti i 64 bit del numero
+quindi in verità ci sono degli altri bit
+che non mi interessano
+una possibilità poteva essere quella
+di dire
+N 2.12
+con N 2.12
+quello che io ho detto
+in qualche modo che mi interessavano solamente i primi 12 bit
+a questo punto lui sembra aver fatto
+pattern matching
+e se io vado ad estrarre rgb
+notate che ho
+esattamente
+7 10 e 5
+perchè A
+in base 16
+quindi io posso
+prendere una sequenza di bit
+e tagliare pattern matching
+andare ad estrarre parti
+ricomporre parti
+posso fare la list comprehension
+per esempio
+con la stessa sintassi
+e cose del genere
+e ci sono varie variazioni qua
+per indicare quanti bit voglio prendere
+a volte per esempio nei pacchetti
+avete un campo
+il primo campo è fisso
+del numero di lunghezza del pacchetto
+e poi seguono un numero di bit
+che dipende dal proprio precedente
+potete fare anche queste cose qua
+potete fare per esempio una roba del tipo
+il primo campo C ha 2 bit
+e il secondo campo X
+è lungo C bit
+e quindi riuscite a manipolare molto facilmente
+la memoria a basso livello
+e questo è una cosa importante
+ovviamente non solo per
+andare a manipolare il pacchetto di rete
+ma anche per esempio se volete accedere a
+device
+se volete accedere a device tramite
+memory map da io o cose del genere
+avete bisogno di riuscire ad avere controllo
+sulla sequenza di bit
+questo vi permette di avere controllo sulla sequenza di bit
+domande?
+no?
+chi voi sono?
+428
+allora aggiungiamo
+un ultimo costrutto per oggi
+che è sufficiente per iniziare a fare gli esempi
+poi non ho completato i costrutti da parte
+di Erlan ma quasi
+no in verità posso già fare esempi così
+posso già fare esempi così
+la decisione di
+non avere tipi
+strip a compile time
+perché lavoriamo con i bits spesso
+no in verità no
+il linguaggio nasce come
+non tipato così come molti linguaggi
+al tempo erano
+non tipati
+diciamo che anzi
+tutti i primi linguaggi funzionali di Isp
+Scheme erano tutti non tipati
+così come Prologue nasce come un linguaggio non tipato
+quindi l'insistenza
+di tipi che cosa buona e giusta però
+è una cosa più recente
+i linguaggi funzionali
+moderni per esempio, in generale tutti
+i linguaggi moderni o spesso
+sono linguaggi di programmazione tipati in qualche modo
+alcuni sono tipati da schifo come lo
+alcuni sono tipati bene
+ma sono linguaggi tipati
+esiste in verità
+la possibilità
+quando avete un linguaggio di programmazione non tipato
+di cercare di imporre
+un sistema di tipi posteriore
+quindi avete dei tool
+che cercano di assegnare dei tipi alle vostre funzioni
+e fanno dei controlli approssimati
+esiste anche per Verlang
+quindi ci sono dei tool, Dialyzer per esempio
+in cui voi dovete andare a
+dare una descrizione dei tipi
+alle vostre funzioni, presi di input e output
+e poi il tool cerca
+di verificare che il vostro codice sia corretto
+diciamo, non vi sto presentando
+questa parte perché
+a runtime non esiste questa parte dei tipi
+è veramente un controllo statico che viene fatto
+separatamente, non andranno ad aggiungere
+dei tipi dopo
+e quindi non è che interessavi
+frante da dire, vi diciamo no su questa parte
+allora, non vi ho presentato tutti i costruzzi
+sequenziali di Erlang
+però ne ho a sufficienza
+per fare qualche esempio
+di programmazione
+e adesso vi vado a fare un esempio
+di programmazione, cos'è?
+che dobbiamo portare a casa da questo esempio di programmazione
+diversi punti
+il primo, se siete già esperti
+per l'armazione funzionale
+non c'è niente da portare a casa
+ma se non siete abituati
+la prima domanda ovviamente è come faccio a programmare
+in un linguaggio
+in cui io non ho mutabilità, non ho cicli
+non ci sono for, non ci sono while o cose del genere
+è banalmente perché se non ci sono
+assegnamenti, un ciclo for
+o un ciclo while sarebbero sempre vero o sempre falso
+se la memoria è nulla
+quindi una parte vi devo chiedere come faccio
+a scrivere i codici
+ma soprattutto
+la domanda interessante
+che dobbiamo porci è
+qual'è la complessità computazionale in spazio del tempo
+nel nostro codice?
+per rispondere a questa domanda
+non nella azione di oggi, ma nella prossima
+dovremo andare a vedere come vengono implementati
+i dati
+e i costruzzi di Erlang
+quindi adesso prima vediamo un po' come programmare
+ma è fondamentale sapere qual è il modello
+di esecuzione sotto
+in particolare
+quando programmate
+con un linguaggio di alto livello
+funzionale
+bisogna che il programmatore
+sappia cosa stia facendo
+per avere le giuste complessità computazionali
+è facile
+a volte
+ragionare male
+e ottenere delle funzioni
+che non hanno le proprietà che voi vi aspettate
+è più difficile rispetto
+al linguaggio di programmazione in perativo classico
+dove è più esplicito
+l'uso della memoria
+e anche
+l'uso dello stack, dello heap
+in un linguaggio funzionale
+dobbiamo capire quali sono le ottimizzazioni
+che il computatore attiva
+inizio a fare vedere il codice
+poi in una prossima lezione andiamo a vedere
+come viene implementato
+e quindi uscendo a capire
+come sta computazionale
+che codice vediamo?
+dikt.herla
+quindi module dikt
+export
+andremo a vedere cosa exportiamo
+allora l'idea è quella che io voglio
+per esempio, implementare
+degli alberi binari di ricerca
+tutti saprete quali sono gli alberi binari di ricerca
+sono degli alberi binari
+o largo vuoto
+oppure un nodo che si nomifica in due
+la proprietà di ricerca
+è che tutti
+quando io ho un nodo
+che ha un valore che è una chiave
+tutto ciò che sta a sinistra ha un valore
+della chiave più piccolo, tutto ciò che sta a destra
+ha un valore della chiave più grande
+e quindi quando vado a cercare qualcosa
+all'interno dell'albero
+io ogni passaggio posso scegliere
+se andava a destra o a sinistra
+e questo dimenza
+la quantità di dati analizzate
+e quindi tipicamente
+per fare l'esistenza di una foglia o qualcosa del genere
+in un albero binario di ricerca
+a complessità che è logaritmica
+perché devo guardare
+il percorso radice-foglia
+andiamo a implementare
+un albero binario
+di ricerca
+in cui ho delle chiavi
+dei nodi centrali e magari delle foglie
+vado a mettere dei dati che io voglio andare
+e associare le chiavi
+e vedremo
+come cercare qualcosa all'interno
+di un albero binario di ricerca
+vedremo anche come aggiungere qualcosa
+o come modificare un albero binario di ricerca
+quindi sarà un terzo di diverso
+da quello a cui siete abituati
+perché è un linguaggio con mutazione imperativo
+voi modificate l'albero
+e l'albero non è più quello di prima
+l'albero ha dei nodi diversi
+più o meno qualcosa del genere
+nel linguaggio funzionale non possiamo
+ulterare l'albero precedente
+quindi vuol dire che quando noi aggiungiamo qualcosa
+ad un albero
+potremo ulterare un nuovo albero
+detto così
+se io vado a ricreare un albero
+ex novo, l'albero avrà mille nodi
+sembrerebbe che aggiungere un nodo
+vuol dire allocare altre mille
+di memoria, se fosse così
+la comunità computazionale
+dei linguaggi funzionali sarebbe
+pessima, quindi dobbiamo capire
+come si programma in un linguaggio
+funzionale, cos'è che fa?
+sì, che riusciamo a mantenere le comunità computazionali
+decenti
+detto questo
+voi avete fatto un bellissimo corso
+tutti, indipendenti datori venite
+di algoritmi e strutture dati
+in cui vi hanno fatto vedere i libri di varie dimensioni
+con decine e decine di algoritmi
+e strutture dati
+la stragrande maggioranza di quelle strutture dati
+e quegli algoritmi erano basati su mutabilità
+e avete studiato le proprietà di complessità computazionale
+quando lavorate nel mondo
+funzionale puro in cui non avete mutabilità
+ci sono
+degli altri libri di
+strutture dati funzionali
+non potete usare gli stessi algoritmi
+se voi usate gli stessi algoritmi e non avete mutazione
+dovete simulare la mutazione
+rischiate che l'algoritmo
+ha una complessità computazionale molto maggiore
+quindi spesso e volentieri ci sono
+altri strutture dati e altri algoritmi
+che hanno complessità computazionale
+simili a quelle imperative
+e che però non vi vengono insegnati
+nel corso tradizionale
+torniamo al nostro albero
+che invece
+sarà abbastanza simile
+a quello che facciamo con le imperative
+hanno più detti i commenti
+sono alcuni percenti
+quindi alberi binari
+di ricerca
+con chiavi
+nei nodi
+interni
+e coppie
+chiavi
+payload
+nelle foglie
+ora questo è un tipo di dato
+nuovo
+che io voglio implementare user space
+quindi no
+non lo dico al compilatore
+perché appunto il compilatore ignora i tipi
+e poi devo scegliere come fare a rappresentare
+questa informazione
+è un esempio
+di tipo di dato algebrico
+algebraic
+data type
+un tipo di dato algebrico
+che è seguito come fondamenti logici
+da già è stato esposto a sta roba
+è un tipo di dato
+che ha un certo numero
+finito di forme distinte
+dove ogni
+forma è un tipo
+di dato composto
+e quindi a suo interno può avere degli altri dati
+e dichiarare
+un tipo di dato algebrico
+in un linguaggio di formazione con tipi
+vuol dire andare a dire al compilatore
+da questo momento in avanti
+queste sono le mie forme che voglio utilizzare
+per un tipo di dato
+noi a Erlang non lo diciamo, ma di fatto mentalmente dobbiamo farlo
+quindi per esempio
+se io avessi una senitazza
+di dichiarazione dei tipi
+potrei dire, sto definendo
+gli alberi binari
+di coppie chiave K
+e valori V come
+quindi diciamo
+questo è il nome del mio tipo diciamo così
+io posso usare due variabili di tipo
+perché l'albero lo posso poi
+stanziare
+scegliendo il tipo dei valori più tardi
+quindi potrei dire
+un albero
+con chiavi K
+e valori V
+ha due possibili forme
+la prima forma potrebbe essere una foglia
+la foglia deve avere sia la chiave
+che il valore
+quindi mi serve un dato
+che ha due valori, una chiave e un valore
+come faccio in Erlang?
+in Erlang uso il record, la tupla
+quindi dirò che ho una
+tupla dove il prima componente magari è K
+e la seconda componente magari è V
+oppure
+questo sembrot radicale si utilizza
+normalmente nei linguaggi in cui io dichiavo
+i tipi in user space
+per separare i vari casi
+quindi il secondo caso potrebbe essere
+invece un nodo dell'albero
+centrale, un nodo interno
+e tre sottodati
+il sottodato di sinistra, la chiave
+e il sottodato di destra
+quindi sarebbe anche questa una tupla
+dove metto 3 KV
+a sinistra
+che è l'albero di sinistra
+una chiave e un 3 KV
+a destra
+ok, questo è il mio tipo di dato
+quindi
+sono varie forme alternative che contengono i dati
+ora, in questo caso, io sono fortunato
+diciamo così
+perché in entrambi i casi ho due tuple
+ma uno è lunga 2 e uno è lunga 3
+quindi se io devo
+discriminare
+dalle altre due tuple, se sono chiavi
+se sono foglie o nodi interne è facile
+basta l'unghezza della tupla
+potrebbe capitare invece
+che abbiano esattamente lo stesso numero di elementi
+per esempio se nella foglia ci metto qualcosa altro
+in questo caso
+per discriminare le forme possibili
+io aggiungo
+alla mia tupla
+un ulteriore campo
+e uso un atomo
+che mi distingue fra i due
+quindi visto che normalmente lo si fa quasi sempre
+lo facciamo sistematicamente
+quindi aggiungevo
+l'if
+l'atomo l'if
+per le foglie
+e l'atomo nod
+nelle tuple che rappresentano i nodi
+questo di aggiungerlo sistematicamente
+è anche un buon suggerimento
+nel caso in cui poi successivamente
+voi cambiate il codice
+magari dovete aggiungere un campo in più
+perché se aggiungete un campo in più
+a questo punto le confondete
+e faccio dentro due batti
+quindi se le avete già distinti con anche un atomo
+siete sicuri che il codice è più robusto
+ok?
+quindi questa sarà la nostra presentazione
+quindi per esempio
+quindi
+potremmo scrivere delle cose del tipo
+un albero
+che ha un nodo
+il sottoardo di sinistra è una foglia
+che contiene
+due
+anna
+poi una chiave che è quattro
+e il sottoardo di destra
+a sua volta è una foglia
+che contiene
+cinque e uno
+ok?
+questo sarà un esempio di dato
+di rappresentazione del mio albero
+e questo sarà un dato che posso manipolare
+e utilizzare in Erlang
+se lo volete
+in ASCHIART
+ho quattro
+da questa parte
+ho
+due anna
+da questa parte ho cinque
+ok?
+incidentalmente
+è anche di ricerca
+perché la chiave due è più piccola di quattro
+e più piccola di cinque
+ok?
+quindi questi sono i tipi di dati algebrici
+l'idea è essenzialmente questa
+quindi io ho tante forme possibili
+utilizzo sempre delle tuple
+utilizzo un atomo per distinguere
+e ci vado a mettere dentro i valori
+se io
+devo rappresentare
+in una situazione in cui non ho valori da trasportare
+per esempio
+una foglia vuota
+allora posso semplicemente
+metterci un atomo senza metterci la tuple
+quindi si fa una tupla che contiene solamente un atomo
+i tipi di dati algebrici
+sono
+nel linguaggio di programmazione
+tipo CAMELA, ASCHEL
+eccetera eccetera
+sono l'unica forma di tipo di dato
+che il linguaggio mette a disposizione
+quindi tutti i tipi di dati che il programmatore può utilizzare
+sono i tipi di dati algebrici che il programmatore
+definisce in usi aspetti di dati algebrici
+quindi sono completi per programmarci
+voi potete passare tutta la vostra vita
+e utilizzare esclusivamente i tipi di dati algebrici
+questa è una specie di implementazione a basso livello
+vi sto facendo vedere
+come si codifica un tipo di dato algebrica
+in Erlang
+usando appunto delle tuple che non si sono convediate
+vediamo quindi
+rapidamente
+come fare
+di implementare
+qualcosa su questi alberi
+come faremo
+quindi la prima cosa che implementiamo per esempio è la ricerca
+cerco
+un valore
+associato a una chiave
+in un albero
+binario di ricerche
+quindi come facciamo
+dobbiamo definire una funzione
+la funzione la chiamiamo per esempio search
+la funzione ha due input
+la chiave che sto cercando
+e l'albero
+visto che l'albero ha due forme possibili
+nella nostra DT
+noi definiremo la funzione con due casi
+uno con il pattern che matcha le foglie
+e uno con il pattern che matcha
+fino all'interno
+quindi
+se io cerco la chiave K
+all'interno
+di una foglia
+con un value
+K2
+value
+cosa devo fare?
+cosa restituisco?
+in verità dipende
+dipende se K è uguale a K2 oppure no
+quindi se sto cercando la chiave K
+e sono in un albero con una foglia K2
+se sono uguali, l'ho trovato, se non universi, non l'ho trovato
+quindi potrei utilizzare in questo caso
+una guardia
+when K
+è uguale a K2
+quindi se ho trovato esattamente K
+uguale a K2, in questo caso cosa restituisco?
+buh!
+ho trovato il mio valore
+oppure
+seconda possibilità
+sto cercando la mia chiave
+all'interno della mia foglia
+non sto a dare dei numeri variabili
+veritanto so già che non sono entrato nel mio caso
+quindi so già che non ho trovato il valore
+quindi non sto nemmeno a mettere
+when, in questo caso devo dare
+in output un errore di qualche tipo
+come faccio a dare un errore di qualche tipo
+una possibilità
+e sollevare un'incezione la vedremo più avanti
+una possibilità migliore
+è quella di dare come output
+non semplicemente il valore, ma
+o il fatto che ho trovato il valore
+oppure il fatto che il valore non sia presenta
+un dato che ha due possibili forme
+o il valore c'è
+o il valore non c'è
+è un altro tipo di dato algebico
+quindi userò un altro tipo di dato algebico
+in output per rappresentare queste due possibilità
+questo tipo di dato algebico ha anche un nome in genera
+si chiama option
+quindi
+tipo option
+io dico option
+di un valore v
+o non l'ho trovato
+uso qualche atomo
+per esempio not found
+oppure l'ho trovato
+e a questo punto uso found, valore
+è un tipo di altro algebico come precedente
+ha delle forme possibili
+in questo caso sempre due
+e certe forme
+hanno lo interno degli altri dati
+quindi torniamo a noi
+in questo caso che ci restituisco v
+restituisco found v
+e in questo caso restituisco not found
+ok fin qua
+bloccatemi pure se sto andando troppo veloce
+c'è un'altra possibilità
+quindi le foglie abbiamo esaurite
+ho preso in input una foglia
+e ho trovato una foglia che non l'ho trovata
+l'altra possibilità è che io prendo in input
+un nodo
+quindi un nodo
+ha un sottoalbo di sinistra
+ha una chiave k2
+ha un sottoalbo di destra
+cosa faccio quando cerco la chiave k
+in un nodo che si danne unifica k2
+t1 t2
+cosa deve fare l'algoritmo?
+conferare la chiave che cerchiamo
+conferare il nodo
+se è minore
+se è minore
+uguale vado a sinistra
+se è maggiore e stretto vado a destra
+se è minore e stretto vado a sinistra
+se è maggiore e destra vado a stretta
+quindi questo confondo lo faccio
+con un'altra guardia
+1 in k è
+minore, uguale minore
+di k2
+quindi se lo devo cercare
+a sinistra, semplicemente
+lo vado a cercare a sinistra
+quindi cerco k all'interno dell'albero t2
+l'altra possibilità
+è inutile che io dia un nome
+e posso anche non dare il nome al t2
+l'altra possibilità, posso non dare il nome al t1
+e non usare la guardia
+tanto so già che se k non è
+meno uguale di k2 è maggiore
+e vado a cercare k all'interno del t2
+fine
+questo è il codice
+che io vado a scrivere per implementare l'algoritmo
+quante leggibile questo codice, quante chiave questo codice
+ovviamente dipende anche dal fatto
+se siete abituati o no a scrivere
+codice compatte dei matching delle cose del genere
+all'inizio avete anche il disturbo
+della sintassi a cui non siete abituati
+però una volta che uno
+ha preso sulla sintassi
+e la cosa, l'algoritmo è estremamente
+chiaro, perché distingue già
+per casi le varie situazioni
+rende evidente
+quale parte dell'input io utilizzo
+e la chiamata ricorsiva
+su una sottoparte più piccola
+sotto l'albero di sinistra o di destra mi garantisce anche la terminazione dell'algoritmo
+la domanda sarà
+quale è la completità computazionale di questo algoritmo
+però è più interessante
+quando facciamo l'inserimento, perché quando facciamo
+la ricerca
+domanda su questo?
+no
+testiamolo magari
+anche se il test non sarà
+troppo sonnificativo
+quindi sono andato per vedere che lo abbia fatto
+per errori
+e...
+va, ho invertito le finestre
+quindi compilo
+tri, l'ho chiamato
+dict
+compilo
+dict, ah, notate
+ho compilato tri
+non l'ha trovato, quindi mi ha dato un error
+ha usato nuovamente
+questo è l'option, c'è una coppia dicendomi
+c'è stato un error
+e il tipo dell'error
+se c'è due is the news
+se c'è un error dell'altra volta
+non l'ho esportata, quindi sarebbe tutto inutile
+quindi l'esporto
+ovviamente non si esporta tutto
+si esporta solamente le funzioni di top level
+questo è il tagare
+credo perché ha usato il nome di una dict
+anche il nome di un modulo
+della libreria standard
+quindi voleva compilare
+la libreria standard
+e... bene
+possiamo provare a testarlo
+quindi dal modulo dict
+io vado a utilizzare la funzione search
+e vado per esempio a cercare
+la chiave
+la chiave 2
+da questo esempio
+la chiave 2
+da questo esempio
+dovrebbe trovarla e situirmi
+an
+found
+an
+se cerco la chiave 5
+dovrebbe trovarmi b1
+se cerco la chiave 7
+dovrebbe dirmi not found
+ok?
+vado avanti in un altro pochino
+quindi se non ci sono domande
+questo è a tutti gli effetti
+lo stesso algoritmo
+che voi scrivereste in un linguaggio integrativo
+perché la ricerca non modifica nulla
+non altera nulla, semplicemente facendo altra cosa
+vediamo l'inserimento
+che è la parte interessante
+dobbiamo inserire
+una nuova coppia chiave-valore
+all'interno dell'albevo
+l'algoritmo integrativo cosa farebbe?
+cercherebbe la chiave all'interno dell'albevo
+se la trova
+è un problema
+diciamo o fa l'update
+dobbiamo scegliere cosa fare con la semantica
+magari se la trova già cambia il valore associato alla chiave
+se non la trova
+modifica imperativamente l'albevo
+ma aggiungendo un ramo con la chiave
+ma si avrà un linguaggio in formazione senza mutazione
+quindi non possiamo fare questo
+quindi, matematicamente
+non dobbiamo creare un nuovo albero x9
+il nuovo albero sarà identico al primo
+dove non ha bisogno di modificare
+ma avrà una chiave in più
+e adesso vado a scrivere il codice
+con questa idea matematica in testa
+poi dovremo capire la prossima lezione
+cosa succede con le quinte
+qual è la complicità computazionale vera di questa operazione
+e vedremo che
+non sta creando un nuovo albero x9
+che sarebbe folle da fare una cosa più interessante
+però per il momento
+quando scriviamo il codice noi lo aggiuniamo in maniera matematica
+diciamo così
+quindi dico
+modifico l'associazione
+chiave-valore
+o inserisco
+una chiave
+ma l'attenzione alla terminologia non è bellissima questa cosa che ho scritto
+bisogna usare parole un po' più
+ne uso meglio
+diciamo, restituisco
+in output
+una copia dell'input
+dove ho cambiato
+l'associazione
+chiave-valore
+o ho inserito una chiave
+questo per rendere evidente che l'albero iniziale non è stato toccato
+quindi ce l'ho ancora a disposizione
+lo posso usare? Non è stato alterato nessuno
+come scriviamo il codice?
+allora, innanzitutto insert
+lo chiamo
+prendo la chiave
+prendo il valore
+e poi prendo l'albero
+l'albero, nuovamente, è uno di quelli che vorrà a me
+ho una foglia o no
+quindi devo analizzare i casi
+quindi se è una foglia
+K2V
+come devo ragionare?
+ho trovato la chiave oppure no
+se l'ho trovata devo alterare l'associazione
+anche io devo fare una cosa diversa
+quindi il primo caso è quando K
+è esattamente K2
+in questo caso
+in verità non mi serve niente V
+e quello che devo fare
+è restituire un nuovo albero
+che non è quello in input
+è un nuovo albero, normalmente
+che è una foglia
+la cui chiave è K o K2, quindi se voglio sono uguali
+e il nuovo valore
+è V
+ok?
+seconda possibilità
+ho sempre una chiave
+K2V2
+ma non ho trovato
+quello che volevo, quindi devo inserire
+la nuova
+chiave, diciamo
+associazione che ha il valore nell'albero
+il mio albero
+ha una sola associazione che ha il valore con la foglia
+quindi per mettere una in più devo fare un nodo
+quindi devo impiazzarlo con un nodo
+che si ramifica
+e da una parte devo mettere
+la chiave valore che avevo prima
+dall'altra parte metto la nuova chiave valore
+che voglio inserire
+quindi crea un nuovo albero
+che è un
+che è un nodo
+a sinistra ci vado a mettere
+no, doveva la mettere
+a sinistra o a destra per la nuova
+se K è minore di K2 oppure no
+quindi ho in verità due casi
+when
+K
+è minore di K2
+oppure dopo quando non lo è
+se K è minore di K2
+l'if KV
+lo metto a sinistra
+e a destra ci devo andare a mettere
+l'if K2V2
+ok
+lascio un commento per la prossima volta
+perché ci sarà qualcosa che non va qua
+dal punto di vista computazionale
+ci ritorneremo la prossima volta quando discutiamo
+matematicamente non c'è nessun problema
+devo inserire la chiave al centro
+devo inserire la chiave al centro e ci metto K
+nell'altro caso
+non sto a fare il test
+vuol dire che devo fare il contrario
+e quindi diciamo
+a sinistra ci metto K2V2
+la chiave ci metto K2
+e a destra ci metto K2
+infine
+ho il caso nodo
+se io sto inserendo KV
+in un nodo T1
+K2T2
+anche in questo caso
+dipende se K è più piccolo di K2V2
+no
+se K
+è più piccolo di K2
+devo inserirlo
+a sinistra
+quindi cosa devo fare? devo creare in alto
+tutto un nuovo albero
+il nuovo albero sarà chiaramente un nodo
+dove la prima lo deve essere anche a destra
+il sottoalbero di sinistra
+è quello dove deve essere una copia dell'albero
+in cui vado ad inserire
+quindi sarà chiaramente ricorsiva
+è lì che vado a fare il seguimento ricorsiva
+quindi a sinistra io inserisco
+KU in T1
+la chiave sarà sempre K2
+e a destra
+io ci devo andare a mettere una copia di T2
+come faccio a fare una copia di T2?
+scrivo T2
+dal punto di vista matematico
+quindi una copia non c'è
+quindi in riguardo ai funzionali curvi
+mi permette di ragionarmi nella matematica
+quindi una copia
+è indistinguibile dall'originale
+quindi io ci metto semplicemente
+ci scrivo T2
+poi capiremo la prossima volta cosa succede
+dopo questa computazione
+però matematicamente non fa una piega
+io prendo T2 e ce lo lascio così come è
+ultimo caso
+è il caso opposto
+ho T2 quindi devo inserire a destra
+e quindi
+a sinistra
+ci lascio T1
+la chiave ci lascio
+sempre K2
+e inserisco a destra
+domande?
+copiamo?
+quindi
+compilo dict
+compilo dict
+compilo
+compilo
+compilo
+compilo
+inserito
+non ho esportato insert
+bar 3
+ok
+quindi magari dico
+T1 è foglia
+7
+ciao
+T2 inserisco
+con la chiave 2
+il valore
+pippo
+nell'albero T1
+sì
+dal modulo dict
+ok
+è giusto
+ha creato un albero 2 che si ramifica
+a sinistra ci ha messo la foglia 2 pippo
+a destra ci ha messo 7 ciao
+T1 notate che è rimasto identico
+T1 non è stato alterato in nessun modo
+poi posso fare T3
+in cui inserisco
+1 pluto
+in T2
+ok
+è un nodo che si ramifica su 2
+a destra c'ha la foglia 7
+a sinistra un altro nodo che si ramifica con 1
+a sinistra c'ha 1
+e a destra c'ha 2
+aggiungo per esempio un'altra 7
+ha alterato
+il valore della chiave
+prima c'era scritto 7
+no sì 7
+ciao, adesso c'è 7 patto
+perché abbiamo implementato l'alterazione del valore della chiave
+ok
+quindi il codice è ancora bello
+domande?
+quindi la prossima lezione, la prossima settimana
+a questo punto dovremo iniziare
+a capire come abbiamo implementato il linguaggio
+per arrivare a capire
+come vengono presentati i vantami dati
+e qual è la comprensibilità composizionale
+in spazio e in tempo
+di questi 2 algoritmi
+e vedremo anche che
+qua e qua
+si può fare di meglio
+qua c'è un problema di inefficienza
+mentre si può fare leggermente di meglio
+nel codice
+però vi invito anche ad osservare come appunto
+c'è una separazione, in qualche modo
+fa il problema della visione matematica
+dell'algoritmo, dove la correttezza ci ragiona
+in maniera più matematica
+e poi il problema di computazione risolta
+ultima osservazione che vi faccio, notate come io
+un albero creando dei nodi nuovi
+di varia natura
+non ho mai allocato esquisitamente memoria
+semplicemente in questo linguaggio
+io ho garbage collection
+e vedremo come è implementata
+quindi se io non uso più dei dati
+la memoria viene reclamata in automatico
+e soprattutto ho allocazione automatica
+nel momento in cui una funzione in output
+mi restituisce
+una tupla, un numero, una lista
+beh, quando io eseguo
+il corpo della funzione
+questo alloca
+la tupla, la lista
+quindi ormai una gestione esplicitamente memoria
+semplicemente io uso i dati come userei in matematica
+e l'allocazione viene fatta di frequente
+ok
+il problema è che stavi creando la foglia
+invece di risaluta come
+negli altri su sotto
+che stavi facendo la tupla corretta
+il problema è che qua
+diciamo
+ho ricopiato
+tal quale questo
+e dovremmo capire
+appunto
+la prossima volta vedremo
+che ha creato una nuova foglia
+e potevo essere più fuori
+vuoi farli usare la foglia precedente
+allora vedremo la prossima

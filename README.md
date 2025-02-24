@@ -8,6 +8,6 @@ Materials for my Computer Science Master's program
 - 🧠 [Intelligenza Artificiale](https://github.com/DavideDeRosa/cs_master/tree/main/Intelligenza_artificiale)
 - 👮🏻‍♂️ [Digital Forensics](https://github.com/DavideDeRosa/cs_master/tree/main/Digital_forensics)
 - 📐 [Architetture Software a Microservizi](https://github.com/DavideDeRosa/cs_master/tree/main/Architetture_software_a_microservizi)
-- 📏 Matematica Computazionale
+- 📏 [Matematica Computazionale](https://github.com/DavideDeRosa/cs_master/tree/main/Matematica_computazionale)
 - 🖼️ [Computer Graphics](https://github.com/DavideDeRosa/cs_master/tree/main/Computer_graphics)
-- 💻 Emerging Programming Paradigms
+- 💻 [Emerging Programming Paradigms](https://github.com/DavideDeRosa/cs_master/tree/main/Emerging_programming_paradigms)

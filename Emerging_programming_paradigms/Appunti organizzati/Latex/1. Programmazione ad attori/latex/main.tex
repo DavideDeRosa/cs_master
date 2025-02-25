@@ -110,6 +110,14 @@ Anche il memory footprint dei language thread è estremamente leggero, con un nu
 Lo stack viene fatto crescere dinamicamente all'occorrenza, andando a creare uno stack di dimensione 2N e copiandoci all'interno il contenuto dello stack precedente. Questo ha un costo computazionale ammortizzato di \textbf{O(n) lineare}.\\
 Questo costo è relativo solo al momento della creazione del nuovo stack, quindi negli altri casi il costo è ammortizzato è di \textit{O(1)}. Questo permette di avere milioni di language thread contemporaneamente.\vspace{14pt}\\
 Un'altra caratteristica fondamentale è l'\textbf{hot code swap}, ovvero la possibilità di caricare a runtime una nuova versione del codice, senza buttare giù il programma.\vspace{14pt}\\
-La libreria standard si chiama \textbf{OTP (Open Telecom Platform)}, nel quale possiamo trovare tutto quello che serve per implementare software distribuiti.
+La libreria standard di Erlang è chiamata \textbf{OTP (Open Telecom Platform)}, nel quale possiamo trovare tutto quello che serve per implementare software distribuiti, come client-server generici. Al suo interno è presente anche un database distribuito chiamato \textbf{Mnesia}, il quale permette ad ogni attore di ogni nodo di leggere e scrivere sul database distribuito come se stesse leggendo o scrivendo nella memoria locale. Il vantaggio di questo approccio risiede nel fatto che le diverse Beam sono in continua comunicazione fra di loro, cercando di propagare le informazioni. Questo garantisce coerenza dei dati. Ovviamente questo sistema non è esente da possibili guasti o fallimenti, non è detto che effettivamente quello che viene scritto in un nodo sia visibile in un altro nodo immediatamente.
 
+\subsection*{Elixir}
+Elixir è un linguaggio ad attori implementato sul Beam, come Erlang. La sua sintassi si basa su Ruby, mentre Erlang è basato su Prolog.\\
+Aggiunge ad Erlang:
+\begin{itemize}
+    \item \textbf{Metaprogrammazione}: consente a un programma di avere il controllo su se stesso, o di manipolare il proprio codice. In altre parole, si tratta di scrivere programmi che generano o modificano altri programmi (o se stessi) durante la fase di compilazione o di esecuzione.
+    \item \textbf{Macro igieniche}: garantiscono che le variabili introdotte nella macro non interferiscano con quelle già esistenti nel codice in cui vengono espanse. Il compilatore o l'interprete si occupa di garantire l'unicità delle variabili, evitando problemi di scoping e collisione.
+    \item \textbf{Polimorfismo via protocolli}
+\end{itemize}
 \end{document}

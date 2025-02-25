@@ -605,7 +605,9 @@ dei sistemi distribuiti di un certo tipo. Quindi trovate dei client server gener
 per esempio, implementazioni generiche che poi andate a customizzare. Trovate le macchine
 stati finite, perché spesso volentieri il vostro programma può essere visto con una
 macchina stati finita che attraverrà vari status e un server. E trovate anche, questo
-ha un ruolo importante nell'ecosistema di Erlang, Mnesia. Che cos'è Mnesia? Mnesia
+ha un ruolo importante nell'ecosistema di Erlang, Mnesia. Che cos'è Mnesia? 
+
+Mnesia
 è un database distribuito. Quindi normalmente quando voi programmate, avete usato i database,
 normalmente i vari thread comunicano con i database per fare inserimenti e restazioni
 dal database, database tipicamente SQL anche se ho bisogno, vado molto meno a SQL. Ecco,
@@ -613,14 +615,20 @@ nel caso di Erlang invece c'è anche l'opzione di usare Mnesia. Mnesia è un dat
 ma sì che essenzialmente ogni attore di ogni modo legge scrivere il database distribuito
 come se fosse leggero scrivendo nella memoria locale e poi il vantaggio del sistema, cioè
 l'insieme di tutte le BIM, le macchine virtuali che sono sempre in comunicazione fra di loro,
-Celtroni può pagare questa informazione. Quindi Celtroni mantiene una certa coerenza
+cercano di propagare questa informazione. Quindi Celtroni mantiene una certa coerenza
 sulla visione distribuita del database. Quindi un database distribuito perché ci possono
 essere le visioni locali di forma e se uno appena scritto qua l'altro non vede la stessa
 cosa, ma poi si c'era che ricompagare questa informazione. Ovviamente è molto complicato
-perché c'è un sistema distribuito soggetto a parlimenti, qui non è detto che effettivamente
+perché c'è un sistema distribuito soggetto a fallimenti, qui non è detto che effettivamente
 quello che voi avete scritto qua sia leggero da un'altra parte, però il sistema implementa
 diciamo questo livello di database distribuito. Scusi, c'è un'implementazione di Paxos nel
-linguaggio, qualche algoritmo di consenso. Infine è l'Exirva, come dicevo l'Exirva è un secondo
+linguaggio, qualche algoritmo di consenso. 
+
+
+
+
+
+Infine è l'Exirva, come dicevo l'Exirva è un secondo
 linguaggio d'attore implementato sulla BIM. Una delle principali motivazioni per implementare
 l'Exirva fu il fatto che la sintasci similprologue era mal digerita dai programmatori che venivano
 da oggi della tradizione di modula compresi C, Java, C++ e così via, e quindi la sintasci
@@ -996,6 +1004,10 @@ la prima partita
 va bene
 incominciamo
 a lagga un po'
+
+
+INIZIO DOPO PAUSA
+
 allora
 iniziamo a vedere i vari dati costrutti
 eccetera di

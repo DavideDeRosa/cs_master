@@ -12,7 +12,9 @@ la terminazione dell'attore. Questo che vi sto spiegando è il modello della pro
 ad attori degli anni settanta, diciamo così, proprio già accennato. Erlang ha dovuto aggiungere
 dei nuovi concetti a questo modello di base, che vedremo più avanti, e oggi giorno quando
 si parla di programmazione ad attori si intende anche con quelle novità di Erlang, che hanno
-tutto che fare con la programmazione distribuita, che vedremo un po' più avanti. Dopodiché
+tutto che fare con la programmazione distribuita, che vedremo un po' più avanti. 
+
+Dopodiché
 nella programmazione ad attori c'è un sistema di attori, cioè ci sono contemporaneamente
 più attori e gli attori sono totalmente isolati, quindi non condividono nulla gli uni con gli
 attori e scammino messaggi in questo modo. L'ultimo punto da ricordarsi è che la programmazione
@@ -114,7 +116,7 @@ e non altre. Quindi, per esempio, inviare un messaggio a chi non lo sa processar
 questo momento quindi non sarà un errore. L'ultima cosa che abbiamo visto ieri sul linguaggio
 era come si interagisce con il linguaggio. Quindi vi ho detto quando avete le macchine
 fisiche, i vostri PC, e potete lanciare dei nodi. Che cosa sono i nodi? I nodi sono delle
-virtual machine, chiamate BIM, che voi lanciate sulla vostra macchina fisica. Ne potete in
+virtual machine, chiamate Beam, che voi lanciate sulla vostra macchina fisica. Ne potete in
 teoria lanciare più di una sulla vostra macchina fisica, in generale se la lancio una sola
 che non occupa tutti i coro possibili. Potrà capitare, per esempio, nel corso che io ne
 userò due per simulare una rete, quindi usando due virtual machine sulla stessa macchina
@@ -123,14 +125,14 @@ voi lanciate la virtual machine. La shell è un attore leggermente diverso dagli
 attori, perché gli attori normalmente hanno un behavior che risponde ai messaggi che arrivano.
 Nel caso della shell c'è una specie di secondo behavior, perché invece di guardare i messaggi
 va a guardare quello che io digito sul standard input ed eseguo il comando. E' un po' modificato.
-Però a parte quello è un attore a tutti gli effetti, ha il suo build, e quindi noi tipicamente
+Però a parte quello è un attore a tutti gli effetti, ha il suo PID, e quindi noi tipicamente
 riferiamo nel sistema degli attori come una shell. Dopodiché andremo a comunicare con
 gli altri attori, lanciare altri attori, e così. Questo è un po' quello che vi ho
 detto fino a qui. Cosa facciamo oggi? Prima, anche se non è topicitante, ma è comunque
 interessante, vi faccio un pochino di escurso storico sul linguaggio e vi punterò ad un
 articolo che è molto gradevole da leggere, che è la versione estesa di quello che vi
 racconto, e poi inizieremo lo studio del linguaggio. Faremo una prima parte del studio
-del linguaggio sulla parte sequenziale di error. L'anquici scorderemo per il momento
+del linguaggio sulla parte sequenziale di Erlang. L'anquici scorderemo per il momento
 il discorso della comunicazione del behavior e così via, e vedremo la parte sequenziale
 che è un linguaggio funzionale. Perché ci concentriamo molto su questo? Come ho detto
 ieri, perché la parte sequenziale del linguaggio è un po' l'assembly dei linguaggi funzionali.
@@ -158,15 +160,15 @@ che trovavano in giro, tutti i linguaggi, tutti e tre, arrivano a implementare u
 ex novo e a posteriori trovano esattamente il modello del 1973. Quindi è un tipico esempio
 di emergenza di un concetto, che è stato studiato prima e poi successivamente con una qualche
 esigenza diventano in qualche modo mainstream. Erlang, però, come dicevamo, aggiungerà
-dei nuovi concetti rispetto a poterlo di base. Eddixirva è implementato sulla stessa
-veritoba shield di Erlang che si chiama BIM ed è molto più recente, e recentemente la
+dei nuovi concetti rispetto a poterlo di base. Elixir è implementato sulla stessa
+veritoba shield di Erlang che si chiama beam ed è molto più recente, e recentemente la
 grande maggioranza di linguaggi di programmazione, li vedete in caso di alcuni, hanno librerie
 per fare programmazione d'attori all'interno del linguaggio. Storia di successo, per quanto
 riguarda H, H è la libreria per Java, Babaskala, che imprimete la programmazione d'attori,
 è sicuramente quella maggiormente utilizzata per fare programmazione d'attori, perché
 Erlang, per quanto mainstream, rimane un linguaggio abbastanza l'inizio, diciamo così,
 e quindi sono molti più utenti H, diciamo, di utenti Erlang stessi. Quindi li vedete
-per esempio delle grosse compagnie, LinkedIn, Verizon, Inter, Samsung, eccetera, che usano
+per esempio delle grosse compagnie, LinkedIn, Verizon, Intel, Samsung, eccetera, che usano
 H, H è la programmazione d'attori in ambito Java. Erlang comunque, come vedremo, nacque
 in casa Ericsson, quindi voi siete così giovani che forse Ericsson non vi dice un granché,
 ma fino al millennio scorso, la Ericsson era il principale, uno dei principali attori
@@ -198,7 +200,7 @@ la spina a qualcosa. E quindi un risultato estremamente rilevante. Come è possi
 avere un sistema che sia available praticamente al 100% del tempo per decenni, per anni e
 anni e anni. Come minimo, ogni tanto dovete fare l'upgrader software, per esempio. Quando
 fate l'upgrader software tipicamente cosa fate? Buttate giù il servizio. Ebbene, come
-vedremo, Erlang e i linguaggi badati sulla BIM ancora oggi sono l'unica classe di linguaggi
+vedremo, Erlang e i linguaggi badati sulla beam ancora oggi sono l'unica classe di linguaggi
 che permettono di fare hotcode swap del codice. Quindi voi in produzione, vedremo come, siete
 in grado di modificare il codice che è in esecuzione e sostituirlo con un nuovo codice
 in esecuzione. E quindi il sistema rimaneva available nonostante l'upgrader codice. Il
@@ -219,6 +221,8 @@ scenario di averlo sempre available. E guardate le date, siamo 73 i modelli adat
 prime implementazioni di Erlang, quindi sono concetti che sono ben radicati della storia.
 Erlang è stato utilizzato, viene utilizzato da Amazon, Yahoo, Facebook, WhatsApp,
 abbiamo la versione iniziale di Motorola, Jabro TV, eccetera eccetera.
+
+
 Quindi l'articolo che vi dicevo che vi consiglio di andare a leggere, una lettura
 interessante, è I saw your flag and offer Erlang di Joe Armstrong, che è stato uno dei principali
 sgruppatori del linguaggio. E perché è interessante la storia del linguaggio, è interessante
@@ -305,6 +309,8 @@ Come vedremo nella programmazione ad attori non è che si eliminano i problemi d
 deadlock e così via, ma se ne semplifica la gestione, quindi in un sistema di questo
 valato su message passing il crash di un attore può comunque portare a uno stato tipo deadlock
 ma la recovery o comunque la gestione del deadlock è più semplice in qualche modo.
+
+
 Message pass in via sincrono con recensione auto forwarder. In uno scenario distribuito
 non possiamo fare affidamento sull'ordine d'arrivo dei messaggi, l'ordine che contiene
 un sistema distribuito è il cosiddetto ordine causale. Cosa vuol dire l'ordine causale?
@@ -322,6 +328,8 @@ aveva dei meccanismi che ci dicono che cercheremo di estrarre dalla mailbox i me
 siamo in grado di processare in questo momento. E quando non saremmo in grado di farlo e dovremmo
 fare un'estrazione del messaggio troppo anticipata, poi ci serviranno dei meccanismi
 per ritardare il processing di quel messaggio.
+
+
 Questa che si è scritta in questa slide, come vedremo in dettaglio con i costuti più
 avanti, è la grossa aggiunta che Erlang fa alla programmazione dell'attore. Tanto che
 oggi giorno la programmazione dell'attore include questo. E let it fail. Quindi, come
@@ -339,10 +347,10 @@ fail. Quando c'è un errore il processo che è andato in errore viene esterminat
 distrutto, viene cancellato. Non solo viene completamente distrutto non solo l'attore
 che è andato in fallimento, ma anche tutti quegli attori che in quel momento stavano collaborando
 con lui. Perché se un attore stava collaborando con me vuol dire che per esempio si aspettava
-da me una risposta per continuare l'escursione. Quindi potrebbe andare il deadlock per esempio.
+da me una risposta per continuare l'esecuzione. Quindi potrebbe andare il deadlock per esempio.
 Quindi l'idea è che quando io muoio mi trascino dietro tutti quelli che stavano in qualche
-modo lavorando con me, questo risolve brutalmente il problema di computazioni scompariate.
-E cosa succede per esempio in caso di partizionamento della retina? Vuol dire che per esempio c'è
+modo lavorando con me, questo risolve brutalmente il problema di computazioni sbagliate.
+E cosa succede per esempio in caso di partizionamento della rete? Vuol dire che per esempio c'è
 stato un fallimento di un nodo e l'altro non vede più risposta dal primo, perché c'è
 la partizione. Allora cosa fa? Non potendo più comunicare con l'altro capisce che c'è
 un problema, un guasto di qualche tipo, quindi la cosa più saggia è let it fail. Quindi
@@ -352,17 +360,17 @@ fare backtracking parziale e poi magari la retina torna su e uno stava facendo b
 e l'altro no con i po' dei miei colleganti. Quindi l'idea è che in presenza di errori
 succede un processo e tutti coloro strettamente lo ricornessi. Questo vuol dire che tutti
 gli attori muoiono? No, bisogna compensare let it fail con qualche altro meccanismo.
-L'idea della programmazione di attori secondo Erlang è quella di avere una struttura geratica
+L'idea della programmazione di attori secondo Erlang è quella di avere una struttura gerarchica
 della computazione, cioè un attore fa la sua computazione nei momenti in cui è da affrontare
 un problema complesso, invece di risolvere un problema genera una serie di figli, gli
 attori figli. Gli attori figli collaboreranno un fa di loro per portare attenzione al problema.
-Cosa fa l'attore padre che ha generato i figli? Si mette in uno stato quesiente a
+Cosa fa l'attore padre che ha generato i figli? Si mette in uno stato di inattività a
 osservare i figli e attende che i figli vengono terminati. Se uno dei figli fallisce per un
 motivo, si trascinerà dietro la morte di tutti i suoi fratelli ed eventuali figli nipoti
 e così via, il padre che ha generato questi figli che sono tutti morti osserverà questo
 fatto e potrà far ripartire la computazione. Quindi se i figli sono stati lanciati su
 morti, il padre li ricrea e li prova nuovamente, sperando che la seconda volta il guardo sia
-risolto e la computazione avanza. Ovviamente se dopo un po' di volte non cambia niente,
+risolto e la computazione avanzi. Ovviamente se dopo un po' di volte non cambia niente,
 il padre continua a creare figli che non riescono a portare attenzione al lavoro, cosa
 farà il padre? Si suicida. Suicidando si porta dietro tutti gli zii, tutti i suoi fratelli
 e il nonno verrà informato e farà la stessa cosa. Quindi l'idea è questa gerarchia
@@ -374,7 +382,7 @@ nel momento in cui il padre crea i figli ha il suo stato e quello stato non verr
 dai figli, perché in un linguaggio funzionale la memoria non viene mai modificata, si crea
 sempre memoria, si lavora sempre su memoria nuova, poi dovremo farlo in maniera efficienza.
 Quindi nel momento in cui i figli vengono sterminati, il padre può ricrearli in tempo
-di uno, non deve fare backtracking, non deve ricreare situazioni, semplicemente il padre
+O(1), non deve fare backtracking, non deve ricreare situazioni, semplicemente il padre
 ha esattamente lo stato in cui era quando ha creato i figli la prima volta e quindi può
 velocemente crearlo. Quindi il primo ingrediente che serve per
 elected fail è avere a disposizione lo stato precedente, e questo riguarda la formazione
@@ -400,6 +408,9 @@ Ok? Quindi, oggi in giorno quando si parla di formazione ad attori, il elected f
 questo controllo gerarchico è un punto chiave. Quindi, quando vedremo i costruttivi concorrenti
 di Erlang, dovremo dedicare del tempo a quali sono i costruttivi che permettono di gestire
 questo tipo di funzionalità. Quindi ci sono dei costruttivi appositi per gestire.
+
+
+
 Rapidamente la storia. Quindi dal 1982-1985, alla Elson hanno bisogno di implementare questi
 sistemi che vi dicevo. Quindi cosa fanno? Provano tutti i linguaggi di formazione esistenti
 al tempo. Quindi questo report, hanno trovato questo, hanno trovato questo, hanno trovato
@@ -464,7 +475,11 @@ l'attore che prodotto nel 1973, dove gli attori sono scritti però in un linguag
 funzionale puro e a cui va ad aggiungere tutte quelle meccanismi di let it fail e gestione
 dei guasti. La scelta di fermentare gli attori in un linguaggio funzionale non è obbligata,
 tipo H per Java non lo fa, però come dicevo ha una serie di vantaggi che fanno sì che
-sia molto più facile farlo oggi. Come si presenta Erlang oggi, l'avviator machine si
+sia molto più facile farlo oggi. 
+
+
+
+Come si presenta Erlang oggi, l'avviator machine si
 chiama BIM. La BIM gira come un unico kernel process multithreaded con un thread per core,
 quindi un unico processo Linux diciamo così con tanti thread, esattamente un thread per
 ogni core. Un attore invece è un language thread, quindi vuol dire che il sistema operativo
@@ -477,8 +492,8 @@ si parla di context switch? Ok, quindi è l'alternanza sul processore dei vari t
 e come viene? Quindi è più un linguaggio di programmazione dove è il sistema operativo
 che gestiva i thread. Quindi proviamo a vedere dove va la programmazione. Quando è il sistema
 operativo che gestisce processi e thread, come viene il context switch? Si utilizza un thread,
-va salvato la memoria random da un'altra parte e quando va ripreso il thread bisogna riprendere
-la memoria come era prima, rimette la memoria random e farlo riprocedere l'esecuzione. Più
+va salvato la memoria RAM da un'altra parte e quando va ripreso il thread bisogna riprendere
+la memoria come era prima, rimette la memoria RAM e farlo riprocedere l'esecuzione. Più
 o meno, però l'inizio è impersonale, si frizza, si splotta eccetera. Cosa succede veramente?
 Chi sono i soggetti di quel sim personale? Spesso vi chiederò durante il course quando
 vi parlo di basso livello, memoria, sistema operativi, architettura, etc. Qua dovete andare
@@ -499,7 +514,7 @@ mette nella tabella dell'interrupt un indirizzo a cui saltare. Quindi il mio pro
 salvato lui lo stato dei registri in esecuzione in quel momento e passa controllo all'indirizzo
 del codice che fa parte del sistema operativo, non solo ma entra anche in 0, cioè disabilita
 certi metri di sicurezza in maniera che il sistema operativo possa accedere a qualunque
-cosa, per esempio possa cambiare la tabella dell'emozione virtuale. Il sistema operativo
+cosa, per esempio possa cambiare la tabella della memoria virtuale. Il sistema operativo
 cosa deve fare? Il sistema operativo rifà il lavoro, quindi il sistema operativo prende
 a questo punto tutti i dati salvati, i registri eccetera eccetera, che l'audio al progetto
 non sa dove metterlo, non conosce quale sistema operativo sta girando e come. Quindi l'audio
@@ -520,7 +535,7 @@ codice execute, a un certo punto può passare il controllo a qualcun altro. Tipi
 in una primitiva tipo ILD, nel linguaggio di provazione, che dice adesso lascio il controllo
 a un altro processo. Tutto questo è fatto semplicemente di user space, quindi semplicemente
 in un qualche modo è molto più leggero. Il processo semplicemente salta, passa controllo
-al program camper e dell'altro thread in attesa, il quale andrà poi a recuperare la quantità
+al program counter e dell'altro thread in attesa, il quale andrà poi a recuperare la quantità
 minima di registri e informazioni necessarie. Normamente i linguaggi con conteswitch collaborativo,
 la memory footprint e anche il conteswitch sono molto più veloci rispetto al passaggio
 con l'arduo e tutto, però c'è il problema che il programmatore deve ricordare solitamente
@@ -536,7 +551,7 @@ a un altro, cioè continua a eseguire lui il ciclo, ma invece di pescare istruzi
 primo thread vai a pescare istruzioni del secondo thread. Quindi il fatto, Erlang si
 basa sul conteswitch collaborativo, ma non è il programmatore a fare questo. Il programmatore,
 da punto di vista del programmatore come se fosse Proactive, non deve fare nulla e il
-controllo viene fatto automaticamente, ma l'implementazione della V8 Machine, dell'interpreter della V8 Machine
+controllo viene fatto automaticamente, ma l'implementazione della Virtuale Machine, dell'interpreter della Virtual Machine
 fa questo. Ok? Quindi il conteswitch è molto molto lightweight e quando ci sono questi
 tipi di thread implementati nel runtime si parla anche di green thread, thread verdi
 perché hanno poco utilizzo di risorse. Anche a memory footprint è stranamente lightweight,
@@ -550,20 +565,20 @@ una volta per tutti all'inizio lo stack in una dimensione sufficiente per poter 
 le esecuzioni del codice e quindi è tanto. Quindi un thread Linux nasce sempre con tanta
 memoria, anche solo se fosse per l'uso dello stack. In Erlang ovviamente non è così,
 quindi i thread Erlang partono, gli attori Erlang partono con pochissima memoria utilizzata,
-quindi in particolare non hanno uno stack per il locato. Quindi come vedremo lo stack
-dei thread di Erlang, come quello di Guo, lo stessa lo scorso, nasce con uno stack molto piccolo
-e lo stack viene e è fatto crescere idinomicamente durante l'esecuzione del codice. Quindi all'occovenza
+quindi in particolare non hanno uno stack preallocato. Quindi come vedremo lo stack
+dei thread di Erlang, come quello di Go, lo stessa lo scorso, nasce con uno stack molto piccolo
+e lo stack viene e è fatto crescere dinamicamente durante l'esecuzione del codice. Quindi all'occorrenza
 quando il processo termina la parte di stack a cui è dedicata, semplicemente viene allocato
 un nuovo stack più grande, viene copiato lo vecchio stack a quello nuovo e il programma
 utilizza il suo stack. Quindi creare un attore molto poco costoso, far crescere lo stack
 e comporre di tanto in tanto delle operazioni di copia per far crescere lo stack. Ok, d'algoritmi
 quanto costa gestire, qual è la competenza computazionale di gestire uno stack che quando
 è pieno viene copiato interamente, poi cresce un altro po', poi si copia interamente, cresce
-un altro po'. Amortizzato è costante. Amortizzato è costante, ricordate? Quindi la competenza
+un altro po'. Ammortizzato è costante. Ammortizzato è costante, ricordate? Quindi la competenza
 computazionale non la può studiare in maniera precisa, diciamo puntuale o amortizzata, puntuale
 a ogni istruzione date un bound, quanto tempo può impiegare e quindi per esempio allocare
-un byte di memoria in più sullo stack potrebbe essere o di n, perché se dovete copiare l'intero
-stack per fare spazio non è uno di 1, è uno di n. Però quando avete una sequenza
+un byte di memoria in più sullo stack potrebbe essere o O(n), perché se dovete copiare l'intero
+stack per fare spazio non è O(1), è O(n). Però quando avete una sequenza
 di istruzioni, come quella di seguite da un programma, non è che il costo complessivo
 lo calcolate con il numero di istruzioni per costo massimo del centro di istruzione, perché
 per esempio non è che in continuazione voi dovete copiare per allocare un dato in più.
@@ -572,14 +587,18 @@ se avete riempito uno stack di dimensione n e allocate uno spazio e lo copiate, 
 2n, quindi allocate il doppio e copiate. A questo punto per altri n passi non allocarete
 più. Quindi se voi andate a contare complessivamente la sequenza di istruzioni quanto vi è costata,
 ritrovate che il costo complessivo è solamente lineare nel numero di istruzioni e non n per
-n. Questa si chiama analisi di copertità ammonitizzata e il costo ammonitizzato è semplicemente
-O di 1, anche se voi state copiando tutta una parte, perché in verità lo pagano l'istruzione
+n. Questa si chiama analisi di complessità ammortizzata e il costo ammortizzata è semplicemente
+O(1), anche se voi state copiando tutta una parte, perché in verità lo pagano l'istruzione
 prima di voi o dopo di voi. Quindi di fatto è chiaro che rispetto a usare uno stack
-fisso è più lento, però è più lento in un fattore costante, in un fattore asymptomatico.
-Quindi grazie a queste due scelte si possono avere fida a milioni di language thread contemporaneamente.
-L'altra caratteristica che vi dicevo di Erlang oggi è l'hotcon swap, quindi questa possibilità
+fisso è più lento, però è più lento in un fattore costante, in un fattore asintotico.
+Quindi grazie a queste due scelte si possono avere fino a milioni di language thread contemporaneamente.
+L'altra caratteristica che vi dicevo di Erlang oggi è l'hot code swap, quindi questa possibilità
 di caricare all'untime una nuova versione del codice senza direttamente in produzione,
-non è vero? La libreria standard si chiama OTP che sta per Open Telecom Platform, il
+senza dover buttare giu il programma.
+
+
+
+La libreria standard si chiama OTP che sta per Open Telecom Platform, il
 nome ricorda il fatto che sia nata per implementare servizi telefonici. Cosa trovate nella libreria
 standard di Erlang? Trovate essenzialmente tutto ciò che serve per andare a implementare
 dei sistemi distribuiti di un certo tipo. Quindi trovate dei client server generici,

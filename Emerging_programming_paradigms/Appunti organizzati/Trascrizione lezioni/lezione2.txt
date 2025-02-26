@@ -1054,6 +1054,8 @@ un alio binario
 una foglia fatta così o un nodo interno fatto colà
 eccetera eccetera
 quindi elenca e definisce le forme del vostro dato
+
+
 quindi sono vari meccanismi per definire i nuovi tipi di dato
 ora noi vedremo
 oggi i tipi di dati
@@ -1105,6 +1107,8 @@ per le definite in Erlang
 semplicemente certe combinazioni di valori
 li usiamo in maniera coerente
 come se fosse un tipo di valore
+
+
 rimane la distinzione
 per i tipi di dati atomici e non atomici
 cosa sono i tipi di dati atomici
@@ -1268,8 +1272,8 @@ e la nuova reference
 che è probabilisticamente
 diverso da tutti quelli utilizzati in precedenza
 e non c'è un algoritmo
-non dovrebbe essere un algoritmo
-per indovinare in amicizio
+non dovrebbe esserci un algoritmo
+per indovinare in anticipo
 quale sarà la prossima reference
 per evitare attacchi
 nei protocori di rete
@@ -1283,16 +1287,18 @@ tipo di dato
 sono le porte
 le porte sono un tipo dei PID
 vi dicevo ieri che
+
 nella formazione di attori
 se io voglio interagire con qualcosa che non è un attore
-mai definito esternamente
-io posso ropparle
+ma definito esternamente
+io posso wrapparle
 in una specie di attore
 in modo da interagire con lui
 all'interno del linguaggio come le send e le receive
 e poi questa specie di attore
 comunicherà in qualche modo
 con un'entità esterna
+
 quindi per esempio, se voglio lanciare un programma
 mandare degli input sulla standard input
 leggere i standard output
@@ -1327,6 +1333,8 @@ invece di avere un PID
 dell'attore, ha una port
 una porta con un PID, però
 con delle funzioni pari di tanto
+
+
 quindi avevo detto
 tipi atomici sono
 interi, floating point, PID
@@ -1478,6 +1486,8 @@ quindi è la stessa cosa di scrivere
 o di scrivere 2 barra, operata quadra
 3 barra, operata quadra, 4 barra
 ok?
+
+
 sulle liste
 non ci sono operazioni purede finite
 tranne qualcosina
@@ -1533,6 +1543,8 @@ quindi il 2 rimane
 il 2 è tolto ma il 4 rimane
 ok?
 bene
+
+
 questi sono tutti
 e solo i tipi
 di dati
@@ -1775,6 +1787,9 @@ che sono i parametri formali
 nel linguaggio e informazione
 funzionali tutti
 questo è semplicemente un caso particolare
+
+
+
 le funzioni quando voi andate a definire
 cosa volete che facciano
 utilizzate dei pattern
@@ -2111,6 +2126,8 @@ se la BIM è proprio l'interprete della macchina virtuale
 con questa limitazione
 le guardie sono solamente combinazioni
 in unissime co-definitive funzioni
+
+
 vi dico un'altra cosa sulle liste
 che non vi ho detto prima
 e poi vi sono scordato un tipo di dato
@@ -2209,6 +2226,8 @@ e iltera nuovamente sulla Y
 ok
 è anche possibile
 aggiungere dei filtri
+
+
 quindi se non volete processare
 tutte le combinazioni che estraete
 ma solamente quelle che non c'è la proprietà
@@ -2238,6 +2257,8 @@ iterazione su list
 con filtraggio
 e applicazione
 di trasformazione ricomincia
+
+
 vi ho detto che mi sono dimenticato
 di un tipo di dato
 un tipo di dato non atomico
@@ -2508,6 +2529,10 @@ e quindi uscendo a capire
 come sta computazionale
 che codice vediamo?
 dikt.herla
+
+INZIO DICT BTREE
+
+
 quindi module dikt
 export
 andremo a vedere cosa exportiamo

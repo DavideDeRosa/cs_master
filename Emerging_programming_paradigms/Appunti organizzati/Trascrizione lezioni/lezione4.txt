@@ -1,0 +1,1074 @@
+Ok, allora facciamo un neppido riassunto di quello che abbiamo visto l'altro giorno.
+Lievi. Quindi stiamo parlando dell'implementazione, diciamo, di Erlang,
+ma come vedete, quello che vi sto dicendo, più o meno, si applica a...
+Come si risolve il problema?
+Quindi, dicevo, stiamo vedendo l'implementazione, partendo come di punto l'implementazione di Erlang,
+ma stiamo vedendo, diciamo, varie tecniche implementative per linguaggi di alto livello.
+In particolare, il dettaglio implementativo che sto cercando di darvi è quello che vi permette di comprendere,
+in un certo senso, la competità computazionale in spazio e in tempo dei programmi che voi andate a scrivere nel linguaggio di alto livello.
+Abbiamo iniziato quindi dalla rappresentazione dei tipi di dato,
+e abbiamo visto però problematiche distinte che portano a tre insegni di soluzione alternative.
+La prima problematica è quella del polimorfismo uniforme.
+Quindi, il polimorfismo uniforme si ha quando il linguaggio di programmazione permette di scrivere funzioni
+che non devono conoscere qual è l'interpretazione del dato,
+bensì possono funzionare per qualunque dato in input, semplicemente,
+perché non lo esaminano, non lo interpretano, ma lo copiano, lo spostano o qualcosa del genere.
+E i linguaggi non tipati all'Erlang esibiscono naturalmente, diciamo, un polimorfismo uniforme.
+Abbiamo visto tre tecniche per implementare il polimorfismo uniforme.
+La numero tre, diciamo, è quella di minima per il C,
+in cui il dato viene sempre identificato da un puntatore e viene passata di fianco alla dimensione,
+perché il polimorfismo uniforme funziona indipendentemente all'interpretazione del dato,
+ma bisogna di sapere la dimensione del dato per poterlo locare dal locale spostale.
+Le altre due tecniche che vengono invece utilizzate normalmente perché c'è un ausilio da parte del compilatore
+sono la monomorfizzazione e la presentazione uniforme dei lati.
+Abbiamo visto poi quanto la monomorfizzazione semplicemente ricompila lo stesso codice tante volte quanto serve,
+e ovviamente c'è un prequisito importante, il sistema di tipi deve garantirci
+che un programma utilizzi una funzione polimora far istanziata solamente su un insieme finito e ragionemente piccolo, diciamo, di tipi.
+E questa è una limitazione del sistema di tipi, perché abbiamo visto invece del codice,
+che per sua natura a ogni intervazione, a ogni chiamata ricursiva, potrebbe utilizzare, per esempio, un tipo differente.
+La monomorfizzazione ha poi conto, come tutte le tecniche.
+La presentazione uniforme dei dati, che è l'altra grossa tecnica utilizzata al posto della monomorfizzazione,
+e, diciamo, tutti i linguaggi di programmazione o fanno monomorfizzazione o fanno la presentazione uniforme,
+poi ci sono linguaggi tipo Java, che cercano di fare una, ma poi sbagliano su certi aspetti,
+quindi, per esempio, Java ha la presentazione uniforme, ma meno degli avrei, che, per esempio, sono problematici.
+Quindi, nella presentazione uniforme, l'idea è molto semplice.
+Tutti i dati devono presentati con un award.
+Se il dato da presentare sarebbe, naturalmente, un award più piccolo di un award, lo chiamiamo unboxed, o value type,
+e, al massimo, sprechiamo l'elite, se il dato occupa più di un award,
+quindi, tipicamente, i dati composti che usano più di un award sono gli array e record,
+che, in un linguaggio non tipato, come Erlang, in particolare, si è implementato con una presentazione uniforme
+in cui tutti i dati hanno la stessa dimensione,
+array e record sono la stessa cosa, sono semplicemente le lecce.
+Non c'è differenza, diciamo, fra un array e un record.
+Normalmente, gli array, i dati hanno tutti la stessa dimensione, hanno tutti lo stesso tipo.
+Nei record, i vari canti possono avere dimensioni diverse, tipi diversi,
+ma se tutti i dati occupano esattamente un award, i due concetti collassano.
+Quindi, quando abbiamo un tipo che deve essere boxed perché non sta in un award, lo allochiamo nello IP
+e lo facciamo puntare, usiamo come una presentazione, il puntatore all'accelerato IP.
+Il secondo problema, che è indipendente, diciamo, autogonale al problema del polimorfismo,
+è dovuto alla garbage collection automatica.
+Se il runtime del nostro linguaggio di programmazione implementa una tecnica di garbage collection automatica,
+non aiutata dal compilatore, quindi in cui non è il programmatore o il compilatore che esplicitamente
+inseriscono nel codice l'istruzione per locare e allocare al momento giusto, diciamo così,
+in Cisa resterò io a mano a mettere le mallocche free, vedremo per esempio in VASP
+che in un certo senso è semi manuale alla tecnica, ma il compilatore inserisce da solo una parte,
+diciamo, di questa allocazione.
+Quindi, se il compilatore non inserisce il codice esplicito per locare e allocare,
+allora ci deve essere qualcosa nel runtime chiamato garbage collection automatico
+il quale va a reclamare la memoria non più utilizzata.
+Oggi vedremo due tecniche per implementare garbage collection.
+In ogni caso, un prerequisito è che il garbage collector, poveretto, non sa nulla della logica del codice
+e quindi deve sapere distinguere le sequenze di vite che sono date da quelle che sono puntatore
+per seguire i puntatori, capire se il puntatore punta qualcosa che non è più utile, così.
+Per fare questo dobbiamo taggare a runtime i nostri dati per dire puntatore o no
+e la tecnica più utilizzata è quella di utilizzare un bit.
+Il bit che si va a scegliere è il bit meno significativo per evitare di perdere la possibilità di accedere
+al 50% inferiore o superiore della memoria e si sceglie normalmente il bit zero, anzi sceglie sempre il bit zero
+perché questo permette di allineare i puntatori che utilizziamo agli indivizi al punto allineati
+per cui l'architettura è più veloce.
+Questo impedisce di accedere direttamente a certi indivizi, per esempio i dispari,
+ma noi usiamo i puntatori per accedere ai dark box che stanno qui in memoria
+e quindi non è un problema perché poi possiamo tramite diversione accedere agli altri campi o gli altri elementi.
+Quindi sprechiamo poca memoria, essenzialmente.
+Terzo punto dipende dal linguaggio.
+Se il linguaggio isola i tipi, nel senso che i valori di un tipo non vengono mai confrontati con valori di un altro tipo,
+parlo di confronti, di contesti di ugualianza, minori e uguali, ma ci sono qualche altra operazione del linguaggio
+che potrebbe essere problematici se noi usiamo gli stessi bit per gli stessi dati,
+per esempio lashing.
+Se il linguaggio di informazione isola i valori in tipi diversi e impedisce con part time di confondere i tipi,
+allora possiamo usare la stessa sequenza di bit per valori diversi di tipi diversi,
+che vuol dire semplicemente interpretazione diversa di stessi bit.
+Se invece il linguaggio di informazione ci permette di mischiare i valori di tipi diversi assieme,
+ma vuole sapere distinguere il valore di un tipo e il valore di un altro,
+per esempio in Airlang se io chiedo se un valore di un tipo uguale al valore di un altro mi risposta sempre falso,
+e se chiedo se il valore di un tipo è meno estretto e il valore di un altro c'è un ordine totale
+per cui ogni tipo è ordinato in questa sequenza e quindi precede o sembra un altro tipo,
+allora in questo caso a runtime devo nuovamente taggare i valori con il loro tipo.
+Dove metto questa informazione?
+Se il valore è boxed, uso una cella in più all'inizio della zona dello IP dove metto il valore,
+in cui scrivo il tag e in genere anche la lunghezza del dato dello IP,
+che si arriva alla gravis collection automatica.
+Se invece il valore è unboxed, come ho usato un bit per distinguere puntatori e non puntatori, uso più bit.
+Quindi metto come suffisso, perché tanto sto già utilizzando il bit per un appuntatore che è un suffisso,
+che è un bit meno significativo, e utilizzo uno schema di tag a lunghezza variabile,
+usando quattro algoritmo per scegliere uno schema di tag a lunghezza variabile,
+in maniera tale che tipi di dati che hanno pochi valori utilizzano i tag più lunghi,
+e quindi un payload più piccolo, ma va bene perché ho pochi valori a disposizione,
+tipo i baleani per il live o gli atomi, mentre tipi di dati in cui vorrei avere tanti valori a disposizione,
+che sono tipo gli interi, usano dei tag più corti, o puntatori usano dei tag più corti in maniera da avere più per i baleani.
+Ok? In grosso modo è tutto quello che abbiamo detto ieri in sembra.
+Domande? La parte di ieri, tutto chiaro? Ok.
+Giusto per capirci cosa vi chiederò all'orale,
+quindi, diciamo, tutta questa serie di dettagli implementativi ve li chiederò in qualche modo.
+Il punto è chiave, però non è tanto ricordarsi la soluzione del dettaglio implementativo,
+quanto aver capito il problema.
+Quindi, essenzialmente, le domande che ho tendo a fare a un orale sono sempre più perché rispetto a come.
+Quindi, perché si fa questa cosa, perché non si fa quell'altra, quali sono i trade-off.
+Ok? Quindi dovete essere in grado di ricostruire, diciamo, il discorso che porta per la soluzione.
+Cosa vediamo oggi? Quindi abbiamo descritto in generale come rappresentiamo i dati,
+dividendoli fra tag, preload e così via.
+I tag che utilizziamo, appunto, non è particolarmente interessante.
+Ogni linguaggio sceglierà i suoi tag in base a quanti dati vuole mettere a disposizione per ogni valore, quali tpa.
+Parliamo, invece, un po' della rappresentazione che abbiamo del preload.
+Quindi, che sequenze di bit usiamo per rappresentare i tag?
+Per quanto riguarda interi, floating point e così via, di fatto utilizziamo, anche se con meno bit,
+eventualmente la rappresentazione standard, che è quella che ci permette di lavorare con le istruzioni aritmeticologiche,
+almeno del famoso bit che complica le cose. Quindi non ci sono scelte da fare.
+Per tipi di dati molto specifici, nuovi, tipo i PID, le porte e così via,
+sono specifici il linguaggio e la programmazione, e il compilatore sceglierà come organizzare la sequenza di bit.
+Non è particolarmente interessante. Invece dobbiamo spendere un po' di parole sugli atomi,
+perché sono la parte, diciamo, più interessante, e nuovamente ci sono dei preload.
+Allora, cosa sappiamo degli atomi? Gli atomi sono un tipo di dato in cui l'unica cosa che interessa è l'identità dell'atomo.
+Quindi vogliamo che i due atomi distinti vengano rappresentati da sequenze di bit diverse.
+Non hanno ad nessun'altra proprietà, quindi non ci interessa l'ordinamento o chi viene il primo e chi lo prende dopo una sequenza di bit.
+Vogliamo semplicemente associare ai nostri atomi delle sequenze di bit.
+Ora, come si presentano gli atomi nel linguaggio e programmazione? Ci sono due grosse classi, diciamo, nel linguaggio e programmazione.
+Ci sono quei linguaggi e programmazione in cui gli atomi non sono liberi di apparire all'interno del codice in un determinato momento
+o avvantare in un determinato momento, ma sono vincolati ad essere all'interno di un tipo.
+Quindi pensate, per esempio, se io dichiaro un tipo di atomo gebrico in OCaml, abbiamo detto l'altra volta,
+io dico quali sono le possibili forme, ogni forma ha un atomo associato,
+ma ogni tipo isolato, quindi avvantare ci saranno solamente gli atomi dei tipi che ho dichiavato e potrò anche usare sequenze di bit.
+Allora, in quel caso è molto semplice, non appaiono avvantai magicamente dei nuovi atomi perché non appaiono nuovi tipi avvantai
+e quindi banalmente non ha importanza, il primo e il primo lo chiamano metodi 0, il secondo 001, il terzo 0010 e non c'è problema.
+Quindi, quelli sono i linguaggi facili, diciamo così.
+Il problema sta invece in quei linguaggi di programmazione in cui l'insieme degli atomi aperto, quindi gli atomi non vengono pre-dichiavate all'interno di un tipo,
+quindi gli atomi uno li usa semplicemente all'interno del codice liberamente o addirittura appaiono avvantai.
+Quindi fatemi scrivere quella cosa anche qua, c'è una placcia, quindi linguaggi di programmazione con atomi.
+Qui due casi, atomi, insieme degli atomi noto interamente a compile time e unicità degli atomi rispetto all'insieme dei tipi.
+Ogni atomo appartiene a uno solo tipo, esempio ADT, i tipi di data algebrici, algebraic data types in OCaml, Haskell, puntini puntini.
+Quindi in questo caso si scelgono le rappresentazioni degli atomi sequenzialmente, eventualmente riciclandole per tipi diversi.
+Questo non è un problema.
+L'altra soluzione invece è linguaggi in cui gli atomi possono comparire prima di essere dichiarati, senza essere dichiarati, e possono comparire in nuovi momenti diversi.
+Potrebbe essere al momento del linking, oppure avvantai. Perché al momento del linking avvantai?
+Partiamo da quello avvantai che è un po' più facile, quindi avvantai per esempio Erlang.
+Quindi abbiamo detto che l'attore riceve dei messaggi dagli altri nodi. L'attore quando viene creato il calcio dell'attore non sa con quali nodi andare a interagire.
+Il sistema dell'attore è totalmente aperto. Successivamente un altro attore potrebbe comunicare.
+Invegliano gli dei messaggi. I messaggi che l'attore riceve possono essere messaggi composti e qui interno ci sono altri dati qualunque.
+Quindi l'attore può ricevere degli atomi dall'altro attore che non conosce. E non è un problema che non li conosca, perché magari l'attore riceve un messaggio contenente degli atomi che poi più tardi deve rimandare indietro.
+Quindi il fatto che lui non lo elabore divertamente non è un problema. Magari è un messaggio semplicemente che deve transitarne.
+Quindi in Erlang in continuazione ogni volta che viene ricevuto un messaggio l'insieme degli atomi noto può esce.
+Vediamo invece un caso in cui succeda il linking.
+Quindi immaginatevi di avere due librerie A e B che usano il loro insieme gli atomi.
+Al momento del linking l'insieme degli atomi si deve fare l'unione dei due insieme.
+Quali sono i linguaggi di questo genere?
+Deve essere un linguaggio di conamazione in cui io posso utilizzare liberamente degli atomi senza richiavarli e poi posso anche mischiare insieme il codice.
+Quindi esempio, per esempio Erlang e Prolog, sono sistemi in cui io nel codice posso usare liberamente atomi senza richiavare.
+Ma per esempio nuovamente OCaml è tanto per dire uno. OCaml lo citerevo spesso per un linguaggio che conosco bene.
+Qui c'è dentro, c'è un qualunque costrutto più o meno interessante e è finito all'interno del linguaggio.
+Quindi come funzionano gli atomi liberi OCaml?
+Per esempio Sindical con apicetto inverso e poi il nome dell'atomo.
+Per esempio Ciao è un atomo e Pippo, addirittura Pippo di Tavè, è una specie di costruttore, un tipo di da progetto con libero, che è l'atomo Pippo associato a Tavè.
+Quindi un record con l'atomo taggato con Pippo e contenente Tavè.
+La cosa che stampa qua sotto non ce la preoccupiamo adesso.
+Certi anni la faccio, certi anni non la faccio, perché quest'anno dipendeva da quello a fare Padovani.
+Però in questo caso, quando io uso questi atomi non dichiarati e si scrive e inferisce i tipi,
+fa un lavoro complesso per andare a inferire il tipo che lui dinamicamente scopre dall'uso degli atomi.
+Se per esempio scrivo una funzione che se prende l'atomo A restituisce 0 e se prende l'atomo Bdx restituisce x più 1
+e gli chiedo qual è il tipo di questa funzione, lui capisce che il tipo è un sottoinsieme dell'insieme formato o dall'atomo A o dall'atomo B che è associato all'intero.
+Perché ovviamente A può essere un possibile input, B può essere un possibile input e il valore x viene sommato a 1, quindi un intero, e non ci sono altre possibilità.
+Quindi l'input resta per forza un sottoinsieme di questo insieme. Quindi lui ha calcolato dinamicamente l'insieme.
+Se per esempio avessi scritto la funzione mettendo un caso catchall, in tutti gli altri casi restituisco 5, per esempio,
+allora in questo caso non sarebbe più stato un sottoinsieme ma un qualunque sova insieme.
+Perché un tipo che ha A e B ma c'è anche degli altri possibili atomi passati in input andrebbe bene allo stesso, perché viene cacciato la catchall.
+Quindi c'è tutto un sistema di inferenze di tipi complicato per andare a calcolare di volta in volta queste insieme di dati.
+Quindi questo vuol dire che io posso scrivere una libreria in cui uso gli atomi A, B, C e posso scrivere un'altra libreria in cui uso gli atomi A, D, E e poi vado ad alincare assieme.
+Chiavolo ai due scenari possibili. Qual è il problema? In entrambi i scenari.
+Nel momento in cui io ho due librerie che hanno usato gli atomi, oppure nel momento in cui io ho due attori che hanno usato due atomi e se li scambiano,
+se hanno usato lo stesso nome dell'atomo significa che non è detto che volessero associarci allo stesso significato, perché ognuno ha lavorato in isolamento.
+Quindi già non è chiaro se l'atomo Pippo di uno dovrebbe essere l'atomo Pippo dell'altro. Questo è già un primo problema.
+I linguaggi tipo Erlang, Prologue e O'Cannel risolvono questo dicendo se un atomo si chiama Pippo, è Pippo per tutti, però ci sono altri linguaggi che invece differenziano.
+Mettiamoci nel caso complicato, quello in cui se due entità che siano attori o moduli che siano librerie hanno usato l'atomo Pippo, intendevano esattamente Pippo.
+Quindi deve essere lo stesso Pippo. Questo è uno scenario difficile.
+Quindi in Erlang, Prologue, O'Cannel ecc., atomi con lo stesso nome usati da attori, moduli, librerie distinte vanno identificati.
+Quindi il problema è, durante la compilazione-interpretazione, associare a ogni atomo una sequenza di bit in maniera tale che sia possibile il linking-message passing,
+rispettando l'identificazione degli atomi.
+Quindi se per esempio io ho compilato due librerie ai bit, in una è stato usato Pippo, nell'altra è stato usato Pippo e poi le linko assieme,
+io voglio che la sequenza di bit che ho utilizzato per Pippo di qua sia la stessa sequenza di bit che ho utilizzato per Pippo di là.
+Solo che le ho compilate separatamente, in due momenti distinte, non le ho compilate assieme.
+Se compilavo tutto assieme era chiaro che scelgevo per Pippo una sequenza di bit.
+Quindi invece le ho compilate in due momenti distinti.
+Il tempo agli attori, io ho un attore che l'ho compilato e quando l'ho compilato ho scelto una sequenza di bit per Pippo,
+un altro attore che non conosce qualcun altro compilato che ha scelto una sequenza di bit per Pippo,
+nei momenti in cui comunicano fa di loro bisogna che il messaggio che l'atomo Pippo sia conosciuto del tuo attore.
+Quindi il problema è come faccio a momento della compilazione o dell'interpretazione,
+quando devo associare comunque una sequenza di bit ai miei atomi, a scegliere quale sequenza di bit utilizzate per il mio attore.
+Idee?
+Qualche meccanismo di hash?
+Allora, la prima idea che vi viene in mente, perché oggigiorno
+per il Github e Zimiglia si usa l'ash come se fosse un'immagine che ha identificato l'unico per qualunque cosa,
+è calcolo l'ash, quindi calcolo l'ash di quello che ho scritto e l'ash diventa un numero e poi diventa una sequenza di bit.
+Questa è una soluzione, diciamo soluzione 1, soluzioni a
+uso per ogni atomo il suo hash.
+Quale è il problema di utilizzare l'ash?
+Cosa può succedere di male?
+Quando c'è un mal augurato finale che due cose hanno lo stesso valore.
+Ok, quando voi usate l'ash come identificato un iloto, la funzione hash non è una funzione inettiva.
+Quindi può benissimo essere che troviate due input e voi toccate due atomi che hanno esattamente lo stesso hash.
+Le funzioni di hash vengono scelte in maniera tale da dare gli altri in maniera più uniforme possibile
+e quindi minimizzare la probabilità che succeda. Non può succedere.
+Quindi le domande sono succedersi o no in pratica e B cosa faccio se succede?
+Partiamo alla seconda, cosa faccio se succede? Prendiamo il caso della compilazione della pagata.
+Quindi io compilo un file che contiene degli atomi.
+Se trovo due atomi che hanno lo stesso hash, do un errore di compilazione e dico al programmatore
+che è andata male e cambia il nome di un augurato.
+Poco male e il programmatore cambia il nome di un augurato.
+Il problema è quando ho compilazione separata.
+Quindi se qualcuno ha implementato una libreria è usato un atomo e non c'è problema.
+Qualcuno ha implementato l'altra libreria, è usato un altro atomo, ma questo ha lo stesso hash,
+nel momento in cui io vado a linkare il codice salterebbe fuori il problema.
+Quindi cosa posso fare in questo caso? Nel file oggetto, quindi l'auto della compilazione separata
+che è anche l'input e il linking, io lì scrivo anche quali sono le associazioni atomo hash
+e nel momento in cui vado a linkare verifico che non ci sia un conflitto.
+Se si verifica, do un errore di linking.
+Quindi dico al programmatore che non posso linkare questi due.
+Quindi, problema, quindi cons, hash conflict detected in fase di compilazione o di linkaggio.
+Allora, abbiamo detto, se l'errore in fase di compilazione è facile, il programmatore cambia il nome di uno dei due atomi.
+Ma se il problema è in fase di linking e il link ti dice, guarda, non puoi usare questi due libreri assieme perché c'è un conflitto,
+che fate? E lì è un casino, perché dovreste chiedere a chi ha implementato una delle due librerie di cambiare il nome all'atomo.
+Se non che la libreria tipicamente è stata usata da altre mille persone e quindi il nome all'atomo non ve lo cambia.
+Quindi, quando capita una roba del genere, se capita mai una cosa del genere, è uno scenario sciagguovato, diciamo così.
+Capita mai? Diciamo che bisogna essere particolarmente sfortunati, diciamo così.
+A me come è capitato? Sì, a me è capitato, per esempio.
+In local, già un tipo di costruttore che viene usato poco, diciamo così, sono poche librerie,
+non è un costruttore particolarmente mainstream, già sono poche librerie che lo usano.
+Qualche anno fa mi capitò, mi capitò esattamente le due librerie che avevano un conflitto sull'atomo e che lo sentavano soltamente lui.
+L'unica soluzione fu fare forte l'intera libreria e cambiare il nome dell'atomo.
+Per fortuna c'erano tante dipendenze, ma io non usavo poche e quindi, diciamo, non fu troppo tragico, però quando capita è un problema.
+Ok? Non è una soluzione, ma non è una soluzione ottimale.
+Quindi, se capita, bisogna modificare il codice.
+Quindi non capita è così che si fa? Eh sì.
+Quando capita, tappacchi, esattamente il compilatore ti dice, non usare queste librerie, in un'intera libreria, fai qualcosa, ma non ci sono altre cose.
+Se ci va bene, è un problema fra i tuoi atomi e quelli della libreria, che cambiano i tuoi atomi.
+Il problema è solo che un po' sono due librerie diverse.
+Secondo voi, facciamo una domanda. Secondo voi, Erlang usa questa soluzione e perché date questa risposta?
+Qualeva la linea guida di Erlang?
+Erlang era stato sviluppato affinché i programmi scritti in Erlang girassero sempre, non ci fossero mai problemi, potessero girare all'infinito.
+E chiaro che in Erlang, dove questo problema si manifesta quando arrivano i messaggi dagli altri attori, questa cosa è completamente fuori controllo.
+Perché se arriva un messaggio da un altro attore che ha un conflitto di hash, dovete cambiare il codice di uno dei due attori, che vuol dire che uno dei due attori deve andare giù.
+O meglio, c'è un periodo di dalle.
+Quindi, Erlang non utilizza questa strada.
+C'è un altro cons.
+In caso del genere, mettiamo che Erlang facesse così e arriva un messaggio con un atomo che è effettivamente una collezione di hash. Questo non è rilevato in un certo senso.
+Allora, innanzitutto, Erlang dovrebbe rilevare il problema.
+Dopo vediamo che nella soluzione che utilizza c'è un meccanismo, ha bisogno di un meccanismo aggiuntivo, quello stesso meccanismo aggiuntivo potrebbe essere utilizzato per rilevare il problema.
+Diciamo che, posso anche svelare la cosa, ho detto, come faremmo...
+Scusate che, secondo me, ho perso la rete del tutto.
+Ultimamente, non so se anche a voi, ma la rete del dipartimento è sempre peggio.
+Allora, io vado avanti, credo che continui a registrare, almeno la mia voce, cioè non posso, non perpreco più.
+Quindi, qual è il meccanismo che abbiamo detto che funziona per il linking?
+Visto che io in fase di linking devo capire se c'è stato un conflitto, io mi salvo del quale ci oggetto la mappa atomo hash in modo da fare questo rilevimento.
+Nel caso della comunicazione di Erlang, posso fare un po' la stessa cosa, ovvero, io ho due attori che girano su due nodi.
+Ricordatevi che le nodi sono le macchine virtuali, sono distanze a macchine virtuali su due macchine diverse.
+Le macchine virtuali sanno, si possono ricordare se hanno comunicato fa di loro.
+Quindi, la prima volta che una macchina virtuale comunica con un'altra, di trasmette la mappa di associazione fra nomi degli atomi e sequenze di B.
+Non tutta, solamente quella contenuta nel messaggio.
+Un trasmesso da volta non lo fa più, non lo fa la prima volta.
+Quindi, con questa trasmissione ulteriore la prima volta, uno poteva andare a vedere che non stia facendo niente.
+Ok, io però semplicemente ho problemi.
+Vado col cellulare, come siamo ridotti.
+Sperando che quella abbia la verità.
+Ok.
+Ok.
+Prima di darvi l'altra soluzione, c'è un altro conso di questa tecnica.
+Il conso è il seguente.
+Questa tecnica associa le sequenze di B che sono completamente sparse.
+Il fatto di avere sequenze di B completamente sparse, fa sì che quando andate a implementare dei case, nel senso di case which del C,
+quindi dei casi che dicono, in questo atomo faccio questo, in un altro atomo faccio questo, in un altro atomo faccio quello,
+quelli che sono sequenze di B completamente scarse, l'unica implementazione possibile sono degli IF.
+Se la sequenza di B è questa, salto lì, else, Y la sequenza di B salto lì, e così via.
+E questo fa sì che è un'implementazione non particolarmente efficiente.
+Se avete 80 atomi da testare, nel caso pessimo ti saranno 80.
+Invece, se noi potessimo scegliere delle sequenze di B consecutive, 0, 1, 2 e 3,
+potremmo utilizzare esattamente il costuto case del C, o lo switch del C a seconda del sintasti, insomma,
+che fa la stessa cosa, ma utilizza un'indiversione per saltare.
+Quindi, senz'almente, salta, mette il program counter a un indivizio più il valore,
+e questo permette di non fare il test consecutivo, ma di saltare direttamente accorgi giusti.
+Quindi questa tecnica impedisce quella specie ottimizzativa.
+Quindi, leggera inefficienza, per implementare un case switch occorre fare sequenze di B.
+E poi, ovviamente, che è una tecnica facile.
+Ci sono grossi problemi di implementare la tecnica.
+Qual è l'altra soluzione? L'altra soluzione è, invece, usare sequenze consecutive di B
+a mano a mano, che vengono incontrati gli atomi.
+Quindi, manca un pezzo. Questo vuol dire semplicemente, pensate in Erlang,
+la vietromachine vede la prima volta Pippo e dice che quello è lo 0, vede Pluto e dice che è 1.
+Vede Paperina e dice che è 1. Un altro nodo potrebbe vedere il nodo in inverso.
+Vede Pippo per primo e dice che è 0, vede Pluto e dice che è 1 e vede Paperina e dice che è 1.
+Quindi, a questo punto, che voi state compilando due librerie, state avendo due attori,
+avete usato dei numeri consecutivi ma non sono gli stessi numeri.
+Quindi, cosa fate nel momento in cui dovete o linkare o, diciamo così, mandare dei messaggi?
+L'unica è tradurli. Vole dire che tutte le volte che voi prendete un dato che viene da una libreria bar attore
+e dovete tradurlo in maniera che possa essere utilizzata nella funzione dell'altra libreria bar attore,
+voi siete costretti a effettuare una traduzione utilizzando una tabella di traduzione.
+Quella tabella di traduzione deve prendere le due tabelle che dicono
+questo atomo ha questa sequenza di bit, questo atomo ha questa sequenza di bit,
+a partire da questa sequenza di bit capire qual è l'atomo e associare l'altra sequenza di bit.
+E' quello che fa Erlang. Quindi, questa è l'unica soluzione robusta.
+Quindi, Erlang utilizza questa soluzione, quindi ogni nodo ha la sua tabella
+e, come vi dicevo, la prima volta che un messaggio contenente un atomo
+viene inviato un altro nodo, la Piotr Maszyn lo sa che è la prima volta che accade,
+tiene una tabella degli atomi già inviati e trasmette, oltre al messaggio che ha la sequenza di bit,
+anche l'associazione atomo-sequenza di bit.
+E il nodo che riceve confonta atomo-sequenza di bit con la sua conoscenza dell'atomo
+e si crea una tabella di traduzione. Da quel momento in avanti,
+tutte le volte che c'è uno scambio di messaggi, prima uno dei due
+deve tradurre il messaggio nel fondato dell'atomo.
+Quindi, chi lo sappia, i linguaggi che appunto scambiano messaggi
+usano questa soluzione, mentre in fase di linking non vengono mai utilizzati,
+dovrebbe essere l'esente del codice di traduzione.
+Sarebbe complicato, bisogna resapere i dati come possono transittare
+da un'allegoria all'altra in tutti i modi possibili.
+Più tabelle di associazione nome-atomo-sequenza di bit
+che vengono inviate fra i diversi nodi la prima volta
+che un messaggio contenente un atomo nuovo viene inviato.
+Quindi il cons richiede di mantenere diverse tabelle di traduzione,
+richiede di tradurre ogni messaggio scambiato fra nodi diversi
+per rimappare le sequenze di bit dell'atomo.
+Il vantaggio funziona sempre, non ci sono possibilità come nel caso di Okabe
+che al sottopunto ti dica che non può essere utilizzato.
+Questa soluzione è usata da Erlang, questa soluzione è usata da Kane.
+Ok, quindi curiosamente da implementare il tipo di dato più problematico
+è quello che sembrava più nuovo.
+Va bene, mi sembra un buon momento per fare pausa.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+Grazie.
+No, no, no, no, no.
+No, no, no, no.
+No, no, no.
+No, no, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+No, no, no.
+Il servizio FeelsGood!
+Va bene!
+il accidentally
+Adesso che sappiamo
+come sono presentati i dati in memoria
+possiamo chiederci come viene implementato
+il Pattern Matching.
+In particolare domande che dovremo stare attenti
+è la competità competitionale del Pattern Matching
+ed ovviamente anche in tempo e in spazio
+non solo ma anche la competità computationale delle funzioni
+ma anche la comprensione computazionale delle funzioni che abbiamo scritto che erano basate
+sul pattern.
+Sono due aspetti leggermente differenti.
+Partiamo dal pattern matching.
+Riprendo questo esempio che ho fatto l'altro giorno, l'ho semplicemente rimpaginato in
+modo da avere tutti i puntatori sulla sinistra per avere lo spazio sulla destra.
+Quindi, vi ricordo, era l'esempio che avevamo visto di codice, quindi usavamo una presentazione
+notipata per codificare questo tipo di app algebrico, quindi un albero che aveva valore
+Eva o un record con tracampi, l'atomoliff Kv oppure una quadrupla nodo albero K0.
+Qua abbiamo un esempio concreto, T, era un albero che si nomificava subito con chiave
+5 e sotto albero sinistra una foglia con chiave 4 valore Q e il valore di destra una foglia
+con chiave 6 valore false.
+Tutto questo è un tipo di dato boxed, perché è troppo grande, quindi lo rappresentiamo
+con un puntatore, quindi T è un puntatore dello hip, lo hip è quella colonna che vedete
+al centro, quindi il puntatore T punta a una cella nod seguita da il dato leaf 482 che
+è ancora boxed, quindi viene rappresentato con un puntatore in un'altra regione dello
+hip, poi c'è 5 che invece è unboxed e leaf 6 false che è ancora boxed e viene rappresentato
+con un altro puntatore.
+Questo puntatore punta da qualche parte in memoria dove si è scritto la sequenza leaf
+482 in memoria, 482 sono entrato in boxed e quest'altro punta a leaf 6 false in memoria.
+Consideriamo una funzione che usa pattern matching, per esempio questa.
+La funzione F nel caso in cui l'input sia un nodo con T1, uso una variabile, poi metto
+per esempio 5, quindi in questo caso uso non una variabile ma un valore concreto di un
+tipo di dato atone per questo caso, e poi dall'altra parte continuo con un pattern profondo,
+con un pattern all'interno di un altro pattern, dicendo che ci deve essere un'ulteriore tupla
+che sia una foglia con underscore ignoro l'input 6 e V il valore false, anzi facciamo così,
+lo tengo KV e magari ignoro questo, e in questo caso voglio restituire nod T1, quindi voglio
+ricopiare il sottobre sinistra in output, lì ci voglio mettere per esempio 7 e a destra
+ricopio l'if KV. Se noi guardiamo, più o meno ho usato tutto quello che può stare in un
+pattern a sinistra, quindi un pattern può essere un underscort e direi non mi fa niente di questo
+input, può essere un valore composto, quindi una tupla, la gestione dei liste sarebbe identica,
+non cambia niente concettualmente, ho usato delle variabili, ho usato delle costanti,
+ho usato dei pattern profondi, quindi più o meno, se vi spiego come compilare questo, vi ho
+spiegato come compilare tutti i pattern in maniera naïve, e a destra ho usato parte dell'input e
+attenzione ho anche ricostruito in output lo stesso valore che io osservavo in input, e il
+motivo per cui l'ho fatto è perché nel codice, cadeva questo, se vi ricordate, nel codice,
+se vado a vedere il codice che avevo scritto l'altro giorno, quando ho scritto XXX vediamo
+esattamente questo fenomeno, cioè in input avevo preso nel pattern l'if K2V2 e in output io andavo
+a scrivere di nuovo l'if K2V2, ok? Vogliamo capire come si compila questo codice, allora quello
+che vi mostrerò io adesso è un meccanismo naïve di compilazione, è il meccanismo più semplice di
+compilazione che c'è, e analizzeremo la complessità e vi farò vedere che dal punto di vista asintotico
+la complessità è già il meglio che possiamo fare, poi dopo vi dirò che in verità la compilazione
+che ho adesso dimostro è quella diciamo più semplice, più naïve, ma si può fare di meglio,
+quindi quello che ha implementato per esempio linguaggi tipo Scala sui tipi di dati, sui data
+classes che sono un modo per codificare i tipi dati algebraici è quello che vi spiego come naïve,
+in verità i linguaggi che nascono con i pattern matching come principale strumento, quindi tutti
+quelli delle famiglie funzionali tipo Erlang, Camera, Asuka e così via implementano un algoritmo
+più furbo rispetto a quello che vi presento io, ok? Quindi la domanda è come faccio a compilare
+un pattern, quindi quando faccio un pattern matching, l'operazione di pattern matching lo prende
+in input, diciamo il pattern, ma non è che lo prende veramente in input, io compilo quindi
+ho però ogni pattern a compile time genero del poge, quindi il pattern non è un input a runtime,
+è un input a compile time, vi spiego come si compila, invece a runtime io ho un input che è il
+valore che sto andando a matchare, quindi in questo caso per esempio se invoco la funzione con t,
+su t, e con t è un input, quindi in input io prendo un dato, ok? Quindi io adesso vi descrivo
+una funzione che vuole in questo modo, che prende un pattern e prende il dato, chiamiamolo p,
+quindi dove pattern è il pattern, p è il dato, cioè un award, ok? Dico che il dato è un award
+perché abbiamo la funzione in forma dei dati, quindi è un award, potrebbe essere sia un dato
+boxed, sia un dato unboxed, quindi potrebbe essere un puntatore, come no, potrebbe essere anche una
+sequenza di dita. E' una funzione a tempo di compilazione, cioè in altra parola crea codici,
+ok? Quindi io devo dire come questa funzione a tempo di compilazione si comporta su tutte
+le possibili forme di un pattern, che abbiamo detto sono variabile, underscored, costante,
+oppure tipo di dato non atomico, quindi tupla o lista, e poi recursivamente potrebbe contenere
+quindi partiamo dai vari casi. Quindi se io voglio compilare underscored come pattern,
+il codice che produco è niente, se io non voglio matchare nulla, diciamo non ho bisogno di fare
+niente, se io matcha underscored contro un dato il match ha successo e non il caso. Se io matcho
+una variabile x, semplicemente io in pseudo c dichiavo un award x uguale a p. Quindi io
+dichiavo una nuova variabile x che prende datamente la sequenza di bit del mio dato.
+Quindi questo funziona indipendentemente da p che sia un tipo di dato boxed o unboxed. Quindi
+se sto matchando una variabile contro un dato boxed, a questo punto la variabile contiene
+la sequenza di bit che è il puntatore nello hip, se invece è un dato unboxed contiene la sequenza di
+bit che è il dato stesso. Quindi ovviamente questo caso è un caso O di 1, cioè se io sto
+assegnando a x un intero albero, io sto assegnando il puntatore all'albero, non sto visitando l'albero,
+sto duplicandolo. Ok? Potevi mettere un asterisco x variabile nuova e dopo andiamo a mettere una
+footnote perché Erlang ha qualcosa di che conseno di poi non è stata una grande idea. Quindi tutti
+i linguaggi di formazione, a parte Erlang, fanno diverso. Erlang fa una cosa un po' particolare che
+porta e for via di bug, diciamo. Dopo vi spiego cosa succede in Erlang, perché se faccio degli
+esempi, due volte soltanto mi sbaglio su quella cosa vera e quindi me lo dite. L'altro caso è costante.
+Quindi io ho una costante k virgola p. Per esempio è il caso del 5. Quindi cosa devo fare in questo
+caso? Il pattern può avere successo oppure no. Dipende se p è esattamente uguale a k oppure no.
+Quindi quello che io faccio è, if p è diverso da k, che so, rettare il menu. Ok? In questo caso k è
+una costante di un tipo atomico. Quindi in particolare k è sempre unboxed, perché se fosse
+unboxed vuoleva dire che punterebbe nello hip e quindi là non troverei un tipo atomico, troverei
+un tipo composto perché non sta nella word. L'ultimo caso residuo è quello della tupla,
+diciamo così. Quindi una tupla che ha un pattern p1 puntini puntini pn. Se ho un pattern p1 pn vuol
+dire innanzitutto che il mio dato che voglio matchare deve essere un tipo di dato boxed. Quindi
+il primo check che devo fare è che p effettivamente sia un tipo di dato boxed. Quindi dirò,
+if is unboxed p, rettare al menu 1. Dove il check is unboxed sappiamo che è semplicemente
+guardare l'ultimo bit per sapere se è boxed oppure un boxed. Dopodiché se non ho ritornato al menu 1,
+cosa faccio? Un altro if, io dereferenzio p, dopo aver dereferenziato p, scrivo così anche se
+ci si può fare più compatto, però giusto per non sovraccaricare troppo di notazioni e di linguaggi,
+guardo la prima, cioè l'appuntata, l'appuntatura. Anzi, posso addirittura fare così, considero più
+un puntatore, quindi un puntatore è un array, ci vorrebbe un cast esplicito di c per farlo. Comunque
+a questo punto so che è un puntatore, quindi vado a vedere la prima cella della array. La prima
+cella della array contiene il tag e contiene la lunghezza. Quindi mi dice se il dato è lungo
+n oppure no. Perché se io cerco di metterci una tupla lunga 2 con una tupla lunga 4, dovrei fallire.
+Quindi vado a vedere se p0 punto length è diverso da n. Se è diverso da n, retta al meno 1. Anche
+in questo caso fallisco e non ho fatto meglio. Se ho superato anche questo, e quindi vuol dire
+che effettivamente sto puntando a una tupla lunga n, a questo punto devo fare ricordativamente
+ognuno dei patch P1, Pn deve essere matchato con la word che trovo in posizione corrispondente
+nel mio back, partendo da 1 perché 0 invece è dove sta il tag e la lunghezza. Quindi quello
+che devo andare a dire è essenzialmente compilo il pattern 1 contro P1 e punti di puntini compilo
+il pattern n contro Pn. Ok? Questo è il codice che io vado a produrre per il mio pattern. Quindi,
+se io applico, altra domanda su questa cosa qua, se io lo applico al mio esempio, per esempio,
+cosa ottengo? Allora, innanzitutto ho una quadrupla 1, 2, 3, 4, quindi io andrò a dire T,
+che sarà il mio input, quindi dico se is unboxed T, retta al meno 1, ma non sarà questo il caso
+perché T effettivamente è unboxed. Poi devo, se T0.length è diverso da 4, retta al meno 1. Questo
+perché abbiamo detto, devo cambiare un istante la presentazione, perché abbiamo detto che all'inizio
+qua ci sta la lunghezza. Quindi, diciamo 4, e iniziamo qua, ci sta la lunghezza che è 3. Ok?
+Quindi doveva dire se T0.length è diverso da 4, retta al meno 1, ma 4 aveva esattamente 4,
+quindi superava anche questo test. Dopodiché trova un underscore, dopodiché ricorsivalmente
+fai i sottopatterni. Underscore non ha prodotto codice, quindi lì non faccio niente. Poi ho T1,
+T1 è una variabile, quindi quello che succede è word T1 uguale a P, ma P in questo caso,
+la chiamata ricorsiva, è il vecchio P1, quindi T1 sarà T1. Quindi cosa succedeva? Che la variabile
+T1 prendeva il contenuto di T1. Il contenuto di T1 è questo puntatore, ok? Questo è T2,
+perché l'underscore è quello che ignora. Quindi, questo è T0, node è T1, questo puntatore è T2.
+Quindi T1 prende esattamente la sequenza di betta dei puntatori, il che significa che T1
+diventa il puntatore sotto albero 3, if, 4, 3. Poi ho una costante 5, quindi controlla
+if 5 è diverso da T3 rettando in 1, ma T3 è esattamente 5, quindi non ci sono problemi. Dopodiché
+fa la chiamata ricorsiva su quest'altro Pattern. La chiamata su quest'altro Pattern compila anche
+quel Pattern lì a partire da T4. Quindi cosa succede? Questa è di nuovo una tupla, quindi dice if is
+unboxed T4, return meno 1, ma T4 è boxed, perché è questo puntatore qua, quindi è un puntatore,
+quindi va bene. Poi verifica if T4, 0, .length è diverso da 3, return meno 1, che c'è successo,
+perché questo puntatore qua c'è scritto 3, quindi non c'è problema. E dopodiché compila i 3 sotto
+Pattern. I 3 sotto Pattern sono l'if Kv, quindi l'if è normalmente una costante. Quindi dice
+if l'if è diverso da T4, 1, return meno 1, ma non scatta perché trovo esattamente l'if e dopodiché
+ho Kv. Quindi dichiarano K che è T4, 2, e dichiava v perché è T4, 3. Quindi chi sono K e v, K prende
+esattamente 4. No, sono qua, scusate. K prende esattamente 6. Diciamo K è uguale a 6 e v è uguale
+a 0. Ok? Quindi dopo il pattern matching, l'effetto che ha avuto a riparo di codice è per l'appunto che
+T1 sia diventato uguale al puntatore v e Kv sia diventato uguale a 6. Ok fin qua? Ci siamo? Qual'è
+stata la comprensione computazionale in spazio e in tempo di questo codice? Lineare in tempo,
+nella lunghezza del pattern e lineare in spazio anche. Allora, lineare in tempo dovrebbe essere
+abbastanza chiaro. Io di fatto ho una riga di codice per ogni elemento del mio pattern. Quindi
+per l'underscore è nemmeno una riga di codice, per le variabili una riga di codice, per le costante
+una riga di codice e per le tuple ho due righe di codice. Quindi sono chiaramente lineare
+nella dimensione del pattern e non del dato, attenzione. Quindi se io lancio un pattern
+matching, fa un pattern piccolo e un albero gigante, la costa è il costo del pattern,
+non è il costo del dato. Ok? In spazio devo guardare allocazioni che ho fatto. Le allocazioni
+sono T1, Kv. Quindi sono le variabili contenute nel pattern, che sono ovviamente lineare nella
+dimensione del pattern. Ok? Quindi la prima conclusione è costo computazionale o di n
+in spazio e in tempo dove n è la lunghezza del pattern. Che è quindi tipicamente costante
+perché il pattern lo scrivo una sola volta nel codice, quindi il pattern è di 1. Quello
+non è un dato, è un epogramma, se sto compilando. Andiamo a vedere cosa succede nell'output.
+Nell'output io voglio dare nodo T1, 7, l'if e Kv. Allora abbiamo detto che tutte le volte
+che io in output uso degli atomi o dei tipi dati non atomici, io sto allocando. Lui alloca
+memoria per il mio output. Ovviamente dove trovo le variabili lui lì non alloca lo spart
+con la variabile, ma poi semplicemente ricocchia la variabile, ricocchia il valore della variabile.
+Visto che tutte le variabili sono word, lui per ogni provventa di variabili nell'output
+alloca una word. Quindi se anche il mio variabile è un puntatore o un ardo gigante, in realtà
+è solamente una word che viene allocato. E ci viene scritto il valore della word che
+potrebbe essere un puntatore oppure no. Quindi in questo caso cosa succede? Io nello hip sto
+creando un nuovo nodo, lungo 4 ci scrivo node e poi ci scopio T1. Copiare T1 abbiamo detto che
+questo puntatore qua. T1 esattamente uguale al puntatore. Quindi quando io ricopio la sequenza
+di bit di T1 sto mettendo il puntatore. Quindi vuol dire che io qua sto inserendo
+sto inserendo il puntatore T1. Ok? Andiamo avanti. Quindi 4 nod T1
+7. Quindi vuol dire che ci vanno a mettere 7. E poi attenzione l'if kv. Quindi io vado nuovamente
+ad allocare a questo punto un nuovo tipo di dato box, che è nuovo rispetto a quello di
+prima e quindi ci mettevo al puntatore. Quindi vuol dire che da qualche parte in memoria andrò ad
+allocare la mia tripla e io qua andrò ad inserire un puntatore alla mia tripla. Nella tripla ci vado
+a mettere 3, 3 che è la lunghezza, poi la costante if che la alloco e la metto la sequenza di bit per
+l'if. Poi una copia di k e una copia di v. Visto che k è la sequenza di bit 6, quando io ricopio
+quella sequenza di bit sto ricopiando 6. Visto che v è la sequenza di bit per false, io ci metto v.
+Ok? Quindi questo è il mio output e il mio output è la mia funzione è questo.
+Quindi notiamo alcune cose. Notiamo che la parte di sottoalveo T1 è stata scevata fra
+due strutture date. Si parla di Shevin quando io ho una parte di una struttura date in memoria
+che viene condivisa fra due stanze di struttura date. Quindi T1 non è stata modificata in
+nessun modo, diciamo così, se pensate alla funzione come qualcosa di una modifica e quindi
+viene automaticamente scevata la linguaggio di programmazione. Invece tutto ciò che io
+ho scritto esplicitamente lo sto allocando. Quindi in particolare notiamo anche una cosa
+non ottimale ovvero quest'algo in input tra l'if 6 false è identico a quello che ho prodotto in output
+tra l'if 6 false, ma ho perso lo Shevin. Quindi non ho scevato la struttura date in memoria.
+Perché non l'ho scevata? Perché io qua ho ricostruito una copia della struttura date
+a partire da copie delle sottoparte che è diversa da quello che ho fatto qua dove invece
+ho dato un nome all'intera struttura date e l'ho usato in output. Quindi questo non è ottimale,
+io non avrei voluto ricostruire l'algo, io volevo utilizzare diciamo il puntatore a questo algo.
+Ok? Adesso vediamo come fare, però prima chiediamoci la produzione di questo
+output quanto mi è costata in spazio e in tempo. Quindi rispetto a il codice che vedete qua,
+aver allocato tutta questa struttura date e riempita la struttura date quanto mi
+è costata in tempo e in spazio? E' sempre lineare l'uno dei simboli. E' assolutamente lineare,
+ok? Qua c'è una quadrupla ho allocato quattro nodi, nodo l'ho messo lì, t1 ho copiato una
+word lì, 7 ho messo una word lì, qua ho creato quattro word, quattro perché c'è una in più per la
+dimensione e ogni word l'ho copiato. Quindi sono assolutamente lineare nella dimensione che vado
+a scrivere. E lo sono sia in spazio che in tempo. Ok? Quindi il costo computazionale del pattern
+matching è ODN in spazio e in tempo dove è la lunghezza del pattern. Il costo computazionale
+dell'allocazione dell'output, la questione del risultato diciamo così, è nuovamente ODN in
+spazio e in tempo dove N è la lunghezza dell'espressione usata in alto. E l'altra osservazione è ogni
+variabile che ha catturato un tipo di dato boxed ha generato sharing. Se il tipo di dato era un box
+è stata una copia. La sequenza di bit è stata copiata, quindi sei qua sei là e sono due sei
+diversi. Se era un puntatore, ho copiato il puntatore, quindi ho due puntatori diversi ma
+appunto non so cosa. Quindi comunque ho copiato i bit, ma non ho copiato l'outro di questo. Ok?
+La considerazione che ha fatto sul costo computazionale costante. Si, qua in entrambi
+i casi che sto dicendo ODN in spazio e in tempo dove N è la lunghezza del pattern e N è la lunghezza
+dell'espressione. Però nota di fatto sono costi OD1 a runtime perché N non è un parametro dell'input
+a runtime. Qui di runtime parliamo della compilazione? No, runtime vuol dire esecuzione,
+compare time quando compile e runtime quando seglie. Perché noi ne parlavamo di una funzione
+in fase di compilazione. In fase di compilazione, quindi in fase di compilazione tu spendi questo
+tempo di N eccetera eccetera. E poi runtime chiaramente fa la N passa, diciamo così.
+Però quando tu dai la testa computazionale di un programma non la misuri nella dimensione del
+programma. La misura nella dimensione dell'input, quindi se il tuo input sono N elementi e il tuo
+programma ha un milione di esecuzioni non dice che sei lineare in un milione e nella dimensione
+dell'input. Sei lineare nella dimensione dell'input. La lunghezza del programma non la stai misurando
+quando fai la compilazione. Quindi la compilazione ti costa ODN a runtime allo che vai ODM, diciamo
+così, però diciamo in qualche modo è anche una costante del programma, non dipende dal
+tempo. Abbiamo dimostrato che già lo siamo indipendenti dall'input e possiamo a compile
+time conoscere la dimensione. Ok? Ora, ogni variave che ha creato box ha generato sharing.
+Attenzione, questo non è problematico se e solamente se il linguaggio di programmazione
+non ammette mutabilità dell'input. Quindi in C una roba del genere, in genere non la
+fate, dovete stare molto attenti, perché se voi scevate una pezza di struttura date all'interno
+di due strutture date differenti e poi il programmatore va ad alterare in pratica una
+struttura date, si altera un'altra. Quindi in C che è un linguaggio di programmazione
+mutabile, prima di scevare una struttura date voi potete pensare due volte. A volte lo si
+fa, però a quel punto di vista bisogna specificare bene nell'interfaccia dell'opinitazione,
+che una parte della struttura date è condivisa e quindi o non me la muti più, oppure ne fai
+una copia. Quindi in generale se andiamo a vedere l'implementazione di molti algoritmi
+di questo genere in C non vengono utilizzati algoritmi che fanno sharing perché per proteggersi
+il programmatore tende a copiare le strutture date prima e quindi costerebbe tantissimo.
+Invece se il linguaggio di programmazione non ammette mutabilità lo sharing lo posso
+utilizzare decimi. Ora lo sharing è la chiave dell'efficienza nella programmazione funzionale
+perché se io dovessi copiare allora a quel punto lì l'inserimento del mio nodo all'interno
+del mio algoritmo di ricerca mi costerebbe di n, la dimensione dell'albero, dovrei copiare
+tutto. Invece il fatto che io faccia sharing, anzi che di fatto lo faccio linguaggio di
+modo completamente pattern matching e che quindi io condivido tutte le parti dell'albero
+che non sono buttate, fa sì che come vedremo la conflittà computazionale non sarà o di
+n ma sarà molto meno e tutti gli algoritmi funzionali che lavorano su strutture dati sfruttano
+questo fatto. Quindi a priori io devo creare nuove strutture date ogni volta e questo potrebbe
+essere potenzialmente costoso ma di fatto cerco di share fare tutto ciò che share
+anche le precedenti e quindi questo mi riabbassa la conflittà computazionale. Ok?
+Questa è un po' la chiave degli algoritmi funzionali. Come vi dicevo, come voi avete
+studiato gli algoritmi imperativi nei corsi degli algoritmi di strutture dati sono dei
+libri di algoritmi funzionali perché a volte appunto bisogna pensare su strutture dati
+differenti che massimizzano lo sharing e hanno una conflittà computazionale bassa.
+Tipicamente sono incompatibili, se voi prendete quegli algoritmi e li usate in un mondo tipo
+C dove c'avete montabilità è un casino perché l'algoritmo non vedete che poi funzioni
+correttamente in presenza di montabilità. Ok?
+Fatemi dire qualcosa su questa doppia stellina.
+Prendo i due runtime OCaml ed Erlang. Quindi supponete che io scrivo una roba del genere
+x, y, le variabili sono minuscole in OCaml, x, y uguale 4, 5, le tonde sono le coppie,
+le tuple, quindi x, y uguale a 4, 5 vuol dire confronto il pattern x, y con 4, 5.
+Ovviamente avrò che x è stato legato a 4 e y è stato legato a 5. Ok?
+La domanda è cosa succede se lo rifaccio? E se per esempio io scrivo a questo punto
+let x, y uguale a 2, 3. Questa x e questa y sono quella x e quella y là che valgono
+già 4, 5 o sono due nuove variabili che casualmente io chiamo il nuovo x, y ma non sono la stessa
+variabile, le chiamare in maniera diversa e quindi diciamo in memoria avranno due identità
+differenti e semplicemente avendo d'altro lo stesso nome poi quando chiamerò x intenderò
+l'ultima che ho chiamato x e non la prendo. Delt'altro i menti, in un pattern le variabili
+sono sempre variabili nuove che sto introducendo come ho scritto qua dove io dichiarare una
+variabile oppure io se scrivo una variabile che esiste già intendo dire una costante.
+Cioè voglio usarla come se fosse una costante del valore procedente. Allora tutti i linguaggi
+moderni usano la convenzione che le variabili dei pattern sono tutte nuove variabili. Quindi
+questa cosa non cambia perfettamente senso, non c'è problema e x adesso vale 2, y vale
+3, sono 2x e 2y differenti. Semplicemente casualmente le ho date lo stesso nome e in
+quali tutti i linguaggi di programmazione si è date lo stesso nome due volte ma variabile,
+l'ultima a cui avete dato il nome è quella che è visibile da quel momento in avanti.
+Erlang purtroppo non fa così. Erlang e Erixir diciamo tramite i linguaggi impenetrati sulla
+BIM hanno una semantica che non è più stata utilizzata perché ha solo effetti negativi
+Quindi in Erlang quando voi se io scrivo x, y uguale 4, 5 che è lo stesso esempio, a
+questo punto x vale 4 e y vale 5, ma se io rifaccio x, y uguale 2 e 3 mi dice non ha
+fatto match. Perché? Perché interpreta questa x come questa y non come numero dei variabili
+di valori 4 e 5, quindi come se io avessi scritto 4, 5 uguale 2 e 3 che giustamente
+non fa match. Ok? Quindi se invece di usare x, y, uso per esempio 4, 4, x, z uguale 4,
+3, questo è successo perché z diventa 3 e x era già 4 e viene confondata con 4. Perché
+questa non è una buona idea? Non è una buona idea per un sacco di motivi. Uno fra i tanti
+significa che quel fermento di codice cambia il significato se quella ricorda c'è prima.
+Nel senso che quando io vedo x, y uguale 4, 5 io non so se io lo metto in un punto del
+codice dove x non era stata richiavata prima ha un significato. Se io lo metto in un punto
+del codice dove x è stata richiavata prima ha un altro significato. Questo non è una
+buona idea perché rende la semantica del codice estremamente dipendente da un contesto
+molto ampio e quindi questo è un ottimo motivo per non farlo. Secondo punto,
+nei linguaggi, lo posso fare anche in Erlang ma anche in un camel per dire, se io voglio dire
+che voglio un pattern in cui voglio confrontare v doppia k con 4, 5 ma voglio che v doppia
+ha valore di x e k ha valore di y precedenti, posso scrivere when. When v doppio è uguale
+a x per esempio. Quindi non per, adesso where, o forse nel, lo sto mettendo nel posto
+sbagliato, non so. Vabbè, adesso devo beccare se il tasto è giusto, devo andare uguali o
+uguali, forse non ci vanno. Quindi l'idea è che comunque se io volessi usare una guardia
+per dire, io voglio che quello che ne c'ha possia vecchio valore. Ok? Quindi attenzione
+a questa cosa perché appunto è un'anomala di Erlang e io in particolare mi stradio sempre
+quando scrivo un esempio in Erlang. Quindi attenzione, in Erlang è solo in Erlang
+Erlang. Se uso una variabile x già diciavata, assegnata in un pattern si intende il valore
+della variabile. Quindi essenzialmente non scatta questo, ma scatta questo, scatta il
+codice della costante. Oppure se la variabile è un pattern scatta questo codice qua. Quindi
+dipende cosa contiene la variabile e scatta un codice. E oltretutto deve scattare one time
+perché questo è con pare time, ma se la variabile è a one time a quel punto che deve scattare
+il codice, quindi si complica la variabile. Ok? Ci siamo? Sì?
+Ma questa cosa è stata fatta perché c'è un vantaggio, un evolo di progetto?
+No, non c'è nessun vantaggio. Diciamo che Erlang ha una parte compilata, una parte interpretata.
+Quando tu vai a interpretare, questo non è più fatto a tempo di compilazione, ma a tempo
+di interpretazione. Quindi quest'ultima cosa che vi ho detto, attenzione che questo punto
+fa scattare anche una differenza fra compare time e one time, non la vedi. Quindi tutti
+i linguaggi compilati, era subito chiaro che era una pessima idea fare quella cosa lì.
+In Erlang non era visibile e hanno fatto quella scelta. Non ho mai letto nessuna giustificazione
+sensata per quella scelta. Ok? Quindi se vi sono chiaro a questo punto il pattern match
+e la competenza computazionale, torniamo a 9 esempi e cerchiamo di capire quanto ci costava
+la nostra funzione. Ah no, vi dico un'ultima cosa. Torniamo a questo problema. Io qua
+ho ricostruito un albero che invece volevo riusare. Il punto è che in un qualche modo
+io non volevo decomporre l'ifkv e poi ricomporla, volevo semplicemente utilizzare una variabile.
+Ora, in questo esempio, io avrei potuto scrivere semplicemente quarti 2 e quarti 2. Se facevo
+così, avevo lo sharing, non avevo le relocazioni. Ma perché nell'esempio che io avevo scritto
+io invece di scriverti 2 avevo fatto un pattern profondo? Se noi torniamo a vedere l'esempio,
+io avevo fatto un pattern profondo per catturare l'ifk2v2 perché k2 vi serviva. Mi serviva
+a confrontare se k è almeno uguale a k2. Quindi io da una parte sono obbligato a fare
+il pattern matching profondo per tirare fuori il data che mi serve. Dall'altra poi nell'output
+io vorrei dare un nome, quindi fare pattern, a un'espressione composta. Allora, tutti
+i linguaggi di programmazione con i pattern hanno un ulteriore costrutto per assegnare
+anche un nome a una struttura non avuta. Nel caso di Erlang, la syntaxa non è splendida
+e l'uguaglianza è messa lì. Tu scrivi uguale a t2, e a questo punto qua puoi scrivere
+t2. E v2 non ti interessa più e l'if non ti interessa più. Ok? Quindi il costruttore
+uguale sta dicendo, faccio sia pattern match con t2, sia pattern match con t2. Faccio entrambi
+pattern contemporaneamente con t2. Quindi andiamo ad aggiungerlo alla nostra serie di
+pattern. Quindi c'è un ulteriore caso, che se io ho il caso pattern1 uguale pattern2,p
+contro il dato p, l'idea è che devo compilare entrambi. Quindi vado sia a compilare p1
+contro p, e poi compilo p2 contro p. Tipicamente p2, spesso proprio sintaticamente, in Erlang
+penso che sintaticamente, p2 deve essere un nome, quindi deve essere una variabile, quindi
+scatta questo caso. Ok? A quel punto lì, avendo i fammi nomi, posso fare effettivamente
+una variabile. E quando è utile avere p2 e un pattern compresso, una variabile? Direi
+mai, infatti credo che sintaticamente Erlang voglia che sia un nome, anche Okame vuole
+che sia un nome, però per esempio in Asker penso che no. Direi che a me non è mai successo,
+siamo in bisogno di un padre, diverso. Ok, torniamo alla nostra funzione, cerchiamo di capire
+la competenza computazione. Andiamo a vedere caso per caso. Primo caso è il caso della
+foglia, il costo di fare pattern matching, abbiamo detto che ho di uno di fatto, quindi
+non mi costa niente perché il pattern è con part time, quindi la dimensione del pattern
+è con part time, il test k uguale a k2 è o di uno, in auto potevo produrre l'if kv
+e anche questo è o di uno, perché abbiamo detto è la dimensione dell'espressione,
+ma la dimensione dell'espressione non fa parte dell'input, fa parte del mio codice.
+Quindi tutta questa riga è o di uno. Idem qua, sia la parte di p2, p2, p2, p2, p2, p2,
+pattern matching, sia la parte di produzione, abbiamo detto anche in questo caso, è o
+di uno. Anche qua sotto posso andare a riusare immagino, quà, l'if, no, quà non c'era,
+non c'è, no, vediamo. Ok, dicevo, quindi tutti questi casi in spazio
+e in tempo sono di per sé o di uno, quindi il problema nasce dalle chiamate ricorsive,
+se non ci fosse chiamate ricorsive sarebbe tutto o di uno. Ok, quindi per capire quanto mi costa
+in tempo e spazio questo programma, devo semplicemente capire qual è il costo in tempo e spazio
+di fare le chiamate ricorsive.
+Ah, lì c'è, lo possiamo, lo possiamo anche, c'è il k2, k2, k2, e poi dopo se ve l'utilizzate,
+no, perché fai node k2, k2. Ah, sì, qua non lo vedevo, ok, uguale t2.
+E cosa vi serve qua? Beh, niente in verità, qua non mi serviva andare in profondità, direi
+kv t2, t2, k2, k2. Ok, quindi qua la complessità in spazio e in tempo è determinata esclusivamente
+la chiamate ricorsive. Stessa cosa per la funzione sotto.
+Andiamo quindi a vedere quanto mi costa la chiamata ricorsiva in spazio e in tempo.
+Eh no, scusate, fatemi dire l'ultima cosa. Nota, nei linguaggi che hanno nativamente
+pattern matching profondi, esempio Erlang, OCaml, Haskell, Manon, Scala, JavaScript,
+Vast e Go non mi ricordo esattamente dove siano. Go ce l'ave veramente limitato,
+vi non hanno un senso per darne e per Vast non mi ricordo dove siano i due. Quando si
+compilano dichiarazioni di funzione, non si compilano i pattern uno alla volta come vi
+ho spiegato finora. Perché? Allora con la competenza computazionale siamo già, a sintotica
+siamo già al massimo, siamo di uno nella dimensione ricorso. Il punto è, guardate una
+funzione di questo tipo. Io potrei dire, se il mio input per esempio è una quadrupla,
+che inizia con l'atomo node, poi contiene un altro node dove c'è per esempio K1 e
+poi c'è T1, anzi T1, K1, T2 e poi c'è K e poi c'è per esempio qua l'if e non mi
+interessa, restituisco, che so, when K1 è minore di K, restituisco un certo output.
+Poi potrei fare un secondo caso che dice, attenzione, quando invece ho per esempio una
+foglia con non mi interessa, zero, non mi interessa, io istituisco un altro output e
+poi mostraramente c'è una terza linea per esempio, io ce la faccio abbastanza semplice,
+fatta così, node T3, T4 ed eseguo un certo output. Supponete che questo sia il codice
+che voglio andare a compilare. Quale è la semantica di questa funzione? Abbiamo detto,
+si prende l'input e si cerca quale caso della funzione faccia match. Proprio detto, la semantica
+del linguaggio e programmazione è sequenziale, si prova prima il primo pattern, se fallisce
+il secondo, se fallisce il terzo e così via, perché allo stesso input potrei matchare
+più pattern. Quindi, la semantica del linguaggio, tutti, dice che fa match il primo pattern
+in ordine, diciamo che viene usato il primo pattern in ordine a fare match. Quindi, questo
+suggerisce un modello di compilazione molto semplice, testo il primo pattern, se fallisce
+se ha restituito meno uno, terzo il secondo, se ha restituito meno uno, terzo il terzo
+e così via. E possiamo compilare così, scala compila così, di fatto. Il problema che è
+abbastanza stupida con la compilazione, perché? Pensate come viene compilato il pattern matching
+e guardate il primo pattern. Quindi, magari io passo, pensate all'invocazione di F su
+node, node, qualcosa, tre, qualcosa, cinque, node, puntini, puntini. Cosa succede se io
+ho compilato in maniera sequenziale? Io inizio con il primo pattern. Cosa fa? Contolla che
+il mio input sia una tupla lunga quattro, va bene, lo supera. Contolla che il primo
+sia nodo, va bene, lo supera. Contolla che dentro ci sia un'altra tupla, va bene, lo
+supera. Contolla che ci sia un nodo, va bene, lo supera, eccetera, eccetera, eccetera.
+Quando arriva qua, invece di trovarsi un'acquadrupla, ci trova una tripla. Se tu esituisce meno uno,
+a questo punto testerebbe il secondo pattern, testerebbe il terzo pattern. Il secondo pattern
+fallisce subito, ma quando arriva il terzo pattern, cosa farebbe? Rifarebbe un sacco
+di check che ha già fatto. Tornerebbe a dire, è una tupla lunga quattro? Sì. Inizia con
+un nodo? Sì. Poi c'è una tupla lunga quattro? Sì. È un nodo? Sì. Fida ad arrivare di
+sopra. Poiché questi due pattern si assomigliano, c'è un sacco di lavoro applicato. Ok? Quindi,
+quando noi andiamo a compilare una sequenza di pattern di questo tipo, possiamo fare molto
+meglio. Possiamo fare in modo che a mano a mano che lui processa un pattern e scopre
+l'informazione, questa informazione che ha già scoperto, la riutilizzi nei pattern successivi.
+Questo è un po' l'idea per evitare di fare i check più volte. Non è banale farlo, perché
+per esempio non potrebbe dire, perché non premuto i pattern? Premuto i pattern in modo
+da fare un'alba di decisioni. Per cui io inizio dicendo, è un acquadrupla? Sì, no.
+Inizia per nodo? Sì, no. Questo serve molto facile da implementare, ma non serve la semantica
+giusta. La semantica giusta dice, io devo andare in ordine ai pattern. Quindi non è che posso
+raguppare i pattern e premutare come voglio io. Ok? Quindi non posso fare un'alba di
+decisioni. Perché magari secondo pattern generico e per match deve avere la precedenza
+sul terzo che specifico. Quindi non posso implementare con un'alba di decisioni ed è
+stupido rifare i controlli tutte le volte. Quindi ci sono degli algoritmi ad hoc che
+generano essenzialmente quello che una specie di automa è stata definita. Quindi ogni state
+dell'automa sono le informazioni che ho già scoperto. Per esempio, scopo che è un'alba
+di decisioni in un altro stato, scopo che è un'alba di decisioni in cui il primo campo
+è un nodo e così via. E quando c'è un fallimento io salto in un altro punto dell'automa che
+testa la cosa dopo. Ma quando io successivamente devo ritestare la stessa informazione utilizzo
+l'informazione dell'automa dove sono già passato per avere questa informazione all'ultimo.
+E quindi la procedura di compilazione è una procedura complicata che mi dà una specie
+dell'automa stata definita che minimizza il mio ricerchio. E quindi complessivamente la
+complessità computazionale non è più lineare nella somma di tutti i pattern, ma posso fare
+meglio, posso essere sublineare nella dimensione di tutti i pattern. Questa è la realtà di
+quello che succede qui, nei linguaggi appunto che nascono con i pattern matching. I pattern
+matching è un costuto emerso, quindi fino a 10 anni fa solo i linguaggi funzionali avrebbero
+pattern matching, oggigiorno saranno tutti, Python, Scala, Java, Rust, tutti hanno introdotto
+le nozioni pattern matching, ma alcuni erano introdotti correttamente con quello che vi
+sto spiegando, alcuni hanno riadattato la nozione tipo di dato algebico, pattern matching,
+eccetera, sui oggetti che avevano già, sui oggetti delle classi. Quindi in quel caso
+per esempio non c'è questa implementazione di questa automa particolare, non c'era nemmeno
+la possibilità di fare pattern profondi. Quindi...
+Scusi, ma c'è qualche limitazione per cui potrebbero parlare?
+Il punto è che non dovresti ma parlare, hanno fatto essenzialmente un layer di zucchero
+sintattico per non cambiare nulla in commentazione di state. Dovrebbero ripensare la limitazione
+di state. Quindi, diciamo, dopo aver testato il primo pattern, se dimentico tutto e passo
+a testare il secondo e poi il terzo, rifaccio lavoro già fatto.
+Non posso premutare pattern per ottenere un albero di decisioni, quindi si usa un'automa
+a state finiti modificato dove ogni stato dell'automa codifica l'informazione già scoperta
+sull'info, complessità sublineare sulla somma della lunghezza dei pattern. Ok? Questo
+è l'obiettivo. Va bene, quindi su pattern matching vi ho detto
+tutto quello che c'era a sapere. L'importante, dobbiamo parlare, a questo punto, della come
+si implementano le funzioni ricorsive. Forse questa cosa la sapete già, però come al solito
+venite a datene ai differenti, quindi non tutti possono sapere. Quindi, ricorsione e poi si
+complica la prossima lezione. Quindi, ricorsione, partiamo dall'idea semplice, idea, all'untime
+viene mantenuto uno stack di record di attivazione per ogni chiamata di funzione. Uno stack di
+record di attivazione mantiene cosa? Cosa c'è in un record di attivazione? Potete sapere
+tutti cosa è un record di attivazione, spero, dalla frenare. Cosa c'è in un record di
+attivazione? Quali registri che sarebbero da ripristinare lo stato al ritorno, indirizzo
+del valore di ritorno, contattori e parametri o parametri. Con calma, il vostro collega dice
+valore dei registri salvati per i cristinali quando si torna indietro. Poi? Indirizzo del
+valore di ritorno, dove ritornare. Indirizzo del valore di ritorno, cioè dove salvare la
+output. Dipende dall'architettura, in certe architetture si non c'è e uno usa un registro
+fissato per scrivere l'informazione. Poi i parametri dove sono, ci sono usciti i parametri
+o i valori dei parametri? Quindi viene allocato sullo stack, nella record di attivazione,
+tutti i parametri della funzione. Poi? Indirizzo del valore di ritorno, dove il valore di ritorno
+è il valore dei parametri. Poi? Indirizzo del valore di ritorno, dove il valore di ritorno
+è il valore dei parametri della funzione. Poi? Indirizzo del valore di ritorno, dove
+il valore dei parametri della funzione è il valore dei parametri della funzione.
+Ricordiamoci che con benzione lo stack cresce verso il basso, parte dagli indirizzi dei memori
+alti e decresce. Quindi anche per recolativazione useremo la stessa sequenza. E' anche una
+cosa importante, anche l'indirizzo del valore di ritorno lo metto sotto e sopra ci vado a
+mettere i valori dei registri salvati, i parametri della funzione, le variabili locali sopra.
+Manca una cosa in fondamentale qua, in questo evento. Forse è la più importante, nel senso
+che i primi linguaggi informazioni erano solo quello che non avete detto. Le altre cose
+sono note dopo. Dove saltare quando finisce la funzione? Dove saltare, quindi l'indirizzo
+di ritorno dove saltare. L'indirizzo di ritorno dice una volta che ho finito di chiamare la
+funzione imbricata dove devo restituire il controllo e poi eventualmente dovrei andare
+a scrivere il valore di ritorno e poi può avere dei parametri della funzione e può avere
+variabili locali. Come dicevo i primi linguaggi di formazione per esempio erano solo l'indirizzo
+di ritorno perché c'era la nozione di saltare una funzione ma per esempio non passavo esplicitamente
+dei parametri della funzione, si usavano le variabili globali o qualcosa del genere.
+L'ordine di ricevo è importante ed è se i grossi sono stretti, quindi gli indirizzi
+più alti sono sotto, i più bassi sono sopra e poi vedremo più avanti quello che succede.
+Quindi ogni qualvolta io chiavo una funzione, creo una recreativazione, alloco tutta questa
+dimensione che si calcola praticamente e quando la funzione termina io reallocco e
+si torna e si torna indietro. A cosa serve questa cosa? A cosa serve lo stack di recreativazione
+e il precarimento? Nel caso generale non sappiamo, non sappiamo quant'è profondo l'indirizzo
+di questa soltura per effettuare le funzioni alla profondità di driver.
+Sì, è vero questa cosa. La risposta moderna è quando inizio a chiamare una nuova funzione
+ho bisogno poi, quando invoco una terza funzione, che quando quella mi passa controlla io abbia
+a disposizione tutto quello che mi serve per terminare l'esecuzione della funzione. Quindi
+io ho già fatto qualcosa, chiamo un'altra funzione, lei mi restituisce controllo più
+tardi, io ho bisogno di sapere quello che mi serve per andare avanti. Quindi per esempio
+i parametri locali e i parametri della funzione io li metto sullo stack perché mi serviranno.
+Anche dopo aver chiamato un'altra io devo ancora eseguire i codici che potrei utilizzare.
+Ok? Idem io alla fine devo passare il controllo a qualcun altro e quindi devo potere dare
+il controllo. Quello che dice il vostro collega è giusto. I primi linguaggi di formazione
+non avevano un stack perché non c'era la ricorsione. Le funzioni non potevano chiamarsi
+ricorsivamente. Nei direttamente F non poteva chiamare F e nei direttamente F non poteva
+chiamare G che chiamava F. Potevano però chiamarsi. F poteva chiamare G che poteva chiamare
+H e così via. Questo voleva dire che ogni funzione poteva essere esecuzione una volta
+sola. Quindi i suoi parametri e le sue variabili locali, così come tutto quello che sta
+nello stack frame, erano i registri globali. Quindi ogni funzione aveva le sue variabili
+globali che erano i parametri di quella funzione e non c'era nessun bisogno di stack. Quindi
+lo stack viene introdotto quando si introduce la ricorsione. I primi linguaggi di formazione
+non hanno ricorsione. Quindi la domanda è, a questo punto, quanto mi costa in spazio
+e in tempo una chiamata di funzione? Una chiamata di funzione fa push di una cosa di attivazione
+e quando termina fa push di una cosa di attivazione. Quindi l'esecuzione è chiamata di funzione.
+Quanto mi costa in spazio e quanto mi costa in tempo? In tempo? Sono tutti le dimensioni
+dello stack sulla nota tempo di compilazione, quindi all'attimo tutto è un tempo di stack?
+E' o di 1. Prendo lo stack pointer ci sommo la dimensione della coattivazione che nota
+tempo di compilazione. Ci copio dentro due o tre cose, ma è fissato a compare i timer,
+quindi è o di 1. In tempo? E' o di 1. In spazio? E' o di 1. In spazio? E' o di 1.
+Ah, una sola singola all'attivazione? Una sola chiamata di funzione. Eseguo una chiamata
+di funzione, quanto mi costa in spazio? Sempre di 1. Sempre di 1. Alloco il record attivazione.
+La quidimensione non dipende dal input del programma, dipende dal code. Quindi in tempo
+costa o di 1, in spazio costa o di 1. Quindi vuol dire che se io ho una sequenza di chiamata
+a funzione, il cosco della sequenza di chiamata a funzione è o di n, dove n è il numero di
+funzione che va per imbricare una dentro l'altra. Questo vuol dire in particolare che se io
+ho una funzione ricorsiva, che continua a chiamare se stessa, ogni volta che chiama
+se stessa alloca un nuovo record attivazione, che costa di 1. E quindi l'uso della memoria
+aumenta, aumenta, aumenta, aumenta, fino a quando la funzione non inizia a terminare.
+Se la funzione non termina, ma io con questa spiegazione la memoria continua ad aumentare
+all'infinito. Ok? Ma, se noi torniamo al codice che abbiamo scritto il primo giorno,
+l'Hello World in Erdang, abbiamo detto questo è l'attore che implementa l'autocontinue
+banka. È un attore e quindi come tale nasce per aggirare per sempre, senza cresciare mai
+o bene il genere. E cosa fa? Ogni qualvolta riceva un messaggio, assume un nuovo behavior
+o faccia una chiamata ricorsiva. Quindi, se tutto fosse esattamente come abbiamo scritto
+fino ad ora, vorrebbe dire che questo attore ha ogni messaggio che prevede un record attivazione
+più e dopo un po' finirebbe la memoria e quindi non girerebbe per sempre. Ok? Quindi
+vuol dire che ci deve essere qualcosa di diverso, perché sennò la programazione funzionale
+sarebbe morta, sarebbe finita lì. Ok? Quindi torniamo a quello che abbiamo detto poco
+fa e capiamo se possiamo fare di meglio. Quindi, idea, sto eseguendo una funzione F
+e invoco una funzione G. Il record di attivazione di F deve contenere tutta e sola, questo è
+il punto, tutta per forza e sola lo vorremmo, sarà l'ottimizzazione, l'informazione che
+serve per terminare l'esecuzione di F dopo che G sarà terminata. Ok? Questa è l'idea.
+Osservazione, non tutta l'informazione contenuta nel record di attivazione di F è necessaria
+dopo la chiamata di G. Dipende com'è fatta F. Facciamoli gli esempi. Supponete che F
+sia una funzione che prende l'input, che sono int x, int y, int z. Adesso lo scrivo
+con pseudo c. Poi magari io richiavo una variabile locale z, una variabile locale w, ci faccio
+cose e a un certo punto invoco la funzione G. Dopo aver invocato la funzione G, cosa faccio?
+Dico per esempio che z è uguale a y per w e poi faccio z più z. Cosa contiene il record
+di attivazione di F? Il record di attivazione di F contiene. Seguiamo l'ordine che vi ho scritto
+qua sopra. Variabili locali, parametri della funzione, valore dei visti salvati, indirizzo del valore
+di ritorno, indirizzo del valore di ritorno. Quindi le variabili locali sono z e w, le metto
+in ordine opposte, w e z. Quindi lo pensiamo come uno stack, un pushe. Quindi prima faccio
+pushe di z e poi di w. Quindi la prima che troverò in alto è z per w. Idem, parametri
+della funzione a questo punto. Quindi z, no, z, w, z, ho usato due volte z, scusate, x,
+y, p. P, y, x. Poi ci sono i registri, poi ci sono il return value e poi return address.
+Questo è il record di attivazione di F quando lo invoco. Vado a invocare g. Dopo aver invocato
+g devo eseguire questa istruzione e la return. Di questo record di attivazione mi serve tutto
+dopo aver invocato g. Guardate il codice. Ah, scusate, qua volevo usare p. Avendo chiamato
+entrambe p. E facciamo p. Dopo aver eseguito g mi serve tutto questo record di attivazione
+o c'è una cosa che non mi serve più? W mi serve? No. Z, p, anche, y, x, no. I registri
+v erano reali. Sì o no? Dopo aver eseguito g. Sì, perché io devo fare tan. Quindi mi
+servono ancora. Quindi in verità x non mi serve più e w non mi serve più. Quindi w e
+x non servono più. Allora cosa posso fare io come ottimizzazione? Mi servono più quando
+io vado a invocare, dopo aver eseguito g, io prima di invocare g potrei buttare via dal
+mio record di attivazione ciò che non mi serve più. Quindi potrei togliere w e x dal mio
+record di attivazione. Ora, togliere x è un problema perché x è in mezzo alla roba
+che mi serve. Quindi per togliere x io dovrei spostare la roba nella record di attivazione
+e sarebbe costoso, non sarebbe un'idea geniale. Ma w potrei buttare via facilmente. W è
+in cima alla record di attivazione. Quindi se io per esempio decremento lo stack pointer
+e chiamo g, g utilizzerà, sovrascriverà la parte del mio stack pointer. Quindi, idea
+è, prima di invocare g decremento lo stack pointer per rilasciare w che non mi serve
+l'idea è, facciamo così. Secondo punto, vi ho detto la x sta sotto e quindi non la
+posso rilasciare. Sta sotto perché ho messo prima le variabili locali e poi i registri
+e nell'ordine con cui vogliamo dichiararle. Me l'ha detto il dottore? No, io potrei anche
+permuttare le variabili, tanto l'importante è che siamo sullo stack. Quindi, idea numero
+2, con un'analisi statica posso determinare che sia più conveniente piazzare x subito
+dopo w nel record attivazione in modo da rilasciare anche x. Quindi l'idea che io posso fare
+è essenzialmente questa, io vado a vedere il corpo di f, guardo tutte le funzioni che
+vengono chiamate nell'ordine, ordino tutte le variabili dei parametri in maniera tale
+che ogni volta che chiamo una funzione io possa rilasciare il maggior numero possibile.
+E a questo punto non faccio pop del record attivazione tutto in fondo, lo faccio un po'
+alla volta. A mano a mano che i parametri non mi servono più io inizio a rilasciare quel
+pezzo di record attivazione. Ovviamente stanno attenti a come compilo, perché per esempio
+se prima cercavo qualcosa stack pointer più qualcosa adesso si è spostato, quindi dobbiamo
+partire da uno stack pointer ma dal base frame essenzialmente. Questa è l'idea che
+avevo, ok? Qui, esempio, Polog implementa da sempre queste ottimisazioni ed è fondamentale
+se uno vuole avere un po' di efficienza in Polog, implementare. Quindi in Polog vengono
+terminate in questo modo le variabili e le variabili vengono rilasciate a mano a mano
+che non sono. Ci, per esempio, non lo fanno, praticamente l'implementazione ci non lo fanno.
+Ok? Qual è il caso limite di questa cosa qua? Il caso limite di questa cosa qua sarebbe
+il caso in cui dopo G non devo più fare nulla. Però bisogna capire bene cosa vuol dire
+non devo fare nulla, perché la mia funzione comunque deve fare tala. Ok? Quindi, caso
+limite, chiamate di coda, tail calls. Allora, definizione, una chiamata a G dentro F, diciamo
+così, è di coda se e solamente se. Questo se e solamente se che vado a scrivere deve
+dirci che dopo aver chiamato G non devo più fare nulla, non ho bisogno più di nulla.
+Quindi, l'unica istruzione eseguita dopo la G è la return, questa deve essere la prima
+condizione, quindi non devo fare nessun conto e io restituisco. Secondo punto, il valore
+ritornato dalla F è esattamente il valore ritornato dalla G. Mi attenzione, vuol dire
+che io devo finire con rettangi di qualcosa. Ok? O con piccole variazioni sintastiche,
+potrei mettere una variabile risultato da G e faccio rettare una variabile. Perché questo
+è il caso limite? Il caso limite è perché vuol dire che tutte le variabili non me ne
+frega più niente. Sembra che mi servano i registri, il valore di ritorno e la return
+address. Queste servono perché mi servano? Perché sembra che mi servano? Perché comunque
+devo fare la rettana, quindi devo rispondere ai registri, scrivere il return value che
+è il valore che la G mi restituisce e saltare la return address. Ma se ci pensate che cos'è
+che fa la G subito prima di terminare? Ripristina i registri, scrive il return value nella mia
+variabile che io ricoplio nel return value di chi mi ha chiamato e salta a me che salto
+l'altra. Quindi questo lavoro, perché non devo fare la G? Perché lo devo fare io?
+Se io dico la G, invece di dire a me quello che devo dire, farlo direttamente tu, abbiamo
+già finito. Quindi l'idea è che quando io ho una chiamata di coda, posso buttare via
+anche registri R, V e R, A. Io faccio pop completo nella mia recolazione attivazione.
+E semplicemente diciamo, chiaramente diciamo quando invoco la G devo riempire io R, V,
+R, T, R, A e di fatto ci devo mettere la stessa cosa. Quindi diciamo faccio pop di tutto ciò
+che non è quelle tre cose di e poi passo controllo con una V2 alla G. Ok? Quindi,
+ottimizzazione, caso limite dell'ottimizzazione precedente, quando la chiamata è di coda,
+la chiamata si compila come pop di tutti i registri, variabili locali, eccetera, e jump
+al codice della G. Ovvero, la prima parte del recolo di attivazione della G coincide
+con la prima parte del recolo di attivazione della E. Ecco, ovviamente se la G è dei parametri,
+quando ho fatto pop faccio il push dei parametri formali, no, attuali della G. Ok? Quindi,
+riassumendo, una chiamata di coda quando è implementata la tail call optimization, costa
+quanto in tempo, quanto in spazio? In tempo devo fare pop, una pop in più rispetto a prima. Prima
+costavo di uno, adesso costa? Costavo di uno. Ok? Una pop in più vuole semplicemente prendere
+lo step point, e in spazio quanto mi costa la chiamata della G a questo punto? E' meno
+di ogni uno, è come se fossero di zero, ok? Perché io riciclo di un recolo di attivazione,
+diciamo, ci sono i parametri formali, sì, ma il punto che ha F la rilascio in un certo senso,
+ok? Quindi, in spazio, diciamo, fa virgolette, ho di zero, riciclo il recolo dell'attivazione.
+In particolare, se io sto richiamando, chiaro che se la recolo attivazione della G è più
+grande, uso un po' più di spazio, ma se per esempio la F richiama la F, è veramente di
+zero, perché la dimensione dei parametri della F sono anche la dimensione dei parametri della
+G, quindi veramente non mi costa soltanto. Non solo, ma diventa praticamente pop push,
+e come dire, sto segnando, e poi c'è una jump, non c'è più una chiamata, è un ciclo.
+Ok? Il codice che si ottiene è equivalente a quando fate un ciclo while, nel linguaggio
+imperativo, dove semplicemente vi saltate al codice. Qua è uguale, lo step non cresce
+più, quindi i valori dei registri dei parametri locali sono all'inizio dello step, sono quelli
+che di fatto sto cambiando imperativamente a una chiamata di funzione. Quindi il codice
+in presenza di take-all è isomorfo al codice imperativo, e il codice funziona. Ok? Un ultimo
+pari di cose poi andiamo ad analizzare la complessità della nostra funzione, che è
+il nostro obiettivo di oggi, quindi un'altra definizione. Questa definizione è inutile,
+ma purtroppo è quella che viene più utilizzata. Una funzione F si dice tail ricorsiva se solamente
+se tutte le sue chiamate ricorsive sono di coda. Ok? Quindi devo dire che fa solo chiamate
+di coda a se stesse, e quindi devo dire che non usa stack. Costa o di zero, o di uno
+isparso l'intera esecuzione ricorsiva. Perché dico quella definizione che in realtà non
+vuol dire niente? Perché non è che l'ottimizzazione scatti solamente se la funzione è tail ricorsiva.
+Se la funzione ha due chiamate tail ricorsive e due no, le due tail ricorsive sono ottimizzate
+e le altre no. Quindi se la proprietà di essere tail ricorsiva lascia un po' tempo
+che trova. Spesso vi trovate con funzione che hanno chiamate multiple, ma che alcune
+sono tail ricorsive e alcune no, e vanno a fare analisi complessità. Dovete tenere
+presente questo fatto. Ok? Quando voi scrivete il codice funzionale è fondamentale a che
+il vostro compilatore implementi la tail ricorsione, l'ottimizzazione tail ricorsiva.
+Se non lo fa, tenere sotto controllo l'occupazione di spazio è molto difficile. Il tipico esempio
+per esempio è WebAssembly. WebAssembly, java script nascono in ambito più imperativo,
+quindi non implementavano nessuna ottimizzazione di coda. Quindi, man mano a mano che i linguaggi
+funzionari vengono compilati su WebAssembly o prima su java script, il problema è poi
+che però non c'era l'ottimizzazione di coda. Quindi vengono compilati in maniere strane
+con dei gotoo eccetera per evitare il problema, però poi diventavano poco interoperabili
+con gli altri chiamate, oppure hanno fatto pressione per raggiungere l'ottimizzazione.
+Quindi l'ultima specifica del WebAssembly e così via esiste la implementazione chiamata
+di coda e un po' alla volta le varie implementazioni stanno aggiungendo l'ottimizzazione.
+Quindi, quando scrivete il codice funzionale, a, dovete essere sicuri che il vostro linguaggio
+abbia tail ricorsione, b, dovete scrivere, fare attenzione voi affinché il codice lo
+scriviate in maniera tail ricorsiva. Perché se voi scrivete chiamate tail ricorsive non
+state usando spazio. Se voi state scrivendo le chiamate che non sono tail ricorsive, state
+utilizzando spazio. E a volte lo stesso codice, se voglio rimanipolate, passa dall'essere tail
+ricorsiva all'essere tail ricorsiva. Questo è il principale lavoro di chi inizia a fare
+programmazione funzionale, non fa attenzione a questa cosa e quindi scrive il codice che
+è in efficiente spazio. In particolare bisogna fare attenzione, e qua ci metto una stellina
+ulteriore e la prossima lezione scopriremo il problema. Attenzione all'intervazione della
+tail ricorsione con altri costanti. Per esempio, eccezioni. A mano a mano che voi aggiungete
+nuovi costruttivi complicati, tipo lecezioni, bisogna stare attenti a cosa succede alla tail
+ricorsione. Come vedremo per esempio, lecezioni impattano drasticamente sulla tail ricorsione.
+Se voi fate una chiamata anche di coda, ma questa è protetta dentro un blocco, try catch,
+try with o cose del genere, tipicamente come vedremo questo rompe la tail ricorsione. Perché?
+Perché essenzialmente fra l'attivation record della F e quella della G si insinua un altro
+blocco che serve per implementare lecezioni. E quindi non potete più riciclare il blocco
+della F e della G perché dovete metterci qualcosa in mezzo. E i linguaggi moderni infatti,
+e vedremo come fa Erlang, che già in questo è moderno, implementano una serie di variazioni
+del costutto e lecezioni, che sono molto complicati, qui semantica è molto complicata, che permettono
+appunto di controllare la tail ricorsione. Quindi sono variazioni sintattiche del costutto
+per andare a dire esattamente cosa è protetto, cosa non è protetto e così via in maniera
+da avere tail ricorsione anche in presenza delle cezioni.
+Prima ho detto scrivere funzioni che non sono tail ricorsive è il principale lavoro di chi scrive dei neofiti
+che scrivono linguaggi funzionali. Il 100% dei neofiti che scrivono linguaggi funzionali con lecezione
+sbagliano in presenza delle cezioni, perché proprio non è affatto banale. A quel punto ragionare la F
+non fa più niente, dopo aver fatto la G diventa complicato, perché ci sono degli effetti
+locali, vedremo, ve li spiegherò alla prossima lezione. Ok? Tutto chiaro, ci siete?
+Abbiamo tutto l'armamentario finalmente per capire la nostra complessità computazionale e la nostra funzione.
+Intanto di questa, quindi questo è il nostro Hello World, quando ricevo un messaggio, in questo caso questa
+CCBAL è una chiamata di coda oppure no? È l'ultima cosa che la funzione fa e il valore di tornare alla funzione
+è esattamente quello di chiamata o la chiamata? Sì, dopo CCBAL non faccio niente, l'avetane implicita
+dei linguaggi funzionali è una espressione e quella viene ritornata, quindi il valore della CCBAL, il risultato
+della CCBAL è quello che io stesso sto ricordando, quindi questa è una chiamata di coda. Idem, questa è una chiamata
+di coda. Idem, questa è una chiamata di coda. Quindi questa funzione è tre di così. Quindi questa funzione
+non usa spazio, è come se fosse un ciclo. Quindi questa funzione gira via per sempre, non termina via. Ok?
+Vediamo l'altro esempio, è la nostra search. Quindi vediamo la nostra insert. In questo caso non fa
+chiamate ricorsive e siamo a posto, quindi abbiamo detto di posta O di 1. Invece, Idem questo, invece in questo caso
+io ho delle chiamate ricorsive O su T1 o su T2. Quindi se voi vi immaginate il vostro albero, io sto scendendo
+dalla radice alla foglia e quindi sto facendo un certo numero di chiamate ricorsive. Queste chiamate ricorsive
+sono di coda oppure no? Dove sono? Aspetta che le devo trovare qua. Insert. Questa è una chiamata di coda
+o non è una chiamata di coda? Esatto, non è una chiamata di coda. Il valore di ritornato è un pezzettino del valore
+di ritornato. Quindi nessuna è una chiamata ricorsiva di coda, né questa né questa. Quindi vuol dire che ogni
+chiamata ricorsiva a questo punto mi costa O di 1, non O di 0. Quindi se io faccio un cammino intero radice foglia
+mi costa in spazio l'intero cammino radice foglia, in tempo da pure. Quindi conclusione, la insert non è
+una chiamata ricorsiva, in tempo mi costa O di, quindi cosa devo scrivere lì? Scusi, la search o l'insert? L'insert, ma di fatto sono uguali
+perché la search, no sono diverse scusa, l'insert. Quindi l'insert abbiamo detto tutte le chiamate ricorsive non sono di coda.
+Ok, quindi O di H, dove H è l'altezza dell'albevo, è in spazio anche, diciamo, dovuto interamente allo stack.
+Perché abbiamo detto tutto e adesso non stiamo locando niente, stiamo locando roba costante. Ok?
+Ho insistito, cosa devo scriverci? L'altezza dell'albevo va bene, perché in genere invece speciali altri anime rispondono a log di N.
+Non è log di N, è log di N se l'albevo è bilanciato, ricorda D'April. Io qua non ho nessun bilanciamento dell'albevo,
+l'albevo potrebbe essere totalmente bilanciato, quindi potrebbe essere O di N. Ok, guardiamo la search.
+Allora, la prima riga è tutta O di 1, perché per me c'è O di 1 e ha tutta O di 1. La seconda è O di 1 anche quella.
+In questi casi ho due chiamate ricorsive, sono di coda? Sì, stavolta sono chiamate ricorsive di coda.
+Quindi, in questo caso, la search è T ricursiva. Quanto mi costa in tempo?
+E' uguale, quindi è O di H, dove H è l'altezza dell'albevo. Quanto mi costa in spazio?
+Quanto mi costa in spazio?
+Benimato lo shift. Questa l'ho raccoltta sempre, ma l'ho raccoltta un'altra volta.
+Quindi, quando lo studente, ai vostri tempi, decide di richiesterci le implementazioni moderne di BI, c'è il BI originale, quello due puro dei tempi.
+Il BI è un elettromodale dove, quando lo stai inserendo, ogni singolo tasto ha un significato, tipo i busserifi, paste, etc.
+Shift, color, shift, senza lo shift, etc.
+Facciamo un progetto del gruppo, che è una esumerica, mi sembra, la vogliamo due mesi o no, va del genere.
+La sera prima vado a fare gli ultimi ritocchi al progetto, che allora è un unico file, perché il tool matematico prende l'unico file gigante.
+Mi resta shift, inserisco, per sbaglio, e quindi premo probabilmente la K al tempo, shift K, che voleva dire,
+cripta il file con una password che inserisci dopo, quindi io, ovviamente, stavo facendo tutto altro,
+quindi volevo fare K minuscolo, che aveva un altro significato, ho digitato ancora una password a caso, andando avanti,
+poi ho provato il BI, ho criptato il progetto, ho provato per mezz'ora a trovare la password, non ci sono riuscito.
+E quindi, notte e tempo, sono dovuto dare il progetto, perché avevo solo metto una vecchia copia salvata,
+e ancora ce l'ho lì, non sono mai riuscito a decryptarlo dopo anni, il qualsiasi gioia e dolore di BI.
+Quindi, in spazio, dicevamo, è O di 1. O di 1, perché le firmate ricorsive costano 0, se non 3 ricorsive,
+ma c'è un 1, perché abbiamo detto che questi due casi, per esempio, alloccano in spazio.
+Quindi, questa funzione è O di 1.
+Ok?
+Quindi, direi che per oggi possiamo ritenerci contenti, sapete i rudimenti, diciamo, della programmazione funzionale,
+e sapere quanto costa, poi ci faccio vedere.

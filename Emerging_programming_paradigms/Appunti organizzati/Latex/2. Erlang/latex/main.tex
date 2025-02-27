@@ -52,6 +52,7 @@ Tra i dati \textbf{atomici}, in Erlang troviamo:
     Quando viene creato questo tipo di attore speciale, gli viene assegnata una porta anziché un PID.
     \item \textbf{Atomi}, che si scrivono normalmente con lettere minuscole. L'idea è che un programma utilizzi un numero limitato di atomi, che verranno rappresentati in memoria come sequenze di bit efficienti.\\
     È possibile racchiudere un atomo contenente spazi tra apici singoli (ad esempio, \texttt{'hello world'}). Da notare che \texttt{'ciao' =:= ciao} restituisce \texttt{true}, poiché sono considerati lo stesso atomo.
+    \item \textbf{Caratteri}, anche se in realtà Erlang non ha un tipo carattere. Per invece rappresentare le stringhe viene utilizzata una lista di caratteri. Erlang controlla ogni lista se al suo interno ha valori che rientrano nei valori ASCII dei caratteri.
 \end{itemize}
 
 Passando ai dati \textbf{non atomici}, Erlang offre:
@@ -118,5 +119,160 @@ Un aspetto importante delle guardie in Erlang è che il linguaggio si assicura c
 
 In Erlang, le guardie possono contenere solo combinazioni di funzioni predefinite chiamate \textbf{BIF} (Built-In Functions).\\
 Questa restrizione rende il linguaggio delle guardie meno espressivo, il che può diventare problematico in casi complessi, come quando si desidera impedire l'attivazione di uno specifico caso in base a condizioni elaborate.
+
+\subsection*{Rappresentazione dei dati a run-time}
+A livello di codice macchina non esistono i tipi di dato. Tutti i dati sono sequenze di bit, in genere multipli di byte o di word, e le operazioni aritmetico-logiche della CPU manipolano questi bit senza attribuire loro un significato semantico.
+
+Il programmatore, quando scrive o legge un dato in memoria, lo interpreta in una determinata maniera. Di conseguenza, la stessa sequenza di bit nello stesso linguaggio di programmazione potrebbe rappresentare, a seconda del contesto, un carattere ASCII, un numero intero, un valore in virgola mobile, un puntatore, e a basso livello questa distinzione è completamente invisibile.
+
+Sono le funzioni che associano un'interpretazione al dato e il programmatore deve utilizzarle in modo coerente. Se, ad esempio, ho scritto una word impostando i bit con l'intenzione di rappresentare un numero intero, ma successivamente la utilizzo come un puntatore, il risultato sarà inevitabilmente errato.
+
+Per questo motivo è stato introdotto il concetto di \textbf{tipo}, che permette di controllare che il codice scritto dal programmatore si comporti correttamente.
+
+Il sistema di tipi è un'analisi modulare statica effettuata a compile-time per garantire certe proprietà del codice a run-time, proprietà che normalmente sarebbero indecidibili.
+
+Tipicamente, il sistema di tipi verifica che l'interpretazione del dato (dei bit) al momento della scrittura sia coerente con quella al momento della lettura. Molte funzioni implementate nei linguaggi di programmazione prevedono una specifica interpretazione del dato, e in quanto tali sono funzioni \textbf{monomorfe}. Monomorfo significa che queste funzioni operano correttamente solo se il dato in input ha esattamente una determinata interpretazione.
+
+Mentre molte operazioni richiedono una specifica interpretazione del dato per avere senso (ad esempio, la concatenazione di stringhe richiede che i bit in input rappresentino stringhe, e la somma di interi richiede che i bit rappresentino numeri interi), esistono alcune operazioni che, dal punto di vista logico, possono essere implementate su qualunque tipo di dato perché non dipendono dall'interpretazione dei dati. Queste operazioni sono:
+\begin{itemize}
+    \item Allocare
+    \item Deallocare
+    \item Spostare
+    \item Copiare\vspace{8pt}
+\end{itemize}
+Questo concetto si estende anche al passaggio di una funzione come input a un'altra funzione, poiché in questo caso si sta semplicemente copiando l'indirizzo della funzione nel punto in cui la funzione ricevente si aspetta di trovarlo, sia nei registri sia sullo stack.
+
+Una funzione che non è legata a una particolare interpretazione o tipo diventa una funzione polimorfa, cioè può ricevere dati di qualunque tipo, interpretandoli liberamente pur mantenendo la propria semantica.
+
+Un esempio di funzione polimorfa è il seguente (scritto in linguaggio OCaml):\\
+\texttt{let swap (x, y) = (y, x);;} In questo caso \texttt{x} e \texttt{y} possono essere qualunque tipo di dato.
+
+Questa forma di polimorfismo prende il nome di \textbf{polimorfismo uniforme}, in quanto è uniforme rispetto all'interpretazione dei dati. In altri linguaggi assume nomi diversi, come \textit{Generics} in Java e \textit{Template} in C++, dove però il polimorfismo deve essere dichiarato esplicitamente.
+
+In Erlang non esiste un controllo a priori delle interpretazioni. In generale, i linguaggi di programmazione non tipati si presentano come linguaggi con polimorfismo uniforme implicito.
+
+Come menzionato in precedenza, le operazioni che non richiedono la conoscenza del tipo di dato sono allocazione, deallocazione, spostamento e copia. Tuttavia, per implementare queste quattro operazioni è necessario conoscere la \textit{lunghezza del dato}. La funzione \texttt{swap()} vista in precedenza cambia implementazione al variare della lunghezza dei dati da scambiare.
+
+Per risolvere questo problema è stato introdotto un concetto di \textbf{tipi} (distinto da quello precedente), il cui unico scopo è misurare la dimensione del dato.
+
+Quando si dichiara una funzione come swap in modo monomorfo, specificando esplicitamente i tipi (ad esempio, scambiare uno short int con un long int), il compilatore può generare il codice appropriato con le istruzioni assembly corrette per quei tipi specifici.
+
+Ma cosa accade in caso di polimorfismo uniforme? In tal caso, il codice deve poter operare su qualunque tipo di dato, permettendo di scambiare, ad esempio, un intero con una stringa o una stringa con un valore in virgola mobile. Questo rappresenta una sfida implementativa: come può il codice generato gestire lo spostamento in memoria di quantità di dati di dimensioni differenti utilizzando le istruzioni assembly appropriate? Questo problema è comune a tutti i linguaggi con polimorfismo uniforme e a quelli non tipati, dove è possibile passare qualsiasi tipo di dato in qualsiasi contesto.
+
+Come si implementano, quindi, funzioni polimorfe in grado di gestire dati di dimensioni differenti? Esistono tre tecniche principali.\vspace{14pt}\\
+\textbf{Monomorfizzazione (C++, Rust, ...)}\\
+Questa tecnica impone i seguenti vincoli:
+\begin{itemize}
+    \item Il linguaggio deve essere necessariamente tipato.
+    \item Dato un programma, deve essere possibile calcolare un insieme \textit{finito} di tipi sui quali ogni funzione opererà.
+\end{itemize}
+Un esempio di programma che non rispetta la seconda condizione può essere (in pseudo sintassi Erlang):
+
+\texttt{f(0, T) -> \{leaf, T\} ;}
+
+\texttt{f(N, T) -> \{node, f(N - 1, \{T, T\}), T, f(N - 1, \{T, T\})\}.}
+
+Questo esempio illustra la \textbf{ricorsione polimorfa} (polymorphic recursion), dove i tipi cambiano ad ogni chiamata ricorsiva, violando il secondo vincolo. Un sistema di tipi standard non permetterebbe di dichiarare questa funzione.
+
+L'implementazione della monomorfizzazione consiste nel compilare la funzione polimorfa una volta per ciascuna combinazione di tipi su cui verrà utilizzata.
+
+I vantaggi di questo approccio sono:
+\begin{itemize}
+    \item Non vengono imposti vincoli sulla rappresentazione dei dati.
+    \item Si possono applicare ottimizzazioni specifiche per ciascun tipo di dato.
+\end{itemize}
+
+Gli svantaggi sono:
+\begin{itemize}
+    \item È limitato ai casi in cui i vincoli sono soddisfatti.
+    \item Comporta tempi di compilazione maggiori.
+    \item Aumenta la dimensione dell'eseguibile, non solo per la duplicazione del codice, ma anche perché ogni istanza della funzione riceve un nuovo nome composto dal nome originale più i tipi specifici, attraverso un processo chiamato \textbf{name mangling}.\\
+\end{itemize}
+
+\textbf{Rappresentazione uniforme dei dati (Erlang, OCaml, Haskell, Java?, ...)}\\
+L'idea fondamentale di questo approccio è rappresentare tutti i dati con una word, la cui dimensione dipende dall'architettura del processore. Una word corrisponde alla dimensione necessaria per contenere un puntatore in memoria, garantendo così di poter memorizzare almeno un indirizzo.
+
+I tipi di dati che occupano meno bit di una word sprecano spazio. Questi sono chiamati \textbf{value types} o \textbf{unboxed}.
+
+I tipi di dati di dimensione maggiore di una word vengono allocati sullo \textit{Heap} e sono rappresentati tramite un puntatore. Questi sono chiamati \textbf{reference types} o \textbf{boxed}.
+
+I vantaggi di questo approccio sono:
+\begin{itemize}
+    \item Tempi di compilazione ridotti e dimensione dell'eseguibile contenuta.
+\end{itemize}
+
+Gli svantaggi sono:
+\begin{itemize}
+    \item Introduce indirezioni, con conseguente riduzione dell'efficienza dovuta ai continui accessi ai dati.\\
+\end{itemize}
+Un esempio è l'albero binario di ricerca utilizzato durante il corso:
+\begin{center}
+    \texttt{Tree K V ::= \{leaf, K, V\} | \{node, Tree K V, K, Tree K V\}}    
+\end{center}
+
+con un dato di esempio \texttt{T = \{node, \{leaf, 4, true\}, 5, \{leaf, 6, false\}\}}
+
+Questo dato non può essere contenuto in una singola word, quindi si accede a T tramite un puntatore allo Heap. Anche le strutture \textit{leaf} non entrano in una singola word, quindi a loro volta punteranno ad altre sequenze di bit che rappresentano i valori/atomi in esse contenuti. Questa è la stessa logica utilizzata in C per implementare strutture dati come liste, alberi o costrutti simili.\vspace{14pt}
+
+\textbf{"Alla C" (Rust in casi residuali)}\\
+In C, per dichiarare una funzione polimorfa, si accede ai dati in input/output tramite puntatori. Il puntatore viene dichiarato di tipo \texttt{void*} (ignorando l'informazione sul tipo di dato puntato). La funzione riceve in input coppie composte da un puntatore (\texttt{void*}) e dalla dimensione del dato (\texttt{size\_t}).
+
+Questo approccio non presenta particolari vantaggi. Gli svantaggi sono:
+\begin{itemize}
+    \item A run-time è necessario preservare e passare esplicitamente la dimensione dei dati.
+    \item Richiede intervento manuale da parte del programmatore (in C).
+    \item È inefficiente, poiché il codice contiene cicli che operano sulle dimensioni dei dati.
+\end{itemize}
+
+\subsection*{Gestione della memoria}
+In Erlang è presente un \textbf{garbage collector} automatico, che si occupa di recuperare la memoria quando non viene più utilizzata.
+
+Per fare ciò, il garbage collector esamina i dati in uso nel programma e deve determinare quali sequenze di bit rappresentano puntatori a aree di memoria utilizzate e quali no. La stessa sequenza di bit potrebbe essere interpretata come un puntatore o come un valore di altro tipo.
+
+Si pone quindi il problema di distinguere se una word è stata concepita come un puntatore o come un altro tipo di dato.
+
+Per risolvere questa problematica, in linguaggi come Erlang, OCaml, Haskell, e altri che non utilizzano la monomorfizzazione, si impiegano dei \textbf{tag}, utilizzando un bit della word per effettuare questa distinzione.
+
+Quale bit viene scelto per fare questa distinzione? Vediamo alcune possibilità, con i relativi pro e contro:
+\begin{itemize}
+    \item \textbf{Primo bit (bit più significativo)}: non è una soluzione praticabile, poiché impedirebbe di indirizzare il 50\% superiore della memoria.
+    \item \textbf{Ultimo bit (bit meno significativo)}: anche in questo caso si perde l'accesso al 50\% della memoria, ma a celle alterne. Questo causa una frammentazione della memoria, poiché si sprecano word quando un dato allocato sullo Heap termina in posizione pari, costringendo il dato successivo a iniziare due celle dopo.
+    
+    Per accedere, ad esempio, alla terza word di un dato boxed puntato dal puntatore \texttt{p}, si accede come \texttt{*(p+3)}
+
+    È comunque una soluzione più accettabile rispetto all'utilizzo del bit più significativo.
+
+    Un aspetto importante da notare è che per indicare i puntatori si utilizza il valore \texttt{0} nell'ultimo bit, non il valore \texttt{1}. Questo perché, usando \texttt{1}, si andrebbe ad accedere a indirizzi non allineati in memoria, mentre gli indirizzi che terminano con \texttt{0} possono essere allineati.
+    
+    Un dato è considerato allineato quando il suo indirizzo di memoria è un multiplo della sua dimensione. Ad esempio, un dato di 4 byte è allineato quando il suo indirizzo è divisibile per 4.
+
+    Un ulteriore problema riguarda l'implementazione delle operazioni aritmetico-logiche. I numeri vengono rappresentati all'interno del payload, quindi ad esempio \texttt{00000001} rappresenta il valore \texttt{0}, non \texttt{1}.\\
+    Questo comporta difficoltà nell'implementazione delle operazioni, che richiedono controlli aggiuntivi per gestire questa caratteristica. L'implementazione delle operazioni aritmetico-logiche diventa così più costosa e complica l'interazione con altri linguaggi che non hanno questa problematica.\\
+\end{itemize}
+
+Se un linguaggio di programmazione, come Erlang:
+\begin{itemize}
+    \item Ammette tipi di dato diversi.
+    \item Permette confronti tra valori di tipi diversi, aspettandosi \texttt{false} come risultato.
+\end{itemize}
+Allora non è possibile riutilizzare le stesse sequenze di bit per rappresentare tipi di dato differenti.
+
+Ad esempio, in OCaml/Haskell non vale la seconda assunzione, ed è quindi possibile riutilizzare le stesse sequenze.
+
+Per distinguere i diversi tipi di dato, si possono adottare diverse strategie in base alla natura del dato (boxed o unboxed):
+\begin{itemize}
+    \item Caso boxed:
+    \begin{itemize}
+        \item Il dato è formato da word consecutive sullo Heap.
+        \item Si aggiunge una prima word che contiene un tag per distinguere i diversi tipi di dato.\vspace{10pt}\\
+        Nota: la word con il tag generalmente contiene anche la dimensione del dato sullo Heap, informazione utile per la garbage collection.
+    \end{itemize}
+    \item Caso unboxed:
+    \begin{itemize}
+        \item Si utilizzano i bit meno significativi per memorizzare il tag.
+        \item Si impiegano tag a lunghezza variabile, in base alla dimensione del payload da salvare. Nessun tag deve essere suffisso di un altro.\vspace{10pt}\\
+        Osservazione: per avere più spazio disponibile per il payload di un tipo specifico, gli si assegna un tag corto. Al contrario, per tipi con payload più piccoli si possono utilizzare tag più lunghi.
+    \end{itemize}
+\end{itemize}
 
 \end{document}

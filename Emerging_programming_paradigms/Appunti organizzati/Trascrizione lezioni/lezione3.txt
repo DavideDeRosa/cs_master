@@ -94,11 +94,13 @@ spazio prima di tutto e poi in tempo la gestione della ricorsione, perché facen
 di chiamate ricorsive, mentre invece nel codice magari imperativo potevo fare per esempio dei
 cicli, quindi devo capire quanto mi costa dal punto di vista dello spazio questo fenomeno di
 ricorsione, ok? Queste sono le domande a cui dovremmo cercare di rispondere, la lezione di oggi e in
-parte la lezione di domanda. Quindi partiamo innanzitutto dai dati, come vengono rappresentati
+parte la lezione di domanda. 
+
+Quindi partiamo innanzitutto dai dati, come vengono rappresentati
 i dati in Erlang, una prima osservazione stupidissima che vi è chiava a tutti, a livello di codice
 macchina non esistono i tipi di dato. Tutti i dati sono sequenze di bit, in genere multipli
-di byte o di lettura multipli di word, di parole e spesso volentieri le operazioni di ammettimento
-ecologico della CPU manipolano i bit ma non associano un significato a questi bit. A volte
+di byte, o addirittura multipli di word, e spesso e volentieri le operazioni artimetico logiche
+della CPU manipolano i bit ma non associano un significato a questi bit. A volte
 sommano, sottraggono, quindi li interpretano come se fossero numerici per esempio, a volte
 dei referenze, come se possano dei puntatori, a volte non manipola il dato a bassissimo livello.
 E poi il programmatore che quando va a scrivere un dato in memoria, va a leggere un dato in memoria,
@@ -108,15 +110,17 @@ un carattere, un carattere ASCII, potrebbe rappresentare un numero sign on sign,
 essere un floating point, potrebbe essere un puntatore, e a basso livello questa cosa è
 assolutamente invisibile. Quindi sono le funzioni che associano un'interpretazione al dato e
 ovviamente il programmatore deve usare maniera coerente. Quindi se, per esempio, io ho scritto
-un award, quindi un settato di bit dell'award, con una certa interpretazione in mente, per esempio
+una word, quindi un settato di bit della word, con una certa interpretazione in mente, per esempio
 quello per me era la rappresentazione di un numero intero, se poi lo vado ad utilizzare la volta
 successiva con un puntatore, ovviamente il risultato sarà assolutamente errato, tipicamente porteranno
-qualche forma di spazio. Per questo motivo, storicamente è stato introdotto a certo punto
+qualche forma di spazio. 
+
+Per questo motivo, storicamente è stato introdotto a certo punto
 un certo concetto chiamato tipo, dopo vedremo un altro concetto chiamato tipo che è ortogonale ma
 collegato, un certo concetto chiamato tipo per controllare che il codice che il programmatore va
 a scrivere si comporti bene. Quindi il sistema di tipi, chi ha fatto con me il corso di fondamenti
-logici che ho spiegato in quel modo, il sistema di tipi è un'analisi modulare statica fatta con
-time per garantire certe proprietà del mio codice a un time, proprietà che normalmente sarebbero
+logici che ho spiegato in quel modo, il sistema di tipi è un'analisi modulare statica fatta a compile
+time per garantire certe proprietà del mio codice a run time, proprietà che normalmente sarebbero
 indecidibili, quindi per le quali è impossibile decidere staticamente se potremmo. Quindi io
 approssino queste proprietà con un sistema di tipi che mi può dire, per esempio, se il programma è
 ben tipato chiaramente non ci saranno certi problemi, se non lo è il problema potrebbe
@@ -148,8 +152,9 @@ per un dato analogo, potrei muovere il dato, per esempio spostarlo da un registr
 lo ripo o qualcosa del genere, o potrei copiare il dato. Tutte queste operazioni le faccio
 alle varie di bit, prendo i bit, li ricopio, li muovo, li sposto e non ho bisogno di sapere
 qual è l'interpretazione del dato. Queste sono le uniche operazioni che non necessitano di sapere
-l'interpretazione del dato, quindi allocare, dellocare, muovere, copiare. Notate che questo
-vuol dire anche passare in input un'altra funzione, perché quando io passo in input un dato
+l'interpretazione del dato, quindi allocare, dellocare, muovere, copiare. 
+
+Notate che questo vuol dire anche passare in input un'altra funzione, perché quando io passo in input un dato
 un'altra funzione, semplicemente lo sto copiando dove l'altra funzione si aspetta di trovare,
 nei registri o sullo stack. Quindi quando io scrivo una funzione in un linguaggio tippato che
 prende il dato e appunto fa solamente queste cose, lo butta via, lo copia, lo muove, eccetera,
@@ -201,7 +206,9 @@ alfa-beta, quindi una F parametrica in alfa-beta che ha tipo che so, alfa frecci
 beta, alfa-beta, qualcosa del genere. Quindi le parentesi angolose prendono in input, mi dicono che
 si hanno quantificato tutti i tipi alfa-beta. Poi in OCaml si usano l'alfavete così via, in C
 e così via si usano ts e rette maiuscole per indichare questa cosa. Ok? Doveva essere tutta
-roba che più o meno sapete. Domande fin qua? Ok. Perché vi ho raccontato questa roba sul
+roba che più o meno sapete. Domande fin qua? Ok. 
+
+Perché vi ho raccontato questa roba sul
 polimorfismo uniforme? Perché quando siete davanti a un linguaggio di formazione non tipato, come
 è per esempio Erlang. In Erlang io non ho un controllo a priori delle interpretazioni, quindi
 nulla mi vede in Erlang, descrivo una funzione che ha un input x, io lo interpreto come un 1 e poi
@@ -219,7 +226,9 @@ bisogno di sapere come interpreto la sequenza di bit, ma mi serve sapere qualcos
 di copiare il dato che avete preso in input da qualche altra parte. Che informazione vi
 serve per fare questa copia? A parte l'indirizzo di dove si trova il dato e l'indirizzo di
 dove ce lo voglio mettere. Vi serve un'altra informazione. Quanto lungo il dato? Quanto
-lungo il dato. La funzione swap che ho scritto prima prende due dati e gli scambio in memoria.
+lungo il dato. 
+
+La funzione swap che ho scritto prima prende due dati e gli scambio in memoria.
 Ma se devo scambiare due byte, due word, due long word o cose di via, il codice assembly
 che devo andare a generare è diverso. Quindi io ho bisogno per implementare questo genere
 di operazione di conoscere la dimensione. Come fare dei linguaggi di programmazione
@@ -264,7 +273,9 @@ dati differenti usando istruzioni assembler-correct. E questo problema esiste di
 funzioni polimotiche che devono lavorare su dati di dimensioni differenti, esiste in tutti
 i linguaggi di programmazione che hanno polimorfismo uniforme e anche in tutti i linguaggi di programmazione
 non ti parti perché per l'appunto li potete passare tutto a posto di tutto e quindi il
-problema della dimensione dei dati è concente. Ok? Chiavo il punto. Quindi la domanda che
+problema della dimensione dei dati è cocente. Ok? Chiavo il punto. 
+
+Quindi la domanda che
 dobbiamo porci è come facciamo a implementare funzioni polimorphe dove i dati possono avere
 dimensioni differenti. Esistono tre tecniche.
 Quindi, implementazione del polimorfismo uniforme. Esistono essenzialmente tre tecniche in uso

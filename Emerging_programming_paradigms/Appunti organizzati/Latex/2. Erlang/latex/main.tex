@@ -225,7 +225,7 @@ Questo approccio non presenta particolari vantaggi. Gli svantaggi sono:
 \end{itemize}
 
 \subsection*{Gestione della memoria}
-In Erlang è presente un \textbf{garbage collector} automatico, che si occupa di recuperare la memoria quando non viene più utilizzata.
+In Erlang è presente un \textbf{garbage collector automatico}, che si occupa di recuperare la memoria quando non viene più utilizzata.
 
 Per fare ciò, il garbage collector esamina i dati in uso nel programma e deve determinare quali sequenze di bit rappresentano puntatori a aree di memoria utilizzate e quali no. La stessa sequenza di bit potrebbe essere interpretata come un puntatore o come un valore di altro tipo.
 
@@ -233,9 +233,11 @@ Si pone quindi il problema di distinguere se una word è stata concepita come un
 
 Per risolvere questa problematica, in linguaggi come Erlang, OCaml, Haskell, e altri che non utilizzano la monomorfizzazione, si impiegano dei \textbf{tag}, utilizzando un bit della word per effettuare questa distinzione.
 
+\pagebreak
+
 Quale bit viene scelto per fare questa distinzione? Vediamo alcune possibilità, con i relativi pro e contro:
 \begin{itemize}
-    \item \textbf{Primo bit (bit più significativo)}: non è una soluzione praticabile, poiché impedirebbe di indirizzare il 50\% superiore della memoria.
+    \item \textbf{Primo bit (bit più significativo)}: non è una soluzione praticabile, poiché impedirebbe di indirizzare il 50\% (superiore o inferiore, in base al valore scelto tra \texttt{0} e \texttt{1}) della memoria.
     \item \textbf{Ultimo bit (bit meno significativo)}: anche in questo caso si perde l'accesso al 50\% della memoria, ma a celle alterne. Questo causa una frammentazione della memoria, poiché si sprecano word quando un dato allocato sullo Heap termina in posizione pari, costringendo il dato successivo a iniziare due celle dopo.
     
     Per accedere, ad esempio, alla terza word di un dato boxed puntato dal puntatore \texttt{p}, si accede come \texttt{*(p+3)}
@@ -271,8 +273,218 @@ Per distinguere i diversi tipi di dato, si possono adottare diverse strategie in
     \begin{itemize}
         \item Si utilizzano i bit meno significativi per memorizzare il tag.
         \item Si impiegano tag a lunghezza variabile, in base alla dimensione del payload da salvare. Nessun tag deve essere suffisso di un altro.\vspace{10pt}\\
-        Osservazione: per avere più spazio disponibile per il payload di un tipo specifico, gli si assegna un tag corto. Al contrario, per tipi con payload più piccoli si possono utilizzare tag più lunghi.
+        Osservazione: per avere più spazio disponibile per il payload di un tipo specifico, gli si assegna un tag corto. Al contrario, per tipi con payload più piccoli si possono utilizzare tag più lunghi.\\
     \end{itemize}
 \end{itemize}
 
+\subsection*{Rappresentazione dei payload}
+Come vengono rappresentate le sequenze di bit per i diversi tag?\\
+Per quanto riguarda interi, floating point e altri tipi numerici, viene utilizzata essenzialmente la rappresentazione standard (sebbene con un numero inferiore di bit), permettendo così di lavorare con le istruzioni aritmetico-logiche, tenendo sempre in considerazione il bit di controllo che influenza la gestione dei dati.
+
+Per i tipi di dati specifici (PID, Porte, ecc.) è il compilatore che determina come organizzare la sequenza di bit in modo appropriato.
+
+Il discorso è diverso per la rappresentazione degli atomi.\\
+Gli atomi sono un tipo di dato in cui l'unica proprietà rilevante è la loro identità. L'obiettivo principale è garantire che due atomi distinti vengano rappresentati da sequenze di bit diverse.
+Non possiedono altre proprietà: si vuole semplicemente associare a ciascun atomo una sequenza di bit univoca.
+
+Nei linguaggi di programmazione che supportano gli atomi esistono due modalità di rappresentazione differenti:
+\begin{itemize}
+    \item Linguaggi in cui l'insieme degli atomi è completamente noto a compile-time. L'unicità degli atomi rispetto all'insieme dei tipi è garantita (ogni atomo appartiene a uno e un solo tipo). Un esempio sono gli Algebraic Data Types in OCaml/Haskell e altri linguaggi funzionali.
+    
+    In questo caso, vengono assegnate rappresentazioni sequenziali agli atomi, eventualmente riutilizzandole per tipi diversi.
+    \item Linguaggi in cui gli atomi possono comparire senza essere dichiarati preventivamente. Questo può avvenire:
+    \begin{itemize}
+        \item Al momento del linking (Erlang, Prolog, OCaml). Un esempio tipico è quando due librerie A e B utilizzano ciascuna il proprio insieme di atomi. Al momento del linking è necessario effettuare l'unione dei due insiemi di atomi.
+        \item A run-time (Erlang). Ad esempio, quando un attore riceve messaggi da altri nodi potrebbe ricevere tipi di dati non conosciuti in precedenza.
+    \end{itemize}
+\end{itemize}
+
+In Erlang, Prolog, OCaml e linguaggi simili, atomi con lo stesso nome utilizzati da attori, moduli o librerie distinte \textbf{devono essere identificati} correttamente.
+
+Si pone quindi una sfida durante la compilazione o l'interpretazione: associare a ogni atomo una sequenza di bit in modo da rendere possibile il linking e il message passing rispettando l'identificazione univoca degli atomi.
+
+Alcune possibili soluzioni a questo problema sono:
+\begin{itemize}
+    \item Utilizzare per ogni atomo il suo valore hash (come in OCaml). 
+    
+    Questa soluzione presenta alcuni inconvenienti:
+    \begin{itemize}
+        \item Possibili conflitti di hash, rilevabili in fase di compilazione o di linkaggio. In questi casi è necessario modificare il codice, ad esempio di una libreria.
+        \item Non è particolarmente efficiente. Per implementare un case/switch occorre ricorrere a una sequenza di if-then-else.
+    \end{itemize}
+    \item Utilizzare sequenze consecutive di bit man mano che si incontrano nuovi atomi, mantenendo tabelle di associazione (nome atomo - sequenza di bit) che vengono scambiate tra i diversi nodi la prima volta che un messaggio contenente un nuovo atomo viene trasmesso (come in Erlang).
+    
+    Questa soluzione presenta alcuni svantaggi:
+    \begin{itemize}
+        \item Richiede la gestione di diverse tabelle di traduzione.
+        \item Necessita di tradurre ogni messaggio scambiato fra nodi diversi per ri-mappare le sequenze di bit degli atomi.
+    \end{itemize}
+
+    Quest'ultimo approccio è l'unico, tra i due presentati, che garantisce sempre la corretta funzionalità del sistema.
+\end{itemize}
+
+\subsection*{Pattern matching}
+Riprendiamo per chiarezza l'esempio già illustrato in precedenza:
+\begin{center}
+    \texttt{Tree K V ::= \{leaf, K, V\} | \{node, Tree K V, K, Tree K V\}}    
+\end{center}
+con un'ipotetica struttura \texttt{T = \{node, \{leaf, 4, true\}, 5, \{leaf, 6, false\}\}}
+
+\texttt{T} è un tipo di dato \textit{boxed}, troppo esteso per essere contenuto in una singola word. Una sua possibile rappresentazione grafica può essere:
+\begin{center}
+    \includegraphics[width=0.25\textwidth]{img/t.png}
+\end{center}
+Per ogni tipo di dato boxed, il primo valore indica la dimensione della struttura dati.
+
+Consideriamo ora una funzione che utilizza il pattern matching:
+\begin{center}
+    \texttt{f(\{\_, T1, 5, \{leaf, K, V\}\}) -> \{node, T1, 7, \{leaf, K, V\}\}}
+\end{center}
+Come viene compilato questo pattern?
+
+Prendiamo come riferimento la seguente funzione:
+\begin{center}
+    \texttt{[| pattern, p |]}
+\end{center}
+dove \texttt{pattern} rappresenta il pattern della funzione,\\
+\texttt{p} è il dato (equivalente a una word),\\
+e \texttt{[| .,. |]} è una funzione eseguita a tempo di compilazione (che genera codice).
+
+Esaminiamo i possibili casi di questa funzione:
+\begin{itemize}
+    \item \texttt{[| \_, p |] = }: non produce alcun codice.
+    \item \texttt{[| X, p |] = word X = p;}, viene quindi assegnata una word per il dato \texttt{p}.
+    
+    X è una nuova variabile. È importante notare che in Erlang, se si utilizza una variabile X già dichiarata o assegnata in un pattern, si intende il \textbf{valore} della variabile stessa.
+    \item \texttt{[| k, p |] = if(p != k) return -1;}, dove \texttt{k} è una costante di un tipo atomico.
+    \item \begin{verbatim}
+[| P1 = P2, p |] =
+    [| P1, p[1] |]
+    [| P2, p[2] |]
+\end{verbatim}
+    \item \begin{verbatim}
+[| P1, ..., Pn, p |] = 
+
+    if(is_unboxed(p)) return -1;
+    if(p[0].length != n) return -1;
+    [| P1, p[1] |] 
+    ...
+    [| Pn, p[n] |]
+\end{verbatim}
+\vspace{5pt}
+\end{itemize}
+
+Riprendendo la struttura T precedente 
+\begin{center}
+    \texttt{f(\{\_, T1, 5, \{leaf, K, V\}\}) -> \{node, T1, 7, \{leaf, K, V\}\}}
+\end{center}
+il codice compilato sarà:
+\begin{verbatim}
+    if(is_unboxed(T)) return -1;
+    if(T[0].length != 4) return -1;
+    word T1 = T[2];
+    if(5 != T[3]) return -1;
+    if(is_unboxed(T[4])) return -1;
+    if(T[4][0].length != 3) return -1;
+    if(leaf != T[4][1]) return -1;
+    word K = T[4][2];
+    word V = T[4][3];
+\end{verbatim}
+
+Il costo computazionale del pattern matching è \textbf{O(n)} sia in spazio che in tempo, dove n rappresenta la lunghezza del pattern.
+
+Il costo computazionale dell'allocazione del risultato è \textbf{O(n)} sia in spazio che in tempo, dove n è la lunghezza dell'espressione utilizzata nell'output.
+
+In pratica, questi costi sono \textbf{O(1)} a run-time poiché n \textbf{non} è un parametro dell'input a run-time.
+
+Ogni variabile che ha catturato un tipo di dato boxed ha generato \textbf{sharing}, condividendo il dato attraverso il suo puntatore. Questo meccanismo non causa problemi se e solo se il linguaggio di programmazione non consente mutabilità dello Heap.\vspace{14pt}\\
+Nei linguaggi che supportano nativamente pattern matching profondi (Erlang/OCaml/Haskell), durante la compilazione delle dichiarazioni di funzioni \textbf{non} si compilano i pattern uno alla volta come spiegato finora.
+
+Un esempio può essere:
+\begin{center}
+    \texttt{f(\{ node, \{ node, T1, K1, T2 \}, K, \{leaf, \_, \_\} \}) when K1 < K -> ... ;}
+
+    \texttt{f(\{ leaf, \_, 0, \_ \}) -> ... ;}
+
+    \texttt{f(\{ node, \{ node, T1, K1, T2 \}, K, \{node, T3, T4\} \}) -> ... ;}
+\end{center}
+Vogliamo ora compilare questo codice in modo efficiente.
+
+La semantica del linguaggio stabilisce che viene utilizzato il primo pattern in ordine che corrisponde all'input. Tuttavia, questo approccio non è ottimale dal punto di vista computazionale.
+
+Si consideri l'invocazione di \texttt{f(\{node, \{node, .., 3, ..\}, 5, \{node, .., .., ..\} \})}
+
+Dopo aver testato il primo pattern, se dimenticassimo tutto e passassimo a testare il secondo e poi il terzo, ripeteremmo operazioni già eseguite.
+
+Non possiamo permutare i pattern per ottenere un albero di decisioni più efficiente, perché altrimenti non manterremmo l'ordine corretto di valutazione.
+
+Per risolvere questo problema si utilizza un automa a stati finiti modificato, dove ogni stato dell'automa codifica l'informazione già acquisita sull'input.
+
+Con questo approccio, la complessità diventa \textbf{sub-lineare} rispetto alla somma delle lunghezze dei pattern.
+
+\subsection*{Ricorsione}
+Il principio fondamentale è che a run-time viene mantenuto uno \textbf{Stack} di \textbf{Record di Attivazione} per ogni chiamata di funzione. Per convenzione, lo Stack cresce verso il basso.\\
+Un RA (record di attivazione) contiene:
+\begin{itemize}
+    \item Variabili locali
+    \item Parametri della funzione
+    \item Valore dei registri salvati
+    \item Indirizzo del valore di ritorno (dove memorizzare l'output)
+    \item Indirizzo di ritorno
+\end{itemize}
+
+Il costo in spazio e in tempo di una chiamata di funzione è \textbf{O(1)}.
+
+Ipotizziamo uno scenario in cui si stia eseguendo una funzione \texttt{f()} e viene invocata una funzione \texttt{g()}. Il record di attivazione di \texttt{f()} deve contenere \textbf{tutta (e sola)} l'informazione necessaria per \textbf{completare} l'esecuzione di \texttt{f()} dopo che \texttt{g()} sarà terminata.\\
+In questo caso, non tutte le informazioni contenute nel record di attivazione di \texttt{f()} sono necessarie dopo la chiamata di \texttt{g()}.
+
+Un esempio di questo caso può essere:
+
+\begin{verbatim}
+f(int x, int y, int p) {
+    int z, w;
+    ...
+    g();
+    p = y * z;
+    return p + p;
+}
+\end{verbatim}
+
+Il record di attivazione di \texttt{f} contiene:
+\begin{verbatim}
+*w
+z
+p
+y
+*x
+REGISTRI
+RETURN VALUE
+RETURN ADDRESS
+\end{verbatim}
+dove le variabili contrassegnate con * indicano variabili che non sono più necessarie dopo un certo punto dell'esecuzione, come si evince dal codice della funzione.
+
+L'ottimizzazione consiste nel rimuovere le variabili non più necessarie dallo stack. Prima di invocare \texttt{g()}, lo stack pointer viene decrementato per liberare lo spazio occupato da \texttt{w}, ormai non più necessaria.
+
+Inoltre, mediante un'analisi statica, è possibile determinare che sia più conveniente posizionare \texttt{x} subito dopo \texttt{w} nel record di attivazione, in modo da rilasciare anche lo spazio occupato da \texttt{x}.
+
+Prolog, ad esempio, implementa sistematicamente queste ottimizzazioni.\vspace{14pt}\\
+Esaminiamo ora un caso limite di questo approccio, definito \textbf{Tail Calls} (chiamate di coda).
+
+Definizione: una chiamata a \texttt{g()} all'interno di \texttt{f()} è considerata di coda se e solo se:
+\begin{itemize}
+    \item L'unica istruzione eseguita \textbf{dopo} la chiamata a \texttt{g()} è un'istruzione di return.
+    \item Il valore restituito dalla funzione \texttt{f()} è \textbf{esattamente} il valore restituito dalla funzione \texttt{g()}.
+\end{itemize}
+
+Quando una chiamata è identificata come chiamata di coda, viene compilata come:
+\begin{verbatim}
+pop(registri, variabili locali);
+push(parametri attuali della g);
+JUMP(codice della g);
+\end{verbatim}
+La prima parte del record di attivazione della funzione \texttt{g()} coincide con la prima parte del record di attivazione della funzione \texttt{f()}.
+
+Una chiamata di coda, quando è implementata la \textbf{Tail Call Optimization}, ha un costo di \textbf{O(1)} in tempo e \textbf{"O(0)"} in spazio (poiché viene riutilizzato il record di attivazione).
+
+Un'ulteriore definizione, più diffusa ma meno precisa, è la seguente: una funzione \texttt{f()} si definisce \textbf{Tail Ricorsiva} se e solo se tutte le sue chiamate ricorsive sono chiamate di coda.
 \end{document}

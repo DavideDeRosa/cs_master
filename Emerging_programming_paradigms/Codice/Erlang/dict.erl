@@ -49,6 +49,9 @@ search(K, {node, _, _, T2}) -> search(K, T2).
 % dict:search(7, { node, { leaf, 2, anna }, 4, { leaf, 5 , bruno} })., 
 % con esito not_found
 %
+% La search è tail ricorsiva. Il suo costo è:
+% - in tempo O(h), dove h è l'altezza dell'albero
+% - in spazio O(1)
 %
 % Restituisco in output una copia dell'input dove ho cambiato l'associazione
 % chiave-valore oppure ho inserito una chiave.
@@ -56,8 +59,8 @@ search(K, {node, _, _, T2}) -> search(K, T2).
 
 insert(K, V, {leaf, K2, _}) when K =:= K2 -> {leaf, K, V} ;
 
-insert(K, V, {leaf, K2, V2}) when K =< K2 -> {node, {leaf, K, V}, K, {leaf, K2, V2}} ;
-insert(K, V, {leaf, K2, V2}) -> {node, {leaf, K2, V2}, K2, {leaf, K, V}} ;
+insert(K, V, {_, K2, _} = T2) when K =< K2 -> {node, {leaf, K, V}, K, T2} ;
+insert(K, V, {_, K2, _} = T2) -> {node, T2, K2, {leaf, K, V}} ;
 
 insert(K, V, {node, T1, K2, T2}) when K =< K2 -> {node, insert(K, V, T1), K2, T2} ;
 insert(K, V, {node, T1, K2, T2}) -> {node, T1, K2, insert(K, V, T2)}.
@@ -77,3 +80,7 @@ insert(K, V, {node, T1, K2, T2}) -> {node, T1, K2, insert(K, V, T2)}.
 % T4 = dict:insert(7, pap, T3)., 
 % che restituisce {node,{node,{leaf,1,pluto},1,{leaf,2,pippo}},2,{leaf,7,pap}},
 % modificando il valore del nodo con valore 7 (da (7, ciao) a (7, pap)).
+%
+% La insert NON è tail ricorsiva. Il suo costo è:
+% - in tempo O(h), dove h è l'altezza dell'albero
+% - in spazio O(h), dove h è l'altezza dell'albero (dovuto interamente allo stack)

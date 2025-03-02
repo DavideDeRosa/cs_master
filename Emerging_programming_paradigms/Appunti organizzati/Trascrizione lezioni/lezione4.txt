@@ -376,6 +376,8 @@ No, no, no.
 Il servizio FeelsGood!
 Va bene!
 il accidentally
+
+
 Adesso che sappiamo
 come sono presentati i dati in memoria
 possiamo chiederci come viene implementato

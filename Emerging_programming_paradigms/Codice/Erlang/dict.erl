@@ -1,5 +1,5 @@
 -module(dict).
--export([search/2, insert/3]).
+-export([search/2, insert/3, search_val/2, search_val_aux/2, search_val2/2]).
 
 % Alberi binari di ricerca con chiavi nei nodi interni e coppie 
 % chiavi-payload nelle foglie
@@ -84,3 +84,32 @@ insert(K, V, {node, T1, K2, T2}) -> {node, T1, K2, insert(K, V, T2)}.
 % La insert NON è tail ricorsiva. Il suo costo è:
 % - in tempo O(h), dove h è l'altezza dell'albero
 % - in spazio O(h), dove h è l'altezza dell'albero (dovuto interamente allo stack)
+%
+%
+% search_val(V, T) restituisce { found, K } se K è associata a V in T, not_found altrimenti
+
+search_val(V1, {leaf, K, V2}) when V1 =:= V2 -> {found, K} ;
+search_val(_, {leaf, _, _}) -> not_found ; 
+
+search_val(V, {node, T1, _, T2}) -> 
+    case search_val(V, T1) of
+        {found, _} = Res -> Res ;
+        not_found -> search_val(V, T2)
+    end.
+
+% search_val_aux(V, T) solleva { found, K } se K è associata a V in T, not_found altrimenti
+
+search_val_aux(V1, {leaf, K, V2}) when V1 =:= V2 -> throw({found, K}) ;
+search_val_aux(_, {leaf, _, _}) -> not_found ; 
+
+search_val_aux(V, {node, T1, _, T2}) -> 
+    search_val_aux(V, T1),
+    search_val_aux(V, T2).
+
+% search_val2(V, T) restituisce { found, K } se K è associata a V in T, not_found altrimenti
+search_val2(K, T) -> 
+    try
+        search_val_aux(K, T)
+    catch
+        {found, _} = R -> R
+    end.

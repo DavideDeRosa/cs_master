@@ -8,6 +8,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{titlesec}
 \usepackage{parskip}
+\usepackage{tcolorbox}
 
 \titleformat{\section}
 {\LARGE\bfseries}{\thesection}{1em}{}
@@ -379,17 +380,19 @@ Riprendendo la struttura T precedente
     \texttt{f(\{\_, T1, 5, \{leaf, K, V\}\}) -> \{node, T1, 7, \{leaf, K, V\}\}}
 \end{center}
 il codice compilato sarà:
+\begin{tcolorbox}
 \begin{verbatim}
-    if(is_unboxed(T)) return -1;
-    if(T[0].length != 4) return -1;
-    word T1 = T[2];
-    if(5 != T[3]) return -1;
-    if(is_unboxed(T[4])) return -1;
-    if(T[4][0].length != 3) return -1;
-    if(leaf != T[4][1]) return -1;
-    word K = T[4][2];
-    word V = T[4][3];
+if(is_unboxed(T)) return -1;
+if(T[0].length != 4) return -1;
+word T1 = T[2];
+if(5 != T[3]) return -1;
+if(is_unboxed(T[4])) return -1;
+if(T[4][0].length != 3) return -1;
+if(leaf != T[4][1]) return -1;
+word K = T[4][2];
+word V = T[4][3];
 \end{verbatim}
+\end{tcolorbox}
 
 Il costo computazionale del pattern matching è \textbf{O(n)} sia in spazio che in tempo, dove n rappresenta la lunghezza del pattern.
 
@@ -440,6 +443,7 @@ In questo caso, non tutte le informazioni contenute nel record di attivazione di
 
 Un esempio di questo caso può essere:
 
+\begin{tcolorbox}
 \begin{verbatim}
 f(int x, int y, int p) {
     int z, w;
@@ -449,6 +453,7 @@ f(int x, int y, int p) {
     return p + p;
 }
 \end{verbatim}
+\end{tcolorbox}
 
 Il record di attivazione di \texttt{f} contiene:
 \begin{verbatim}
@@ -477,14 +482,228 @@ Definizione: una chiamata a \texttt{g()} all'interno di \texttt{f()} è consider
 \end{itemize}
 
 Quando una chiamata è identificata come chiamata di coda, viene compilata come:
+\begin{tcolorbox}
 \begin{verbatim}
 pop(registri, variabili locali);
 push(parametri attuali della g);
 JUMP(codice della g);
 \end{verbatim}
+\end{tcolorbox}
 La prima parte del record di attivazione della funzione \texttt{g()} coincide con la prima parte del record di attivazione della funzione \texttt{f()}.
 
 Una chiamata di coda, quando è implementata la \textbf{Tail Call Optimization}, ha un costo di \textbf{O(1)} in tempo e \textbf{"O(0)"} in spazio (poiché viene riutilizzato il record di attivazione).
 
 Un'ulteriore definizione, più diffusa ma meno precisa, è la seguente: una funzione \texttt{f()} si definisce \textbf{Tail Ricorsiva} se e solo se tutte le sue chiamate ricorsive sono chiamate di coda.
+
+\subsection*{Eccezioni}
+Fino ad ora, uno \textbf{stack frame} è sempre stato equivalente ad un \textbf{record di attivazione}.\\
+Con l'introduzione delle eccezioni, uno stack frame può corrispondere a un record di attivazione oppure ad un \textbf{record try catch}.
+
+All'interno di un record try catch troviamo un \textbf{puntatore al codice catch} ed un \textbf{tag "record try catch"}.
+
+Un record di attivazione, invece, contiene i campi standard discussi in precedenza e un \textbf{tag "record di attivazione"}.
+
+\pagebreak
+
+Cosa accade quando viene eseguita una throw(E)? Ecco una possibile implementazione in pseudo-codice:
+\begin{tcolorbox}
+\begin{verbatim}
+throw(E) {
+ finished = false;
+ while(!finished){
+    while(Stack[0].TAG != "record try-catch") Stack.pop();
+
+    addr = Stack[0].indirizzo_codice_catch
+    Stack.pop();
+    case CALL addr(E) of
+      {catched, V} -> finished = true; V
+      not_catched -> nothing
+ }
+}
+\end{verbatim}
+\end{tcolorbox}
+\vspace{8pt}
+Nota: a basso livello, il codice dopo il catch analizza le varie eccezioni e:
+\begin{itemize}
+    \item Se è in grado di gestirla, restituisce \texttt{\{catched, E\}} per un qualche valore \texttt{E}, oppure esegue un'altra \texttt{throw()} (in tal caso andrebbe modificato lo pseudo-codice precedente).
+    \item Se non è in grado di gestirla, restituisce \texttt{not\_catched}.
+\end{itemize}
+\vspace{10pt}
+Osserviamo ora un esempio di codice Erlang:
+\begin{tcolorbox}
+\begin{verbatim}
+cc(Bal) ->
+ try
+  receive
+    print -> io:format("Il balance è ~p ~n", [Bal]), cc(Bal) ;
+                                                     ^^^^^^^
+                                                chiamata non di coda
+    {put, N} -> cc(Bal+N) ;
+    {tax, N} -> cc(Bal / N) ;
+    {get, PID} -> PID ! Bal, cc(Bal) ;
+    exit -> ok
+  catch
+   error:_ -> cc(Bal)               % gestisco la divisione per zero
+              ^^^^^^
+          chiamata di coda
+  end
+ end.
+\end{verbatim}
+\end{tcolorbox}
+\vspace{8pt}
+In questo esempio, l'obiettivo è gestire la divisione per zero che può verificarsi durante il pattern matching sulla clausola \texttt{tax}.
+
+È necessario quindi aggiornare la definizione di chiamata di funzione di coda.\\
+\\Una chiamata di funzione è considerata di coda quando:
+\begin{itemize}
+    \item L'unica istruzione eseguita \textbf{dopo} la chiamata a \texttt{g()} è un'istruzione di return.
+    \item Il valore restituito dalla funzione \texttt{f()} è \textbf{esattamente} il valore restituito dalla funzione \texttt{g()}.
+    \item Non è contenuta all'interno della parte valutativa di un blocco \texttt{try ... catch} (ovvero non è protetta).
+\end{itemize}
+\vspace{8pt}
+Vediamo ora come aggiornare il codice in una versione tail-ricorsiva:
+\begin{tcolorbox}
+\begin{verbatim}
+cc(Bal) ->
+  case
+   try
+    receive
+      print -> io:format("Il balance è ~p ~n", [Bal]), {recur, Bal} ;
+      {put, N} -> {recur, Bal+N} ;
+      {tax, N} -> {recur, Bal / N} ;
+      {get, PID} -> PID ! Bal, {recur, Bal} ;
+      exit -> {result, ok}
+   catch
+    error:_ -> {recur, Bal}         % gestisco la divisione per zero
+   end
+  of
+   {result, R} -> R ;
+   {recur, Bal} -> cc(Bal) ;        % tail ricorsiva!
+ end.
+\end{verbatim}
+\end{tcolorbox}
+\vspace{8pt}
+In questo modo attiviamo l'ottimizzazione della tail-ricorsione.
+
+Una possibile riscrittura della struttura del codice (zucchero sintattico) può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+try
+  E                                 % codice protetto
+of
+  p1 -> c1 ;                        % codice NON protetto
+  ...                               % che fa match con il risultato di E
+  pn -> cn ;
+catch
+ .... ->  ....                      % codice non protetto
+\end{verbatim}
+\end{tcolorbox}
+
+\pagebreak
+
+Applicando questa struttura al codice precedente otteniamo:
+\begin{tcolorbox}
+\begin{verbatim}
+cc(Bal) ->
+ try
+  receive
+    print -> io:format("Il balance è ~p ~n", [Bal]), {recur, Bal} ;
+    {put, N} -> {recur, Bal+N} ;
+    {tax, N} -> {recur, Bal / N} ;
+    {get, PID} -> PID ! Bal, {recur, Bal} ;
+    exit -> {result, ok}
+ of
+  {result, R} -> R ;
+  {recur, Bal} -> cc(Bal) ;         % tail ricorsiva!
+ catch
+  error:_ -> {recur, Bal}           % gestisco la divisione per zero
+ end.
+\end{verbatim}
+\end{tcolorbox}
+\vspace{14pt}
+È importante notare che Erlang non è un linguaggio completamente puro.
+
+Un \textbf{linguaggio di programmazione puro} è un linguaggio che aderisce rigorosamente a un paradigma di programmazione specifico senza deviazioni. Generalmente, il termine si riferisce ai linguaggi funzionali puri, che rispettano il modello della programmazione funzionale senza effetti collaterali. Le caratteristiche principali sono:
+\begin{itemize}
+    \item \textbf{Assenza di effetti collaterali}: le funzioni non modificano lo stato globale o variabili esterne. Il risultato di una funzione dipende esclusivamente dai suoi input.
+    \item \textbf{Trasparenza referenziale}: una funzione restituisce sempre lo stesso output per gli stessi input, indipendentemente dal contesto di esecuzione.
+    \item \textbf{Immutabilità dei dati}: le variabili non possono essere modificate dopo la loro assegnazione. Si utilizzano strutture dati immutabili.
+    \item \textbf{Lazy evaluation}: le espressioni vengono valutate solo quando necessario, migliorando efficienza e modularità.
+    \item \textbf{Funzioni di prima classe e di ordine superiore}: le funzioni possono essere passate come parametri e restituite come valori.
+    \item \textbf{Composizione funzionale}: le funzioni possono essere combinate per creare nuove funzioni senza necessità di strutture di controllo imperative.
+\end{itemize}
+Un esempio paradigmatico di linguaggio puro è \textit{Haskell}.\vspace{14pt}\\
+Erlang permette l'accesso al file system tramite specifici costrutti. Naturalmente, una volta aperto un file, sarà necessario chiuderlo al termine del suo utilizzo. Un'eccezione potrebbe interrompere un'esecuzione corretta e causare problemi.
+
+\pagebreak
+
+Un possibile codice per la gestione di un file può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+FD = open(...);
+try
+ ....                               % throw(exc2)
+ close(FD)
+catch
+ exc1 -> close(FD), 4
+ _:_ = R -> close(FD), throw(R)    % CODICE NON DEL TUTTO CORRETTO
+end
+\end{verbatim}
+\end{tcolorbox}
+\vspace{8pt}
+Per risolvere questa problematica è necessario un nuovo costrutto.
+
+Come in altri linguaggi di programmazione, esiste il costrutto \texttt{finally} (in Erlang denominato \texttt{after}).
+
+Riprendendo la struttura precedente e aggiungendo il nuovo costrutto \texttt{after}:
+\begin{tcolorbox}
+\begin{verbatim}
+try
+  E
+of
+  F
+catch
+  G
+after C
+end
+\end{verbatim}
+\end{tcolorbox}
+\vspace{8pt}
+Una possibile implementazione in pseudo-codice può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+case
+ try
+  {return, try E of F catch G}      % tutte le chiamate sono protette
+ catch                              % e quindi non di coda
+  Exc -> {exception, Exc}
+ end
+of
+ {return, V} -> C, V ;
+ {exception, Exc} -> C, throw(Exc)
+end.
+\end{verbatim}
+\end{tcolorbox}
+\vspace{8pt}
+È importante sottolineare che quando si utilizza il costrutto \texttt{after}, si perde completamente l'ottimizzazione delle chiamate di coda.
+
+\pagebreak
+
+In Erlang esistono tre tipologie di eccezioni:
+\begin{itemize}
+    \item \texttt{throw()}: corrisponde al passaggio al \textit{control operator}. Le eccezioni lanciate con \texttt{throw} non sono concepite come errori, ma semplicemente come meccanismo per il passaggio di controllo.
+    \item \texttt{exit()}: interrompe l'esecuzione dell'attore. Viene utilizzata per implementare la filosofia di Erlang \textit{Let it fail}. Queste eccezioni non dovrebbero essere catturate con \texttt{catch}.
+    \item \textit{Errori non risolvibili}: in questi casi non ha senso far ripartire l'attore, a causa di codice non implementato correttamente. In altri linguaggi equivalgono ad errori di compilazione. In queste situazioni viene fornito lo \textit{stack trace} dell'errore.
+\end{itemize}
+\vspace{8pt}
+Esistono inoltre altri tre costrutti considerati deprecati o di utilizzo limitato:
+\begin{itemize}
+    \item \texttt{(catch throw(pippo))}: deprecato, utilizzato prima dell'introduzione del nuovo costrutto try catch descritto in precedenza. Non consente di distinguere il tipo di eccezione.
+    \item \texttt{if}: forma semplificata di pattern matching, dove è possibile utilizzare esclusivamente \textit{guardie}.
+    \item \texttt{= (uguale)}: esegue un pattern matching tra la parte sinistra e quella destra. Quando i due pattern corrispondono si parla di \textit{pattern irrefutabile}. Se viene utilizzato un pattern irrefutabile ma il match fallisce, viene generato un errore.
+\end{itemize}
+
+\subsection*{Algebraic Effects}
+ciao
+
 \end{document}

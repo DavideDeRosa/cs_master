@@ -703,6 +703,8 @@ Esistono inoltre altri tre costrutti considerati deprecati o di utilizzo limitat
     \item \texttt{= (uguale)}: esegue un pattern matching tra la parte sinistra e quella destra. Quando i due pattern corrispondono si parla di \textit{pattern irrefutabile}. Se viene utilizzato un pattern irrefutabile ma il match fallisce, viene generato un errore.
 \end{itemize}
 
+\pagebreak
+
 \subsection*{Algebraic Effects}
 Gli Algebraic Effects si basano su un concetto fondamentale: l'istruzione \texttt{throw(E)} trasferisce il controllo a distanza alla clausola \texttt{catch} che gestisce l'effetto \texttt{E}. Il codice remoto può successivamente restituire il controllo alla \texttt{throw} fornendo un valore \texttt{V} che diventa il risultato dell'istruzione \texttt{throw} stessa.
 
@@ -788,5 +790,158 @@ Gli effetti algebrici consentono quindi di gestire in maniera non locale gli err
 
 Un'implementazione efficiente degli effetti algebrici trasforma lo stack in uno stack di fibre, dove ogni fibra è a sua volta uno stack.\\
 In questo modo, le operazioni di distacco e riattacco di una fibra hanno un costo computazionale di \textbf{O(1)}, sebbene ciò comporti che lo stack non sia più allocato in modo contiguo in memoria.
+
+\pagebreak
+
+\subsection*{Gestione della memoria}
+In un linguaggio di programmazione sequenziale emergono diverse problematiche nella gestione della memoria:
+\begin{itemize}
+    \item Formazione del \textbf{Garbage} (memoria non deallocata non più utile, la cui utilità è \textit{indecidibile} a livello teorico).
+    \item Puntatori a memoria non allocata (dangling pointers).
+    \item Riutilizzo improprio di memoria deallocata. Si suddivide in due casi:
+    \begin{itemize}
+        \item Accesso alla memoria già deallocata.
+        \item Ri-deallocazione della memoria già deallocata (double free).
+    \end{itemize}
+    \item Frammentazione della memoria.
+    \item Memoria non allocata.
+\end{itemize}
+
+Nell'ambito concorrente/parallelo, a queste problematiche se ne aggiungono altre. Un esempio significativo è la \textbf{Race Condition}, situazione in cui il risultato della computazione dipende dall'ordine di esecuzione dei programmi. Questo può verificarsi in diversi scenari, come quando un thread opera in scrittura mentre altri thread leggono contemporaneamente lo stesso dato.\\
+Il programmatore deve gestire attentamente questi casi, implementando meccanismi di sincronizzazione come i vari sistemi di locking.
+
+Consideriamo ora un esempio di funzione in \textit{C}:
+\begin{center}
+    \texttt{T f(..., T x);}
+\end{center}
+dove \texttt{T} rappresenta un tipo di dato generico. In assenza di informazioni sul tipo di dato, possono presentarsi diverse problematiche inerenti alla memoria:
+\begin{enumerate}
+    \item Il dato \texttt{T} in output è interamente allocato ad ogni chiamata. 
+    
+    Non esistono puntatori che collegano input ad output (o viceversa), né puntatori dal dato a variabili globali (dichiarate a top-level, accessibili senza averle prese in input e disponibili anche dopo l'esecuzione della funzione) o statiche (simili alle variabili globali, ma con visibilità limitata all'interno della funzione).
+    
+    Solo il chiamante della funzione ha accesso al dato. Sarà quindi responsabilità del chiamante determinare se il dato è ancora utile.
+    \item L'input è condiviso con l'output.
+    
+    Esistono puntatori dall'output all'input. In questo caso, l'input non può essere considerato garbage finché l'output non lo diventa.
+    \item L'output è condiviso con l'input (caso opposto al precedente).
+    
+    Esistono puntatori dall'input all'output. In questo caso, l'output non può essere considerato garbage finché l'input non lo diventa.
+    \item Combinazione del punto \textit{2} e del punto \textit{3}. Input e output devono diventare garbage contemporaneamente.
+    \item La funzione mantiene un puntatore all'output (o a parte di esso). 
+    
+    Esempi di questo caso sono gli oggetti \textit{Singleton} e il pattern \textit{Memoization} (dove i risultati per diversi input vengono memorizzati all'interno di una hash table).
+
+    L'output non può essere considerato garbage finché non lo sono tutti gli output precedenti e quell'input non verrà più richiesto.
+\end{enumerate}
+Tutti questi casi possono verificarsi nella funzione descritta precedentemente.\vspace{14pt}\\
+Esistono diverse tecniche per la gestione della memoria:
+\begin{itemize}
+    \item Nessuna gestione automatica della memoria (come in C).
+    \item Garbage collection automatica. 
+    
+    Il run-time del linguaggio cerca di approssimare l'utilità di un dato e dealloca i dati che considera garbage.
+    
+    Viene implementata un'\textit{euristica} di garbage detection, la cui efficacia varia in base all'algoritmo scelto. In alcuni casi, il programmatore può assistere l'euristica per ottimizzare il riconoscimento del garbage.
+
+    Questa tecnica si divide in due principali categorie:
+    \begin{itemize}
+        \item Reference Counting
+        \item Mark \& Sweep
+    \end{itemize}
+    \item Gestione esplicita da parte del programmatore (come in Rust, C++).
+    
+    Non è presente alcuna euristica di garbage detection, ma è il programmatore che esplicitamente descrive al compilatore gli invarianti di accesso ai dati.\\
+    Il compilatore inserisce quindi il codice necessario per gestire allocazione/deallocazione in base alle specifiche fornite dal programmatore.\vspace{8pt}
+\end{itemize}
+
+\textbf{Reference Counting}\\
+L'euristica del reference counting si basa sul principio che: \textit{se un dato boxed ha 0 puntatori entranti, allora il dato è garbage.}
+
+Per applicare questa euristica è necessario tenere traccia, per ogni dato boxed, del numero di puntatori entranti.
+
+A tal fine, nella prima cella del dato boxed, insieme al tag e al numero di celle (dimensione del dato), viene memorizzato anche un \textbf{Reference Counter} (\textbf{RC}), ovvero un numero intero che conteggia i puntatori entranti.\\
+Questo valore deve essere maggiore di 0, altrimenti il dato viene considerato garbage e deallocato.
+
+L'euristica utilizzata in questo caso, pur essendo efficace, non è ottimale in tutte le situazioni.
+
+È importante introdurre il concetto di \textbf{radice}. Le radici sono celle di memoria sempre accessibili al programma, come lo stack e i registri.
+
+Un problema significativo del reference counting si verifica quando il contatore non può arrivare a 0, impedendo la deallocazione, come nel caso di strutture dati con riferimenti ciclici (ad esempio, una lista doppiamente linkata). In questi casi si crea garbage ogni volta che si perde il puntatore alla prima cella della lista.
+
+Per risolvere il problema delle strutture dati cicliche, viene introdotto il concetto di \textbf{weak pointer}, distinguendolo dai normali puntatori ora denominati \textbf{strong pointer}.
+
+Nel caso di liste doppiamente linkate, i puntatori strong vengono utilizzati per riferirsi alla cella successiva nella lista, mentre i puntatori weak vengono impiegati per riferirsi all'elemento precedente.
+
+Grazie a questa distinzione, nel reference counter vengono conteggiati solo i puntatori strong, consentendo una gestione più efficace della garbage detection.
+
+Questo metodo, tuttavia, non risolve completamente le problematiche menzionate in precedenza. L'utilizzo dei puntatori weak richiede una gestione attenta da parte del programmatore. 
+
+Inoltre, è necessario prestare particolare attenzione ai puntatori weak che potrebbero riferirsi a celle già deallocate. In questo caso, sono necessarie strutture dati aggiuntive per verificare se il puntatore weak si riferisce ancora a un dato allocato.
+
+\vspace{14pt}
+Analizziamo ora le operazioni di allocazione e gestione dei dati:
+\begin{itemize}
+    \item La memoria è frammentata: sono necessari algoritmi efficaci per la gestione del pool di aree di memoria libera (come Best Fit, First Fit, ecc.). Questo processo ha un costo significativo in termini di spazio/tempo. Una possibile implementazione può essere:
+    
+\begin{tcolorbox}
+\begin{verbatim}
+p = alloc(size + 1);        // + 1 per la presenza della cella RC
+(*p)[0] = 1;
+\end{verbatim}
+\end{tcolorbox}
+
+    Quando viene allocata una cella, il RC è inizializzato a 1, indicando che esiste un solo riferimento entrante.
+    \item Copia di un puntatore. Una possibile implementazione può essere:
+
+\begin{tcolorbox}
+\begin{verbatim}
+if(q != null) {
+    (*q)[0]--;
+
+    if((*q)[0] == 0) {
+        dealloc(q);
+    }
+}
+
+q = p;
+(*p)[0]++;
+\end{verbatim}
+\end{tcolorbox}
+
+    È necessario aggiornare il valore RC di \texttt{q} quando un puntatore viene copiato in quella variabile. Questo può causare una deallocazione a cascata.
+    
+    Una possibile implementazione di \texttt{dealloc()} può essere, in pseudo codice:
+\begin{tcolorbox}
+\begin{verbatim}
+dealloc(q) {
+    for i = 1 to (*q)[0].size do {
+        if(boxed (*q)[i]) {
+            (*q)[i]--;
+
+            if((*q)[i] == 0) {
+                dealloc((*q)[i]);
+            }
+        }
+    }
+    free(q);
+}
+\end{verbatim}
+\end{tcolorbox}
+
+    Il costo computazionale della copia di un puntatore risulta proporzionale alla lunghezza della catena di deallocazioni, potenzialmente pari al numero totale di operazioni eseguite dal programma fino a quel momento (definito come \textbf{unbounded}).
+
+    Il costo in tempo è quindi \textbf{O(n)}, dove \texttt{n} rappresenta il numero di passi del programma.
+\end{itemize}
+
+\vspace{14pt}
+\textbf{Mark \& Sweep}\\
+L'euristica del mark \& sweep, nella sua versione base, afferma che: \textit{un dato non raggiungibile dalle radici viene considerato garbage}.
+
+La fase di \textbf{Mark} parte dalle radici e \textit{marka} con dei bit tutto quello che è raggiungibile. Tutto il resto viene considerato garbage.
+
+La fase di \textbf{Sweep} invece effettua una sorta di deframmentazione. Tutte le celle markate vengono spostate e deframmentate, mentre le celle non spostate vengono deallocate.
+
+Continuare con lezione 11 marzo.
 
 \end{document}

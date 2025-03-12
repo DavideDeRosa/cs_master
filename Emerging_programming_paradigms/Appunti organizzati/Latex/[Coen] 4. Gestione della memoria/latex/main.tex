@@ -167,10 +167,135 @@ dealloc(q) {
 \textbf{Mark \& Sweep}\\
 L'euristica del mark \& sweep, nella sua versione base, afferma che: \textit{un dato non raggiungibile dalle radici viene considerato garbage}.
 
-La fase di \textbf{Mark} parte dalle radici e \textit{marka} con dei bit tutto quello che è raggiungibile. Tutto il resto viene considerato garbage.
+La fase di \textbf{Mark} parte dalle radici e \textit{marca} con dei bit tutti gli oggetti raggiungibili. Tutto ciò che non viene marcato è considerato garbage.
 
-La fase di \textbf{Sweep} invece effettua una sorta di deframmentazione. Tutte le celle markate vengono spostate e deframmentate, mentre le celle non spostate vengono deallocate.
+La fase di \textbf{Sweep} effettua invece una sorta di deframmentazione. Tutte le celle marcate vengono spostate e ricompattate, mentre le celle non marcate vengono deallocate.
 
-Continuare con lezione 11 marzo.
+Descritta in questo modo, sembra che vengano effettuati due passaggi consecutivi. Questa scelta non sarebbe ottimale, in quanto aumenterebbe notevolmente il costo computazionale.\\
+In realtà, l'algoritmo viene implementato come un'unica operazione.
 
+Vengono quindi definiti, oltre alle \textit{radici} citate in precedenza (inizialmente stack e registri), due Heap differenti: uno \textbf{Heap di Lavoro} ed uno \textbf{Heap Vuoto}.
+
+All'interno dell'Heap di Lavoro vengono allocati i dati utilizzati durante l'esecuzione, mentre l'Heap Vuoto rimane inutilizzato.
+
+Si lavora sempre all'interno dell'Heap di Lavoro finché non si attiva l'algoritmo di garbage collection, che sposterà i \textit{dati vivi} dall'Heap di Lavoro all'Heap inutilizzato.\\
+Effettuato lo spostamento, i due Heap si \textbf{scambiano di ruolo}.
+
+Con questa implementazione, il 50\% della memoria viene inizialmente riservata ma non utilizzata. Inoltre, gli Heap hanno una dimensione iniziale più piccola, che viene incrementata in base alle esigenze.
+
+L'algoritmo, nella sua versione base, funziona nel seguente modo (un possibile scenario):
+\begin{itemize}
+    \item Inizialmente si hanno dei puntatori nelle radici che puntano a celle nello Heap di Lavoro. Queste celle a loro volta possono puntare ad altre celle nello stesso Heap. Sono inoltre presenti anche celle non più raggiungibili (potenzialmente anche con collegamenti ciclici).
+    \item Definito questo scenario, si itera sulle radici e per ogni cella si controlla se il dato sia \textit{boxed} o \textit{unboxed}. Se il dato è boxed si segue il puntatore per localizzare il dato nello Heap.
+    
+    Viene quindi allocato il dato appena trovato all'interno dell'Heap Vuoto. L'Heap Vuoto viene trattato come uno Stack, con un Heap Pointer posizionato in basso che sale man mano che vengono salvati nuovi dati al suo interno. Questo permette di evitare la frammentazione all'interno del nuovo Heap.
+
+    All'interno del dato appena copiato vengono mantenuti anche i puntatori presenti al suo interno (se presenti). I puntatori vengono aggiornati per rispecchiare la nuova posizione del dato spostato nel nuovo Heap.
+    \item Terminata l'iterazione sui diversi grafi che partono dalle radici, tutti i dati non spostati vengono considerati - come dall'euristica - garbage.
+
+    L'Heap di Lavoro viene quindi considerato vuoto, invertendo i ruoli dei due Heap.\\
+    Per "considerato vuoto" non si intende svuotare lo heap fisicamente, ma semplicemente riportare l'heap pointer alla posizione della prima cella.
+\end{itemize}
+\vspace{8pt}
+Terminato l'algoritmo, si avrà l'Heap di Lavoro con tutte le celle allocate sotto l'heap pointer. Questo permette di allocare nuovi dati all'interno dello heap in maniera molto efficiente, come se fosse uno stack.
+
+I linguaggi che allocano molto frequentemente, come i linguaggi funzionali, utilizzano spesso Mark \& Sweep. 
+
+\vspace{8pt}
+Questa prima implementazione presenta però dei problemi, come ad esempio i puntatori ciclici che potrebbero portare ad allocazioni infinite delle celle, oppure la perdita della condivisione (sharing) delle celle all'interno del nuovo Heap (dove in precedenza lo sharing era presente).
+
+Per risolvere queste problematiche, viene salvato all'interno del dato che deve essere copiato (nello Heap di Lavoro attuale) il puntatore al nuovo dato copiato sul secondo Heap. Il puntatore viene salvato nella prima cella del dato, dove solitamente si trovano tag e dimensione del dato stesso. Questo permette anche di verificare se la cella è stata già visitata in precedenza.
+
+\vspace{8pt}
+Analizziamo ora il costo computazionale di questa versione finale dell'algoritmo.\\
+Il costo computazionale in spazio è \textbf{O(0)}, non dovendo allocare nuova memoria aggiuntiva.\\
+Il costo computazionale in tempo è \textbf{O(n + m)}, dove \texttt{n} è il numero delle radici ed \texttt{m} il numero di dati vivi (dati non considerati garbage).
+
+Il costo in tempo non è ottimale, considerando che il numero di dati vivi presenti possa essere elevato. È quindi necessario applicare alcune modifiche per migliorare questo aspetto.
+
+L'algoritmo Mark \& Sweep si attiva in base a diverse strategie, come in momenti di basso utilizzo della CPU o quando l'heap pointer raggiunge un valore elevato nella memoria.
+
+\pagebreak
+
+Verifichiamo ora se lo spostamento dei dati in memoria è compatibile con la semantica del nostro linguaggio di programmazione. Esaminiamo quindi diverse operazioni possibili sui puntatori:
+\begin{itemize}
+    \item Dereferenziazione di un puntatore: in questo caso non ci sono problemi.
+    \item Somma scalare all'interno dei blocchi: in questo caso non ci sono problemi.
+    \item Sottrazione all'interno dei blocchi: in questo caso non ci sono problemi.
+    \item Confronto di uguaglianza tra due puntatori: in questo caso non ci sono problemi.
+    \item Operazioni di <, >, <=, >= : in questo caso \textbf{ci sono problemi}.
+    
+    Un esempio concreto di utilizzo problematico sono gli alberi binari di ricerca.
+    \item Funzioni hash: in questo caso \textbf{ci sono problemi}. 
+    
+    Il puntatore non può essere utilizzato in modo affidabile come chiave dell'hash.
+\end{itemize}
+Gli ultimi due punti ci indicano che non è possibile utilizzare i puntatori come chiavi nei dizionari quando si implementa il Mark \& Sweep.
+
+Per risolvere questo problema, è necessario aggiungere al dato boxed un ID univoco, da utilizzare come chiave del dizionario. Questo implica che per leggere il valore della chiave bisogna dereferenziare il dato, il che comporta un costo aggiuntivo di indirezione.
+
+\vspace{14pt}
+\textbf{Mark \& Sweep Generazionale}\\
+Mark \& Sweep ha un alto costo computazionale in tempo quando esiste molta memoria viva. Per migliorare questo aspetto, sarebbe utile sapere in modo più preciso quale memoria è destinata a rimanere viva a lungo - e quindi non spostarla - e quale memoria è destinata a diventare garbage rapidamente - per poterla gestire in modo diverso.
+
+Viene quindi utilizzata un'analisi statistica per migliorare questo algoritmo, formulando l'\textbf{ipotesi generazionale}. 
+
+L'ipotesi generazionale afferma, nella sua forma estrema, che: \textit{un dato x è destinato a rimanere reachable per un periodo molto lungo, oppure è destinato a diventare unreachable rapidamente}.
+
+Viene quindi escluso il caso intermedio, in cui un dato rimane reachable per un periodo medio. L'obiettivo è determinare a quale delle due categorie appartengono i diversi dati, per poterli collocare in maniera ottimale.
+
+Esaminiamo ora una versione dell'algoritmo Mark \& Sweep che implementa l'ipotesi generazionale.
+
+Vengono definiti, oltre alle \textit{radici} menzionate in precedenza (inizialmente stack e registri), tre Heap differenti: uno \textbf{Heap Young in uso}, uno \textbf{Heap Young non in uso} ed uno \textbf{Heap Old (Major)}.
+
+Idealmente, i dati che rientrano nella prima categoria (reachable per un lungo periodo di tempo) devono essere spostati nello Heap Old.\\
+L'algoritmo di Mark \& Sweep viene utilizzato quindi principalmente tra i due Heap Young.
+
+Generalmente, i due Heap Young hanno dimensioni più ridotte rispetto allo Heap Old.
+
+Esaminiamo ora come i dati si spostano tra i diversi Heap:
+\begin{itemize}
+    \item Quando l'algoritmo Mark \& Sweep sposta i dati dall'Heap Young in uso a quello Young non in uso, questo passaggio prende il nome di \textbf{Minor Collection}.
+    
+    Dopo questo primo passaggio, i dati saranno ricompattati all'interno del secondo Heap.
+    
+    Il suo heap pointer sarà quindi posizionato sopra tutti i dati già spostati. Questo ci permette di determinare se un dato è recente o meno (verificando se si trova sotto o sopra l'heap pointer). 
+    
+    Viene quindi posizionato un nuovo puntatore, chiamato \textbf{High Water Mark}.
+    \item Successivamente, come in precedenza, i due Heap vengono invertiti, considerando il precedentemente utilizzato come vuoto.
+    \item Nel nuovo Heap attivo, man mano che nuovi dati vengono inseriti, l'heap pointer verrà incrementato. I dati posizionati tra l'\textit{high water mark} e l'\textit{heap pointer} saranno considerati dati più recenti. 
+    \item Al secondo passaggio di Minor Collection il comportamento sarà diverso rispetto al passaggio precedente.
+    
+    Se un dato si trova sotto l'High Water Mark, verrà spostato nello Heap Old. Altrimenti, verrà spostato nel nuovo Heap Young che diventerà attivo.
+\end{itemize}
+\vspace{8pt}
+Cosa succede se lo Heap Old raggiunge la saturazione?\\
+Se i tre heap hanno la stessa dimensione, si può effettuare una sorta di minor collection tra Old e lo heap vuoto.\\
+Altrimenti, lo Heap Old deve avere una dimensione maggiore rispetto agli altri, richiedendo l'applicazione di una deframmentazione sullo heap stesso.
+
+\vspace{8pt}
+Analizziamo ora il costo computazionale di questo algoritmo.
+
+All'interno delle radici si possono avere puntatori sia agli Heap Young che allo Heap Old. L'obiettivo è quello di visitare solo i puntatori nelle aree Young. Si può determinare se un puntatore punta allo Heap Old grazie al suo intervallo all'interno della memoria.
+
+Si vogliono quindi visitare solo i grafi presenti negli Heap Young, ignorando i puntatori allo Heap Old.
+
+Il costo computazionale in tempo è quindi \textbf{O(n + m)}, dove \texttt{n} è il numero delle radici ed \texttt{m} il numero di dati nello Heap Young.\\
+Questo costo risulta essere più efficiente rispetto al precedente, escludendo una parte di dati.
+
+\vspace{8pt}
+È necessario però fare attenzione ad un caso particolare: una cella nello Heap Old che punta ad un dato nello Heap Young. Questo scenario può verificarsi solo in linguaggi di programmazione con dati mutabili.
+
+Riprendendo l'euristica di Mark \& Sweep: \textit{un dato non raggiungibile dalle radici viene considerato garbage}.
+
+Data questa definizione, viene aggiunta al gruppo di \textit{radici} una lista di celle nello Heap Old, ovvero quelle celle che contengono puntatori dallo Heap Old a dati nello Heap Young.
+
+Questo comporta costi maggiori per l'assegnamento di un puntatore, dovendo aggiornare ogni volta la lista precedentemente citata. Questo overhead viene chiamato \textbf{Write Barrier}.
+
+\vspace{14pt}
+Come discusso in precedenza, l'insieme delle radici non è limitato. Un'altra fonte di radici sono i \textbf{binding}.
+
+Il binding tra due programmi scritti in linguaggi diversi serve per permettere la comunicazione tra le due parti. Nel caso in cui un linguaggio mantiene un puntatore ad un dato in utilizzo nell'altro linguaggio, quel dato diventa una radice e non deve essere spostato in memoria.
+
+In generale, la sincronizzazione tra due linguaggi rappresenta una fonte potenziale di garbage che richiede particolare attenzione.
 \end{document}

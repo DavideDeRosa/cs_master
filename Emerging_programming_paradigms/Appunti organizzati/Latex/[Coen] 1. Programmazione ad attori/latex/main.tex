@@ -8,6 +8,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{titlesec}
 \usepackage{parskip}
+\usepackage{tcolorbox}
 
 \titleformat{\section}
 {\LARGE\bfseries}{\thesection}{1em}{}
@@ -69,9 +70,20 @@ Uno dei principali punti di forza della programmazione ad attori di Erlang è av
 
 \subsection*{Esempio pratico in Erlang}
 Erlang condivide elementi della sua sintassi con il linguaggio di programmazione logica Prolog. Ecco un esempio di attore per la gestione di un conto corrente:
-\begin{center}
-    \includegraphics[width=1\textwidth]{img/hello_code.png}
-\end{center}
+\begin{tcolorbox}
+\begin{verbatim}
+-module(hello).
+-export([cc/1]).
+
+cc(Bal) -> 
+    receive
+        print -> io:format("Il balance e' ~p ~n", [Bal]), cc(Bal);
+        {put, N} -> cc(Bal + N);
+        {get, PID} -> PID ! Bal, cc(Bal);
+        exit -> ok
+    end.
+\end{verbatim}
+\end{tcolorbox}
 Il primo passo è la dichiarazione del \textbf{module}, il cui nome deve corrispondere al nome del file. In Erlang, una riga che inizia con il simbolo \textbf{-} rappresenta una direttiva, che non fa parte del codice eseguibile ma fornisce istruzioni al compilatore.
 
 Un secondo aspetto importante è che all'interno di un modulo Erlang vengono definite funzioni, che possono essere esportate o meno tramite la direttiva \textbf{export}. Questo meccanismo permette di scegliere quali funzioni rendere accessibili dall'esterno e quali mantenere interne al modulo. Tutto ciò che non viene esportato rimane nascosto. 
@@ -149,7 +161,9 @@ Il linguaggio Erlang è progettato attorno al concetto di programmi concorrenti 
 
 Permette anche di sviluppare sistemi distribuiti, con la possibilità di aggiornare il codice durante l'esecuzione senza interrompere il programma.
 
-Incorpora inoltre sofisticati meccanismi per la gestione dei guasti, che rendono Erlang ideale per applicazioni che richiedono runtime "infiniti" (come gli switch Ericsson con software scritto in Erlang, che raggiungono un uptime del 99,999999\%).\vspace{14pt}\\
+Incorpora inoltre sofisticati meccanismi per la gestione dei guasti, che rendono Erlang ideale per applicazioni che richiedono runtime "infiniti" (come gli switch Ericsson con software scritto in Erlang, che raggiungono un uptime del 99,999999\%).
+
+\pagebreak
 
 Le principali scelte progettuali di Erlang sono:
 \begin{itemize}

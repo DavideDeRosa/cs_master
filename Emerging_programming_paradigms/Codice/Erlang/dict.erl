@@ -107,6 +107,7 @@ search_val_aux(V, {node, T1, _, T2}) ->
     search_val_aux(V, T2).
 
 % search_val2(V, T) restituisce { found, K } se K è associata a V in T, not_found altrimenti
+
 search_val2(K, T) -> 
     try
         search_val_aux(K, T)

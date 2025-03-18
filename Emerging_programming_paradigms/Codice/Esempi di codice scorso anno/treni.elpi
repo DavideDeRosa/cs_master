@@ -1,0 +1,43 @@
+% Questo e' codice ELPI, un linguaggio di programmazione logico
+% di ordine superiore e con vincoli, che generalizza il piu' famoso
+% linguaggio di programmazione logico Prolog. ELPI e' reperibile su
+% GitHub.
+
+% Un programma e' un insieme di assiomi, chiamate clausole, che descrivono relazioni
+% fra i dati.
+
+treno bologna firenze.
+treno firenze roma.
+treno bologna milano.
+
+% Nelle clausole le variabili scritte con la maiuscola sono universalmente
+% quantificate, B :- A e' l'implicazione logica A => B (se A allora B) e
+% A,B e' la congiunzione logica (A e B).
+%
+% Pertanto la clausola qua sotto si legge: per ogni X,Y, c'e' un treno da X a Y
+% se c'e' un treno da Y a X.
+
+treno X Y :- treno Y X.
+
+% percorso X Y L vale se c'e' un percorso da X a Y che attraversa le citta'
+% nella lista L.
+percorso X X [].
+percorso X Z [Y|L] :- treno X Y, percorso Y Z L.
+
+% Lanciando il toplevel elpi sul file treni.elpi (via "elpi treni.elpi")
+% diventa possibile fare query. In una query le variabili con la maiuscola sono
+% esistenzialmente quantificate. Per esempio la query
+%
+% percorso X milano L.
+%
+% e' la query "esistono una X e una L per le quali vi e' un percorso da X a milano
+% che passa per L"?
+%
+% Data una query il codice viene eseguito usando un algoritmo prefissato di ricerca
+% di una dimostrazione della query. L'algoritmo prova le clausole in sequenza dall'alto
+% al basso, andando in ricorsione sulle ipotesi della clausola. In caso di fallimento di
+% un ramo di ricerca della prova, viene fatto backtracking e viene provata un'altra strada.
+%
+% In caso di successo, il toplevel mostra il valore assegnato alle variabili esistenzialmente
+% quantificate durante la ricerca della prova e chiede se si vuole fare backtracking per trovare
+% la soluzione successiva, fino a quando ce ne sono altre.

@@ -702,4 +702,269 @@ Esistono inoltre altri tre costrutti considerati deprecati o di utilizzo limitat
     \item \texttt{if}: forma semplificata di pattern matching, dove è possibile utilizzare esclusivamente \textit{guardie}.
     \item \texttt{= (uguale)}: esegue un pattern matching tra la parte sinistra e quella destra. Quando i due pattern corrispondono si parla di \textit{pattern irrefutabile}. Se viene utilizzato un pattern irrefutabile ma il match fallisce, viene generato un errore.
 \end{itemize}
+
+\pagebreak
+
+\subsection*{Esempio di Parallelizzazione (qsort)}
+Si vuole implementare una funzione che implementa l'algoritmo QuickSort (differente dal solito qsort studiato, questa è una versione funzionale non in-place).\\
+Viene utilizzata la list comprehension per dividere la lista in due parti.\\
+Viene quindi richiamata la funzione in maniera ricorsiva per riordinare le due liste ottenute.\\
+Infine le liste vengono concatenate, ottenendo la lista ordinata.
+\begin{tcolorbox}
+\begin{verbatim}
+qsort([]) -> [] ;
+qsort([H|L]) -> 
+    L1 = [ X || X <- L, X =< H ],
+    L2 = [ X || X <- L, X > H ],
+    qsort(L1) ++ [ H | qsort(L2) ].
+\end{verbatim}
+\end{tcolorbox}
+
+Questa versione ha un approccio sequenziale al problema, eseguendo tutta la computazione su un singolo attore.
+
+Successivamente si può osservare una prima versione per parallelizzare il processo di sorting della lista.\\
+Viene divisa la lista come in precedenza, per poi spawnare un nuovo attore che si occuperà di eseguire la funzione in maniera ricorsiva sulla parte destra della lista.\\
+A sua volta l'attore spawnerà nuovi attori per completare l'esecuzione.\\
+Alla fine vengono concatenate le diverse liste per ottenere la lista ordinata.
+\begin{tcolorbox}
+\begin{verbatim}
+psort([]) -> [] ;
+psort([H|L]) ->
+    L1 = [ X || X <- L, X =< H ],
+    L2 = [ X || X <- L, X > H ],
+    SELF = self(),
+    REF = make_ref(),
+    spawn(fun() -> SELF ! {REF, psort(L2)} end),
+    psort(L1) ++ [ H | receive {REF, SL2} -> SL2 end].
+\end{verbatim}
+\end{tcolorbox}
+
+L'attore spawnato invia il messaggio contenete la lista ordinata al padre. Il padre resta in attesa della lista. Il REF viene usato per il pattern matching della msg queue.
+
+Ora osserviamo una seconda versione del psort, che prende in input della funzione un numero N che limita il numero attori creati.\\
+Il valore di N viene decrementato ad ogni chiamata ricorsiva, in modo che man mano che vengono spawnati nuovi attori il valore di N tenderà ad arrivare a 0, eseguendo quindi l'algoritmo sequenziale.
+\begin{tcolorbox}
+\begin{verbatim}
+psort2(0, L) -> qsort(L) ;                                      
+psort2(_, L) when length(L) =< 10 -> qsort(L) ;                 
+psort2(N, [H|L]) ->
+    L1 = [ X || X <- L, X =< H ],
+    L2 = [ X || X <- L, X > H ],
+    SELF = self(),
+    REF = make_ref(),
+    spawn(fun() -> SELF ! {REF, psort2(N - 1, L2)} end),        
+    SL1 = psort2(N - 1, L1),
+    SL2 = receive {REF, RES} -> RES end,                        
+    SL1 ++ [ H | SL2].
+\end{verbatim}
+\end{tcolorbox}
+
+Se N = 0, si effettua un qsort sequenziale per evitare overhead.\\
+Se la lista è troppo piccola, si effettua un qsort sequenziale per evitare overhead.\\
+L'attore spawnato invia il messaggio contenete la lista ordinata al padre. Il padre resta in attesa della lista.\\
+Il REF viene usato per il pattern matching della msg queue.
+
+Per concludere si può osservare una terza versione, con l'idea di base di fare eseguire dei job ad una pool di worker.\\
+I worker ottengono i diversi job da uno scheduler, per poi inviare il risultato della propria esecuzione direttamente all'attore che lo ha richiesto allo scheduler.\\
+Viene quindi concatenato il risultato con tutti i risultati ottenuti dai worker.
+
+Nota: questo codice non funziona, va in deadlock. Il deadlock viene causato dal fatto che tutti i worker restano in attesa dei risultati da calcolare dagli altri worker, fino al non avere più worker disponibili. Questa problematica si può risolvere controllando il numero di worker disponibile prima di continuare. Se il numero è vicino al numero di worker disponibili, si ripiega sull'algoritmo sequenziale. (Per ulteriori dettagli vedere Virtuale anno precedente).
+\begin{tcolorbox}
+\begin{verbatim}
+jsort([]) -> [] ;
+jsort(L) when length(L) =< 10 -> qsort(L) ;                     
+jsort([H|L]) ->
+    L1 = [ X || X <- L, X =< H ],
+    L2 = [ X || X <- L, X > H ],
+    SELF = self(),
+    REF = make_ref(),
+    Job = fun () -> jsort(L2) end,
+    scheduler ! {require, SELF, REF, Job},                      
+    SL1 = jsort(L1),
+    SL2 = receive {REF, RES} -> RES end,
+    SL1 ++ [ H | SL2 ].
+\end{verbatim}
+\end{tcolorbox}
+Se la lista è troppo piccola, si effettua un qsort sequenziale per evitare overhead.\\
+L'atomo scheduler, grazie al costrutto register(), punta al PID dell'attore scheduler.
+
+Implementazione dell'attore scheduler, il quale ha lo scopo di distribuire i diversi job ai vari worker. Lo scheduler può ricevere nuovi job dagli attori (salvandoli nella propria lista di jobs interna) o ricevere richieste GET da parte dei diversi worker, i quali richiedono un nuovo job da eseguire.
+\begin{tcolorbox}
+\begin{verbatim}
+scheduler(JOBS) -> 
+    receive
+        {require, _, _, _} = JOB -> scheduler([JOB|JOBS]) ;
+        {get, REF, WORKER} when JOBS =/= [] ->                  
+            [JOB|L] = JOBS,                                     
+            WORKER ! {REF, JOB},                                
+            scheduler(L)                                        
+    end.
+\end{verbatim}
+\end{tcolorbox}
+Viene inserita una guardia che controlla se la lista di jobs è vuota. Se vuota non viene fatto pattern matching.\\
+Viene divisa la lista JOBS in JOB (primo elemento) e L (il resto della lista) tramite pattern matching refutabile.\\
+Al worker viene quindi inviato il primo elemento (JOB).\\
+Lo scheduler viene eseguito ricorsivamente sul resto della lista (L).
+
+Implementazione dell'attore worker, il quale ha lo scopo di eseguire jobs ricevuti dallo scheduler e di inviare il risultato di queste esecuzioni all'attore che ha effettuato la richiesta, senza passare dallo scheduler. Per comunicare con lo scheduler viene utilizzato il costrutto imperativo register(), il quale permette di utilizzare l'atomo "scheduler" per comunicare con l'attore designato all'esecuzione dello scheduler.
+\begin{tcolorbox}
+\begin{verbatim}
+worker() ->
+    REF = make_ref(),
+    scheduler ! {get, REF, self()},                             
+    receive 
+        {REF, {require, PID, REF2, F}} ->                       
+            PID ! {REF2, F()},                                  
+            worker()                                            
+    end.
+\end{verbatim}
+\end{tcolorbox}
+Il worker richiede nuovi job allo scheduler.\\
+Il worker resta in attesa di nuovi job dallo scheduler. Quando il pattern fa match viene restituito il risultato all'attore che ha inviato inizialmente la richiesta di job allo scheduler.\\
+Il worker richiama ricorsivamente se stesso per richiedere nuovi job allo scheduler.
+
+Inoltre, sono presenti altre due funzioni: \texttt{benchmark()} e \texttt{main()}.
+
+Benchmark è una funzione che permette di calcolare il tempo di esecuzione impiegato dalla funzione.
+\begin{tcolorbox}
+\begin{verbatim}
+benchmark(F, L) ->
+    T = [ timer:tc(?MODULE, F, L) || _ <- lists:seq(1, 10) ],
+    lists:sum([ X || {X, _} <- T ]) / (1000 * length(T)).
+\end{verbatim}
+\end{tcolorbox}
+
+Main è il main dell'attore. Viene generata una lista di numeri random utilizzata per testare i diversi approcci implementati. Vengono quindi stampati i tempi (in ms) di esecuzione per ogni funzione, andando a forzare una garbage collection dopo ogni esecuzione, per evitare possibili influenze sul tempo di esecuzione.
+\begin{tcolorbox}
+\begin{verbatim}
+main() -> 
+    L = [ rand:uniform(10000) || _ <- lists:seq(1, 10000) ],
+    io:format("Sequenziale: ~p~n", [ benchmark(qsort, [L]) ]),
+    erlang:garbage_collect(),
+
+    io:format("Psort: ~p~n", [ benchmark(psort, [L]) ]),
+    erlang:garbage_collect(),
+
+    io:format("Psort2(0): ~p~n", [ benchmark(psort2, [0, L]) ]),
+    erlang:garbage_collect(),
+    io:format("Psort2(1): ~p~n", [ benchmark(psort2, [1, L]) ]),
+    erlang:garbage_collect(),
+    io:format("Psort2(2): ~p~n", [ benchmark(psort2, [2, L]) ]),
+    erlang:garbage_collect(),
+    io:format("Psort2(3): ~p~n", [ benchmark(psort2, [3, L]) ]),
+    erlang:garbage_collect(),
+    io:format("Psort2(5): ~p~n", [ benchmark(psort2, [5, L]) ]),
+    erlang:garbage_collect(),
+    io:format("Psort2(8): ~p~n", [ benchmark(psort2, [8, L]) ]),
+    erlang:garbage_collect(),
+    io:format("Psort2(12): ~p~n", [ benchmark(psort2, [12, L]) ]),
+    erlang:garbage_collect(),
+
+    SCHED = spawn(?MODULE, scheduler, [[]]),
+    register(scheduler, SCHED),                                 
+    [ spawn(?MODULE, worker, []) || _ <- lists:seq(1, 24) ],
+    io:format("Jsort: ~p~n", [ benchmark(jsort, [L]) ]),
+    unregister(scheduler),
+    erlang:garbage_collect().
+\end{verbatim}
+\end{tcolorbox}
+Viene utilizzato il \textbf{costrutto imperativo register()} per registrare un nome (atomo) rispetto al PID di un attore.\\
+Questo permette di avere localmente una sorta di DNS per l'attore. Alla fine dell'esecuzione questa registrazione viene annullata tramite il costrutto \textbf{unregister()}.\\
+Vengono inoltre spawnati 24 worker.\\
+Nota: se si prova a registrare due volte lo stesso attore viene sollevata una exception.
+
+Alcune considerazioni finali:\\
+I risultati ci permettono di concludere che l'implementazione base di psort sia la versione più lenta, anche rispetto all'implementazione sequenziale. Questo è dovuto a due cause principali:
+\begin{itemize}
+    \item Overhead varii, causati ad esempio da liste troppo piccole.
+    \item Troppi attori rispetto ai core della propria CPU, causando un numero di context-switch elevato
+\end{itemize}
+Bisogna quindi gestire al meglio la parallelizzazione, altrimenti si ottengono risultati peggiori rispetto all'approccio sequenziale.
+
+La seconda versione di psort, che tiene in considerazione il numero di core del processore per gestire al meglio la parallelizzazione, ottiene risultati migliori rispetto al psort base. Va però usato il valore giusto di N, altrimenti i tempi vanno man mano a salire fino ad arrivare ai risultati del psort base.
+
+Nel nostro esempio, vengono osservati i risultati con valori di N differenti, notando che con N = 8 si ottengono i risultati migliori mentre con N = 12 si peggiora il tempo di esecuzione precedentemente ottenuto con N = 8. Con N = 0, i risultati ottenuti sono simili a quelli dell'implementazione sequenziale (il costo dovrebbe essere uguale a quello sequenziale, ma a causa di overhead è leggermente superiore).
+
+La terza versione, con pool di worker e scheduler, non è funzionante nella sua implementazione vista in precedenza. Maggiori dettagli sul perchè sono scritti nei commenti della funzione stessa. Teoricamente il tempo di esecuzione di questa versione dovrebbe essere simile a quello della psort con ottimizzazione N.
+
+\pagebreak
+
+\subsection*{Esempio di Hot Code Swap}
+L'Hot Code Swap permette di modificare il codice di un attore senza avere tempi di down. Bisogna quindi modificare il codice dell'attore senza modificare il suo PID.
+
+La Beam riesce a mantenere fino a due versioni compilate dello stesso modulo (quella attiva e quella alla quale vogliamo passare).
+
+Un possibile esempio può essere il seguente:\\
+Dato un attore che implementa una funzione \texttt{loop()} molto semplice:
+\begin{tcolorbox}
+\begin{verbatim}
+loop(N, M) -> 
+   io:format("Versione 1: ~p, ~p~n", [N, M]),
+   receive
+       {add1, X} -> loop(N + X, M) ;
+       {add2, X} -> loop(N, M + X) ;
+       upgrade -> ?MODULE:new_loop(N, M)
+   end.
+\end{verbatim}
+\end{tcolorbox}
+ed una funzione \texttt{new\_loop()}, la quale permette di effettuare l'hot code swap:
+\begin{tcolorbox}
+\begin{verbatim}
+new_loop(N, M) -> loop(N, M).
+\end{verbatim}
+\end{tcolorbox}
+La seguente funzione, insieme al pattern \texttt{upgrade} presente nella funzione \texttt{loop()} il quale richiama la funzione attraverso il costrutto \texttt{?MODULE}, permette di richiamare il nuovo codice compilato anche successivamente dalla Beam (l'ultima versione del modulo).
+
+Per fare il passaggio tra le due versioni, è il programmatore che attivamente richiama il pattern \texttt{upgrade} che effettuerà il passaggio tra le due versioni.
+
+Vogliamo quindi ora modificare il codice di questa funzione, senza però avere tempi di down. Una possibile versione intermedia (1.5), la quale riceve i dati anche in maniera diversa oltre a quello presente nella prima versione, può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+loop({N, M}) -> 
+   io:format("Versione 1.5: ~p, ~p~n", [N, M]),
+   receive
+       {add1, X} -> loop({N + X, M}) ;
+       {add2, X} -> loop({N, M + X}) ;
+       {add, 1, X} -> loop({N + X, M}) ;
+       {add, 2, X} -> loop({N, M + X}) ;
+       upgrade -> ?MODULE:new_loop({N, M})
+   end.
+\end{verbatim}
+\end{tcolorbox}
+con conseguenti funzioni \texttt{new\_loop()}:
+\begin{tcolorbox}
+\begin{verbatim}
+new_loop(N, M) -> loop({N, M}).         % Invocata dal vecchio codice
+
+new_loop({N, M}) -> loop({N, M}).       % Invocata dal nuovo codice
+\end{verbatim}
+\end{tcolorbox}
+Nota: in questo caso sono presenti due funzioni \texttt{new\_loop()}, una che viene invocata dal modulo da sostituire, l'altra che verrà utilizzata per passare alla versione successiva.
+
+Una versione 2, la quale esegue completamente la transizione eliminando la gestione dei pattern presenti nella prima versione, può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+loop({N, M}) -> 
+    io:format("Versione 2: ~p, ~p~n", [N, M]),
+    receive
+        {add, 1, X} -> loop({N + X, M}) ;
+        {add, 2, X} -> loop({N, M + X}) ;
+        upgrade -> ?MODULE:new_loop({N, M})
+    end.
+\end{verbatim}
+\end{tcolorbox}
+con conseguente funzione \texttt{new\_loop()}:
+\begin{tcolorbox}
+\begin{verbatim}
+new_loop({N, M}) -> loop({N, M}).
+\end{verbatim}
+\end{tcolorbox}
+
+In questo modo si è passati da una prima versione che gestiva un tipo di dato ad una seconda versione che ne gestisce uno completamente diverso.
+
+\pagebreak
+
+\subsection*{Esempio di Link e Monitoring}
+ciao
+
 \end{document}

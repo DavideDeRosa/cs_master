@@ -63,8 +63,8 @@ scheduler(JOBS) ->
 % jobs ricevuti dallo scheduler e di inviare il risultato di queste
 % esecuzioni all'attore che ha effettuato la richiesta, senza passare
 % dallo scheduler. Per comunicare con lo scheduler viene utilizzato il
-% costrutto register(), il quale permette di utilizzare l'atomo "scheduler"
-% per comunicare con l'attore designato all'esecuzione dello scheduler.
+% costrutto imperativo register(), il quale permette di utilizzare l'atomo 
+% "scheduler" per comunicare con l'attore designato all'esecuzione dello scheduler.
 worker() ->
     REF = make_ref(),
     scheduler ! {get, REF, self()},                             % Il worker richiede nuovi job allo scheduler.
@@ -133,7 +133,7 @@ main() ->
     io:format("Psort2(12): ~p~n", [ benchmark(psort2, [12, L]) ]),
     erlang:garbage_collect(),
 
-    % Viene utilizzato il costrutto register() per registrare un nome (atomo) rispetto al PID di un attore.
+    % Viene utilizzato il costrutto imperativo register() per registrare un nome (atomo) rispetto al PID di un attore.
     % Questo permette di avere localmente una sorta di DNS per l'attore. Alla fine dell'esecuzione questa 
     % registrazione viene annullata tramite il costrutto unregister(). Vengono inoltre spawnati 24 worker.
     %

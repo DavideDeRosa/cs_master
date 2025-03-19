@@ -877,7 +877,7 @@ Alcune considerazioni finali:\\
 I risultati ci permettono di concludere che l'implementazione base di psort sia la versione più lenta, anche rispetto all'implementazione sequenziale. Questo è dovuto a due cause principali:
 \begin{itemize}
     \item Overhead varii, causati ad esempio da liste troppo piccole.
-    \item Troppi attori rispetto ai core della propria CPU, causando un numero di context-switch elevato
+    \item Troppi attori rispetto ai core della propria CPU, causando un numero di context-switch elevato.
 \end{itemize}
 Bisogna quindi gestire al meglio la parallelizzazione, altrimenti si ottengono risultati peggiori rispetto all'approccio sequenziale.
 
@@ -965,6 +965,173 @@ In questo modo si è passati da una prima versione che gestiva un tipo di dato a
 \pagebreak
 
 \subsection*{Esempio di Link e Monitoring}
-ciao
+In Erlang sono presenti due primitive per sfruttare al massimo i meccanismi di collaborazione tra attori. Queste due primitive sono \textbf{link} e \textbf{monitor}.
 
+Vediamo ora alcuni esempi di codice per la primitiva \textbf{link}:
+\begin{tcolorbox}
+\begin{verbatim}
+sleep(N) -> receive after N -> ok end.
+
+make_link(SHELL, 0) ->
+    io:format("0: send to SHELL ~p~n", [SHELL]),
+    % _ = 1 / 0,   % Volendo far sollevare exception terminando l'attore
+    SHELL ! self(),
+    sleep(200000),
+    io:format("0: Termino ~n"),
+    ok;
+
+make_link(SHELL, N) -> 
+    process_flag(trap_exit, true),
+    spawn_link(?MODULE, make_link, [SHELL, N - 1]),
+    sleep(6000),
+    receive
+        MSG -> io:format("~p: Ho ricevuto ~p~n", [N, MSG])
+    after 1000 -> ok
+    end,
+    io:format("~p: Termino ~n", [N]).
+
+% Creo una catena di 10 attori ognuno linkato al precedente
+test() -> 
+    spawn(?MODULE, make_link, [self(), 10]),
+
+    receive
+        PID ->
+            io:format("Shell ha ricevuto da ~p~n", [PID]),
+            exit(PID, kill),
+            ok
+    end.
+\end{verbatim}
+\end{tcolorbox}
+Quando viene utilizzata la primitiva link vengono collegati due attori. In caso di terminazione di un attore, tutti gli attori linkati verranno terminati a loro volta.
+
+A livello di Beam i due attori si inviano messaggi nascosti per comunicare tra loro in caso di terminazione.
+
+La funzione \texttt{sleep()} permette di mandare l'attore in uno stato di timeout che dura N ms.
+
+Attraverso la funzione \texttt{exit()} possiamo terminare un attore tramite il suo PID fornendo una \textit{reason}. Sono presenti diverse reason, come \texttt{normal}, \texttt{killed} e \texttt{kill}, ognuna con livelli di importanza differenti.
+
+Il costrutto \texttt{link(PID)} permette quindi di linkare due attori. La link è
+\begin{itemize}
+    \item \textbf{Bidirezionale}: se viene terminato uno dei due attori linkato, anche l'altro verrà terminato.
+    \item \textbf{Idempotente}: eseguire due volte la stessa operazione non cambia nulla.
+    \item \textbf{Transitiva}.
+\end{itemize}
+E' inoltre presente una primitiva opposta \texttt{unlink(PID)} per spezzare il collegamento tra i due attori.
+
+All'interno dell'esempio di codice non è presente \texttt{link(PID)} ma \texttt{spawn\_link()}, questo perché permette di evitare race condition di alcun tipo (interruzione del codice tra la spawn ed il link degli attori).
+
+Nel codice è inoltre presente il comando \textbf{imperativo} \texttt{process\_flag(trap\_exit, true)}. Questo comando permette di evitare il meccanismo di terminazione a catena.\\
+In realtà se tramite \texttt{exit()} inviamo la reason \texttt{kill}, questo controllo viene superato e terminato l'attore. In questo caso il primo attore che riceve \texttt{kill} viene terminato, ma agli attori linkati verrà inviata la reason \texttt{normal} (bloccabile dal \texttt{process\_flag()}).
+
+Un'altro possibile fallimento dell'attore può avvenire a causa di \textit{exception} (divisione per 0 nel codice). In questo caso l'attore solleva l'eccezione e viene terminato, facendo terminare a catena gli attori linkati.
+\vspace{14pt}\\
+Un possibile esempio di uso della link può essere: dati due attori, il corrente ed il PID, il corrente vuole richiedere un servizio a PID dal quale vuole una risposta.
+\begin{tcolorbox}
+\begin{verbatim}
+sync_call(REQUEST, PID, TIMEOUT) -> 
+    REF = make_ref(),
+    link(PID),
+    PID ! {REF, REQUEST},
+
+    RES = 
+        receive 
+            {REF, ANSWER} -> ANSWER 
+        after TIMEOUT -> exit(timeout) 
+        end,
+
+    unlink(PID),
+    RES.
+\end{verbatim}
+\end{tcolorbox}
+\texttt{after TIMEOUT -> exit(timeout)} permette di terminare i due attori dopo un determinato tempo di attesa.
+
+\pagebreak
+
+Oltre a link, esiste una seconda primitiva chiamata \textbf{monitor}. A differenza del link, attraverso il monitor abbiamo un collegamento più debole tra attori. Può essere utile per osservare il comportamento di un altro attore. Il monitor è:
+\begin{itemize}
+    \item \textbf{Unidirezionale}: un attore monitora un altro attore e viene informato se l'altro attore termina.
+    \item \textbf{Non idempotente}: se monitoro due volte devo anche de-monitorare due volte.
+    \item \textbf{Non transitiva}.
+\end{itemize}
+
+Due esempi di utilizzo di monitor possono essere:
+\begin{itemize}
+    \item Un browser che monitora (non linka) un server web.
+    \item Vengono utilizzate due librerie \texttt{B} e \texttt{C}. Sia \texttt{B} che \texttt{C} usano una libreria \texttt{A}. Tutte le librerie sono implementate come attori. In questo caso se viene terminato \texttt{B} verrebbe terminato indirettamente anche \texttt{A} terminando a catena anche \texttt{C}. In questo caso link non è adatto e va utilizzato monitor.
+\end{itemize}
+Come per link, è presente anche il comando \texttt{spawn\_monitor()} per evitari possibili race condition.
+\vspace{14pt}\\
+Volendo confrontare link e monitor (unlink e demonitor):
+\begin{itemize}
+    \item Link e monitor prendono il PID dell'altro attore.
+    \item Link non ritorna nulla, monitor ritorna un handle.
+    \item Unlink prende il PID, demonitor prende l'hanlde ed il PID.
+    \item \texttt{trap\_link} (il meccanismo di \texttt{process\_flag()}) funziona solo con il link.
+    \item I messaggi legati al monitoring sono sempre in user space e non vengono propagati.\\
+\end{itemize}
+Inoltre, all'interno di sistemi distribuiti è possibile fare il monitoring di un Nodo.
+
+\pagebreak
+
+\subsection*{Esempio di Distribuzione in Erlang}
+Come detto in precedenza, è possibile lanciare più Beam sulla stessa macchina. Queste Beam vengono identificate come diversi nodi sulla stessa macchina.
+
+Per poter comunicare all'esterno bisogna lanciare \texttt{erl} con la flag \texttt{-sname nome} (short name, in alcuni casi conviene usare soltanto \texttt{-name}).
+
+Tramite il comando \texttt{nodes()} si possono osservare tutti i nodi collegati con la propria shell. Inizialmente questo comando restituisce una lista vuota.
+
+Per collegare due nodi si usa il comando \texttt{net\_adm:ping(nome\_attore@nome\_dispositivo)}, il quale risponde con \texttt{pong} in caso di collegamento andato a buon fine, \texttt{peng} viceversa.\\
+Il collegamento tra due nodi è transitivo.
+
+Un ulteriore comando utile è \texttt{flush()}, il quale permette di stampare sulla shell tutti i messaggi presente nella message queue.
+\vspace{14pt}\\
+Vediamo ora un esempio di scenario di comunicazione tra due nodi. Su un nodo registriamo, tramite il costrutto imperativo \texttt{register()}, il PID del nodo chiamandolo \texttt{shell}.
+
+Il secondo nodo potrà quindi comunicare con l'altro nodo utilizzando il comando \\
+\texttt{\{shell, nome\_altro\_attore@nome\_altro\_dispositivo\} ! \{ciao, self()\}}
+
+L'altro attore, eseguendo il comando \texttt{flush()}, osserverà il messaggio inviato.
+
+Nota: il PID visibile su un attore è diverso dal PID visibile eseguendo il comando \texttt{self()}.
+
+E' possibile inoltre effettuare spawn di attori su un altro nodo.\vspace{14pt}\\
+Per quanto riguarda la sicurezza tra gli attori, Erlang non garantisce alcun tipo di sicurezza built-in. I messaggi vengono inviati in chiaro tra gli attori.\\
+E' presente una chiave che viene scambiata durante la comunicazione tra diversi cluster (presente nel file .erlang.cookie), ma anche la chiave viene inviata in chiaro (quindi facilmente intercettabile).
+
+\pagebreak
+
+\subsection*{Esempio di Migrazione di codice tra due attori}
+Erlang di base non permette di migrare attori tra due nodi, ma è possibile tramite alcuni pattern spostare codice tra due nodi. Questo può essere utile per bilanciare il carico tra diversi nodi o per la prossimità geografica rispetto ai dati.
+
+Un possibile esempio di migrazione può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+migrate(NODE, F) ->
+ PID = spawn(NODE, F),
+ Forward =
+  fun Forward() ->
+   receive
+    {comeback, F} -> F() ;
+    Msg -> PID ! Msg, Forward()
+   end
+  end,
+ Forward().
+
+server(Dati) ->
+ receive
+   msg1 -> server(Dati + 1) ;
+   {migrate, NODE} ->
+     migrate(NODE, fun () -> server(Dati) end)
+ end.
+\end{verbatim}
+\end{tcolorbox}
+Lo scopo di questo codice è quello di trasferire (migrare) il codice da un nodo all'altro.
+
+Viene quindi spawnato un nuovo attore, al quale viene passato il codice che si vuole trasferire.
+
+Per far funzionare questo sistema, l'attore che trasferisce il codice sul nuovo attore deve agire da man-in-the-middle (tramite la funzione ricorsiva \texttt{Forward()}).
+
+Viene inoltre inserita la possibilità di effettuare il comeback all'attore precedente.
+
+Quando trasferiamo funzioni tra due attori, il Byte Code inerente a quella funzione deve essere trasferito da una Beam all'altra.
 \end{document}

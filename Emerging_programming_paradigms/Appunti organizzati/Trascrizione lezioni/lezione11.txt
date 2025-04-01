@@ -1,0 +1,862 @@
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+Sottotitoli creati dalla comunità Amara.org
+ciò sia vero. Ora per rimanere un attimo nel contesto del linguaggio C
+ho rispolverato dalla libreria standard del linguaggio una funzione di
+libreria che si chiama qsort come suggerisce il nome e la funzione che
+implementa l'algoritmo di ordinamento qsort, in questo caso su array, array
+rappresentati come puntatori ad una regione di memoria che contiene num
+elementi e ciascun elemento è di dimensione size quindi come
+probabilmente sapete il C è un linguaggio di medio barra basso livello
+quindi qui i tipi ci permettono proprio di ragionare su come è strutturato in
+memoria l'array che contiene gli elementi che vogliamo ordinare. Si usa un
+puntatore void asterisco per dire questo è un puntatore generico al primo elemento
+dell'array dopodiché sappiamo quanti elementi ci sono, sappiamo ogni elemento
+quanto è grande, quanti byte occupa in memoria, in C sappiamo tutti che gli
+elementi sono memorizzati in maniera consecutiva in un'area contigua di
+memoria uno dopo l'altro quindi avendo queste tre informazioni
+l'indirizzo base, il numero di elementi, dimensioni di ogni elemento sappiamo
+individuare ogni singolo elemento dell'array dove si trova. Il problema
+dell'ordinamento è quello di riarrangiare gli elementi all'interno
+dell'array per far sì che siano ordinati secondo un criterio che però vogliamo
+che sia un criterio che il programmatore può stabilire di volta in volta ed è
+questo il motivo per cui la funzione Qsort in C accetta come quarto argomento
+il puntatore ad un'altra funzione che è proprio quella che la funzione Qsort
+utilizzerà per confrontare tra di loro elementi diverse di questo array, stabilire
+quando un elemento è più piccolo di un altro e in base a questa informazione
+decidere se spostare questi elementi in posizioni diverse dell'array.
+Ad esempio qui definisco una funzione compare che dereferenzia i due
+puntatori IB che vengono passati alla funzione che noi diamo in pasto a Qsort
+e in questo caso compare fa una sottrazione tra il valore che si
+trova al puntatore A e il valore che si trova al puntatore B. Io qui sto dando
+per scontato che A e B siano dei puntatori a numeri interi, d'accordo?
+Perché faccio questa sottrazione? Beh l'idea è che questa funzione di
+confronto tra elementi deve restituire un numero intero che significa se il
+numero intero restituito è negativo significa che A è più piccolo di B, se
+il numero intero restituito è 0 significa che i due elementi che sto
+confrontando sono uguali e se il numero intero che ottengo è
+positivo, strettamente positivo, significa che il primo elemento A è più grande
+del secondo elemento B. Quindi facendo questa sottrazione nel caso di numeri
+interi io rispetto proprio la semantica di questo valore di tipo int che la
+funzione di confronto deve restituire per stabilire qual è l'ordinamento
+relativo di due elementi, d'accordo? E qua vediamo un esempio di invocazione di
+Qsort al quale passo un non meglio specificato array di valori, sto dicendo
+che questo array contiene sei numeri interi, qua sto dicendo quanto è grande
+ciascun elemento dell'array, se l'array è di numeri interi evidentemente passerò
+la dimensione del tipo di dato int, questo sizeof è una parola chiave del
+linguaggio C che mi permette di sapere quanti byte servono per memorizzare un
+singolo numero intero e poi qua vedete trasferisco, comunico alla funzione
+Qsort la funzione che mi permette di confrontare due elementi, ok? In questo
+modo nella libreria standard del linguaggio C la funzione Qsort è
+realizzata una volta per tutte, ok? Perché di volta in volta a seconda
+della natura degli elementi che io voglio ordinare passerò alla funzione Qsort
+una funzione di confronto di comparazione tra gli elementi dell'array
+quella che mi serve in un caso specifico, qui vi sto facendo vedere il caso
+specifico in cui gli elementi sono numeri interi però potrei pensare ad
+esempio di avere un array di stringhe o di puntatori a stringhe e magari sono
+interessato ad ordinare queste stringhe in base all'ordine lessicografico ed
+ecco allora che la funzione compare in quel caso sarà la funzione che mi
+confronta lessicograficamente due stringhe o magari sono interessato a
+confrontare le stringhe solo in base alla loro lunghezza e così via, d'accordo?
+Quindi se noi dovessimo giudicare in base a questa funzione Qsort che
+troviamo nella libreria del linguaggio potremmo essere tentati di dire che nel
+linguaggio C tutto sommato le funzioni sono entità di prima classe, lo sono ma
+in maniera molto limitata, tant'è vero che in C si parla non tanto di passare
+una funzione ad un'altra funzione ma quanto di passare un puntatore ad una
+funzione ad un'altra funzione e questo si evince anche dal tipo che viene usato
+per descrivere questo argomento di comparazione, questo tipo qui non è
+propriamente il tipo di una funzione che si aspetta due puntatori a void e
+ma è piuttosto il tipo di un puntatore ad una funzione che si comporta in questo
+modo, ok? Poi vedremo tra un attimo un esempio se vogliamo ancora più
+illuminante del fatto che di qual è insomma il limite concreto di lavorare
+solo con puntatori a funzione e non con funzioni di prima classe.
+Un altro linguaggio che è parente a abbastanza stretto del C è il linguaggio
+Pascal ormai caduto quasi completamente in disuso, ne abbiamo parlato rapidamente
+l'altra volta, è un linguaggio che è nato soprattutto per scopi didattici, per
+insegnare a programmare, ok? E per imparare a programmare e una cosa che
+differenzia il Pascal dal C ad esempio è il fatto che nelle funzioni Pascal è
+possibile dichiarare localmente delle altre funzioni, esattamente come si fa
+con variabili locali, quelle che usiamo regolarmente quando definiamo una
+funzione o un metodo. Qui vediamo un esempio, non è un esempio
+particolarmente come dire interessante come magari lo era il quick sort di
+prima però giusto per farvi capire di che cosa stiamo parlando. Io qui sto
+definendo in Pascal una funzione E che si aspetta come argomento un numero
+reale che significa poi numero floating point, ok? La funzione restituisce un
+numero reale e questa funzione definisce al proprio interno un'altra funzione che
+qui chiamo F, l'ho anche definita diciamo indentando un pochino il codice per
+mettere in evidenza il fatto che si tratti di una definizione locale, grazie.
+Questa funzione si aspetta un argomento y anch'esso di tipo real anche lei
+restituisce un real e il corpo di questa funzione dice di calcolare la somma tra
+x e y e questo è anche il risultato della funzione.
+Ora in Pascal c'è questa sintassi un po' strana per indicare il risultato di una
+funzione quando voglio dire la funzione ha finito di fare il suo calcolo e questo
+è il risultato, si usa questa sintassi qui che assomiglia un po' anzi è di
+fatto la sintassi per l'assegnamento in Pascal dove si dice vedete io qui uso
+come nome a sinistra dell'operatore di assegnamento il nome stesso della
+funzione e quindi io qua sto dicendo il valore restituito dalla funzione F è la
+somma di x y così come qua giù io dico il valore restituito dalla funzione E è
+il risultato della somma di F applicato a 3 e di F applicato a 4 dove questa F qui
+è la funzione che è stata definita localmente all'interno della funzione E
+d'accordo? Quindi qui vediamo un esempio di linguaggio dove è possibile
+dichiarare funzioni come se fossero delle variabili locali però diciamo
+questa è la storia finisce qui nel caso del Pascal nel senso che in Pascal
+comunque sia non posso scrivere funzioni che accettano funzioni come
+argomenti non posso scrivere funzioni che producono funzioni come risultati
+non posso scrivere strutture dati che contengono al loro interno altre
+funzioni e di fatto essendo il Pascal un linguaggio fortemente tipato tutto
+questo è conseguenza anche del fatto che in Pascal non c'è un tipo per
+descrivere funzioni e nemmeno un tipo per descrivere puntatori a funzione come
+invece succede nel caso del C. Il fatto che comunque sia possibile
+dichiarare funzioni dentro altre funzioni ha delle ripercussioni interessanti lo
+vedremo dopo però già adesso vi faccio notare che questa
+funzione F che cos'ha di interessante? Ha il fatto che il corpo di questa
+funzione F fa riferimento non solo al suo argomento che abbiamo chiamato y ma
+anche a x che però è l'argomento della funzione dentro la quale F è definita
+ok quindi vi faccio notare che questo programma così come l'ho scritto al
+meno non lo potrei riscrivere ad esempio dicendo banalmente vabbè io ho
+deciso di dichiarare la funzione F locale alla funzione e tutto sommato potevo
+anche decidere di prendere questa funzione F definirla globalmente
+d'accordo quindi allo stesso livello della funzione e e chiamarla come se
+fosse una funzione globale anziché definirla localmente. Ecco questa
+operazione non sarebbe così immediata da fare proprio perché la funzione F al
+suo interno utilizza degli argomenti nel caso specifico l'argomento x che è
+argomento della funzione all'interno della quale definita d'accordo se io
+prendessi questa definizione di F e la spostassi a livello globale nel mio
+programma chiaramente quella lì sarebbe una definizione errata della funzione F
+una definizione di F che a quel punto farebbe riferimento ad un nome x che non
+è definito nel punto in cui sto definendo invece la funzione F. In questo
+punto invece x ha senso di esistere e perché è il nome dell'argomento
+di E dentro cui F è definita. Quindi morale per riassumere il Pascal è un
+altro esempio di linguaggio di programmazione che non ha funzioni di
+prima classe però ci permette di definire funzioni dentro altre funzioni
+e ha questo meccanismo non del tutto banale che ci permette di fare
+riferimento dentro al corpo di una funzione entità che sono definite alle
+esterno di quella funzione ma che comunque non sono entità globali non
+sono variabili globali del nostro programma ok? Questo è un elemento che
+gioca un ruolo importante in tutti i linguaggi invece in cui le funzioni
+sono davvero entità di prima classe. Qua infine vi faccio vedere un esempio di
+linguaggio di programmazione dove le funzioni sono sì entità di prima classe
+è un po il linguaggio a cui farò riferimento ripetutamente in queste
+lezioni che facciamo insieme e peraltro diciamo se la cosa vi interessa potete
+già da adesso installare sul vostro portatile sul vostro computer il
+compilatore di questo linguaggio perché a un certo punto faremo degli
+esperimenti di programmazione un pochino elaborati per i quali diciamo che
+seguire il codice scritto nelle slide potrebbe non essere sufficiente comunque
+vi proporrò anche dei semplici esercizi di programmazione quindi se volete
+portarvi avanti potete già adesso insomma installare il compilatore di
+questo linguaggio sulle vostre macchine se cercate a scale compiler dovreste
+trovare senza problemi il sito di riferimento il compilatore è disponibile
+per tutte le architetture se usate linux ci sono già dei
+dei pacchetti pre compilati ma anche per windows e per mac os però diciamo con le
+distribuzioni linux è particolarmente semplice perché basta andare nel
+programma di installazione dei pacchetti e li trovate i riferimenti al compilatore
+askel che ha come nome g h c che è l'acronimo di glasgow askel compiler e
+quindi diciamo se volete mettere le mani avanti e dare un'occhiata da vicino a
+questo linguaggio potete già iniziare a fare questo questo step di
+installazione comunque qui vediamo un esempio di funzione anzi due funzioni
+anche qui si tratta di una funzione dichiarata all'interno di un'altra
+funzione allora guardiamo rapidamente cerchiamo di capire rapidamente il
+significato di questo di questo programma io do per scontato che voi abbiate a
+questo punto acquisito le basi della programmazione funzionale nel contesto
+di erlang che però ha una sintassi molto diversa da quella di askel in askel
+ritroveremo tante tanti concetti che avete già incontrato in erlang e quindi
+io mi limiterò diciamo così a raccontarvi la sintassi di askel e voi
+dovreste riuscire a ricrearvi il significato di quello che vedete sullo
+schermo in base a quello che vi racconto per come avete imparato askel se però
+ci sono delle questioni che secondo voi non si chiariscono con le mie
+spiegazioni fate pure domande approfondiamo ci soffermiamo su degli
+aspetti specifici perché diciamo askel lo useremo ripetutamente per fare anche
+esercizi di programmazione non del tutto banali comunque vediamo un po come
+interpretare questo codice qui qui io sto dichiarando innanzitutto una
+funzione che chiamo fibo e sto dicendo con la prima riga che vedete qua in
+alto che fibo è una funzione che si aspetta come argomenti dei numeri
+interi e produce come risultati dei numeri interi ok queste cose si evincono
+dal tipo int freccia int che vedete qua questo qui è il tipo di una funzione in
+askel la freccia separa il tipo del dominio
+della funzione cioè ciò che la funzione si aspetta di ricevere come input dal
+codominio della funzione cioè ciò che la funzione produce come risultato quindi
+il tipo int che vediamo a sinistra della freccia significa la funzione fibo è una
+funzione che si aspetta degli argomenti di tipo int cioè numeri interi
+il tipo int maiuscolo è l'analogo del tipo int minuscolo in linguaggi come java
+come ci eccetera eccetera ok il tipo int a destra della freccia
+significa la funzione fibo quando io la applico ad un argomento di tipo int
+produce un risultato di tipo int qui diciamo per come è fatta la funzione
+fibo succede che dominio e codominio abbiano lo stesso tipo abbiamo int in
+entrambi i casi ma non è la norma nel senso che in generale dominio e
+codominio di una funzione possono avere i tipi distinti d'accordo lo scopo di
+questa funzione qui come un pò si intuisce dal suo nome è quello di
+calcolare il cappesimo numero nella sequenza di fibonacci probabilmente la
+conoscete già è la sequenza di numeri che inizia con 0 1 e poi ogni numero
+successivo in questa sequenza è ottenuto sommando i due precedenti quindi se 0
+e 1 sono i primi due numeri per definizione della sequenza di fibonacci
+il terzo numero è 1 perché è la somma di 0 e 1 il quarto numero è 2 perché 2
+è la somma di 1 e 1 il quinto numero è 3 perché è la somma di 2 e 1 e così via
+d'accordo come faccio a calcolare questa sequenza qui allora io qui sto dicendo
+che per calcolare il numero di fibonacci che ha un certo indice k l'indice k io
+qui sto usando una sintascia un pò particolare posso anche riscrivere
+questa funzione forse in questo momento è più è più chiaro se la riscriviamo
+così fibo hs quindi una funzione da int a int come faccio a calcolare il
+numero di fibonacci con indice k beh mi appoggio ad un'altra funzione che qui
+ho chiamato a ux che è un nome sta per ausiliaria d'accordo dopo di che dico
+come fatta la funzione a ux ok la slide che ci dice ci dice che la
+funzione a ux è definita per casi o due casi quando il terzo argomento della
+funzione a ux è 0 la funzione restituisce il valore del primo
+argomento ok quindi qui ho una definizione di
+un'altra funzione ausiliaria per casi che è fatta così quindi quando il terzo
+argomento di a ux è 0 il secondo argomento non mi importa non lo utilizzo
+e quindi posso usare questo underscore per far capire ad askel che si lì c'è un
+argomento ma non gli voglio dare un nome perché tanto in questo caso
+io non lo sto utilizzando ok e allora anziché inquinare il codice con dei
+nomi che poi alla fine non mi servono posso usare l'underscore per dire qui
+c'è qualche cosa ma non gli voglio dare un nome il primo argomento invece è
+importante perché in questo caso specifico voglio dire che il risultato
+della funzione è proprio m cioè il valore del primo argomento
+ovviamente questi nomi qui sono scelti da me se ho piacere di usare nomi
+diversi anche più lunghi di una singola lettera lo posso fare ok
+in tutti gli altri casi quindi askel valuta queste definizioni per casi
+dall'alto verso il basso c'è un meccanismo analogo anche in Erlang quando
+si definisce una funzione per mezzo di clausole distinte d'accordo io qui sto
+dicendo se il terzo argomento è 0 la funzione produce come valore il valore
+del primo argomento in tutti gli altri casi io qui sto usando tre nomi m, n, k
+che possono essere istanziati in modo arbitrario ma comunque solo se il terzo
+argomento non è 0 perché altrimenti askel avrebbe pescato la prima clausola
+allora in questo caso qui che cosa faccio faccio una chiamata ricorsiva di
+questa funzione aux dove il valore del primo argomento diventa il valore del
+secondo il valore del secondo argomento è la somma dei valori dei primi due
+argomenti e il valore del terzo argomento è il valore del terzo
+argomento decrementato di 1 ok non so se in altri corsi di programmazione avete
+visto questa definizione della funzione di fibbonacci ma è il modo ricorsivo di
+implementare la funzione di fibbonacci quella che diciamo in maniera imperativa
+si realizza con due variabili locali m ed n nelle quali io mi ricordo gli ultimi
+due valori nella sequenza di fibbonacci che ho calcolato e poi faccio un ciclo
+dove io mi sposto di una diciamo così di una posizione verso destra ad ogni
+iterazione del ciclo e ad ogni iterazione che cosa faccio aggiornò
+queste due variabili locali m ed n facendo che cosa nella variabile m ci
+metto il valore della variabile n d'accordo quello che era il penultimo
+valore nella sequenza di fibbonacci diventa l'ultimo e nella variabile n ci
+metto la somma del vecchio m e del vecchio n d'accordo in modo tale che ad
+ogni iterazione io mi ricordo qual è il valore degli ultimi due numeri nella
+sequenza di fibbonacci e mi avvicino di un passo alla posizione nella sequenza
+nella quale io voglio leggere il risultato d'accordo quella che vedete
+qui è la definizione ricorsiva in in askel d'accordo ora qui notiamo appunto
+che c'è la definizione di una funzione locale a ux è una definizione locale
+perché questa funzione qua ha interesse ha ragione di esistere solo localmente
+all'interno della funzione fibo non mi aspetto che qualcuno dall'esterno
+e applichi questa funzione e allora già che ci sono per non sporcare il resto
+del mio programma con queste definizioni di funzioni ausiliari e che non sono di
+interesse per nessuno definisco la funzione a ux localmente quindi in
+askel posso definire una funzione locale ora questo di per sé non basta a
+convincervi che in askel le funzioni sono entità di prima classe però
+abbiamo altri indizi vi ho già detto prima che in askel le funzioni hanno un
+tipo lo vediamo qui nel caso della funzione fibo non faccio vedere il tipo
+della funzione a ux perché askel ha un meccanismo detto di inferenza di tipi
+per cui laddove il programmatore non scrive esplicitamente il tipo delle
+funzioni e in generale delle entità che vengono definite askel ricostruisce
+automaticamente questo tipo per il programmatore d'accordo e se askel non
+ci riesce è perché evidentemente nella definizione data dal programmatore c'è
+un errore di tipo se volessi dare un tipo esplicito ad a ux posso farlo
+quindi qua dentro uso la stessa sintassi che abbiamo visto in alto e dovrei
+scrivere qualche cosa del genere che è un po criptico da da capire però l'idea
+è semplice cioè a sinistra di ogni freccia c'è il tipo di un argomento e il
+tipo che vedo più a destra di tutti è il tipo del risultato quindi da questo
+tipo qui io capisco che la funzione a ux si aspetta tre argomenti perché vedo
+tre frecce questi tre argomenti hanno tipo rispettivamente int int int sono
+tutti argomenti di tipo int e il risultato della funzione di nuovo a tipo
+ora questo potrebbe sembrare un modo molto sciocco di descrivere il tipo di
+una funzione a tre argomenti ma ha una sua ragione d'essere e la vedremo
+proprio più tardi in questa in questa lezione d'accordo però qui quello che vi
+stavo dicendo è che in askel posso volendo omettere le dichiarazioni
+di tipo perché tanto il linguaggio è in grado di inferire automaticamente questi
+tipi per me è comunque buona norma dare un tipo esplicito se non altro alle
+funzioni globali come anche solo come forma di documentazione oppure per fare
+in modo che askel controlli che il tipo che noi scegliamo qui per la funzione
+sia consistente con il tipo che lui inferisce prego la freccia associativa
+a destra e quindi quando ad esempio scrivo un
+tipo del genere in realtà io questo tipo lo devo interpretare in questo modo
+quando parliamo di associatività di operatori o in questo caso di
+costruttori di tipo tanto per chiarirci le idee che cosa intendo dire intendo
+dire facciamo l'esempio della moltiplicazione che è un operatore con
+il quale abbiamo tutti i familiarità se io dico che l'operatore di
+moltiplicazione è associativo a destra ad esempio intendo dire che laddove
+scrivo una espressione come questa dove uso due volte l'operatore di
+moltiplicazione necessariamente con tre operandi e c'è un operando quello di
+mezzo che è conteso dai due dalle due moltiplicazioni ok questa y è contesa
+tra questa occorrenza dell'operatore di moltiplicazione e questa occorrenza
+dell'operatore di moltiplicazione se io dico che in un particolare linguaggio di
+programmazione l'operatore di moltiplicazione è associativo a destra
+questo significa che quando scrivo un'espressione del genere
+l'occorrenza più a destra dell'operatore di moltiplicazione è più forte
+dell'occorrenza che sta a sinistra e quindi è quell'occorrenza che cattura
+l'operando che sta nel mezzo se invece un linguaggio di programmazione è
+implementato in modo tale che l'operatore di moltiplicazione è associativo a
+sinistra allora questo vuol dire che quando scrivo una moltiplicazione del
+genere è la moltiplicazione di sinistra che è più forte di quella di destra e
+allora la espressione la devo interpretare in questo modo qua ok
+ora nel caso della moltiplicazione usare un'interpretazione oppure l'altra
+non fa una grossa differenza proprio perché la moltiplicazione di solito ma
+non sempre è un'operazione associativa che vuol dire che a prescindere dall'ordine
+in cui io faccio le moltiplicazioni il risultato è sempre quello ok quindi di
+norma non fa una grossa differenza nel caso della moltiplicazione se il
+linguaggio di programmazione la realizza come un'operazione associativa a
+sinistra o un'operazione associativa a destra però ci sono degli operatori che
+invece non sono associativi per esempio la sottrazione la divisione o nel caso
+dei tipi freccia alla freccia appunto ok per cui in quei casi lì è importante
+ricordarsi se quell'operatore è associativo a sinistra oppure a destra
+quindi ritornando a noi nel caso del tipo freccia il tipo freccia per
+convenzione ma anche qui c'è un motivo dietro questa scelta che capisco benissimo
+che in questo momento può sembrare del tutto arbitraria ma c'è un motivo
+interessante il tipo freccia è associativo a destra quindi quando io
+scrivo un tipo del genere d'accordo e guardiamo ad esempio questo int qui
+questo int qui è conteso da una freccia alla sua sinistra e da una freccia alla
+sua destra siccome vi sto dicendo che la freccia è associativa a destra la
+freccia a destra vince e si cattura quell'int analogo discorso per quest'altra
+freccia e così via d'accordo quindi letto in questo modo il tipo della
+funzione a ux è un po bizzarro perché io prima vi ho detto a ux è una funzione
+a tre argomenti contate il numero di frecce per sapere quanti argomenti ha la
+funzione a ux il tipo che vedete alla sinistra di ogni freccia è il tipo
+dell'argomento corrispondente e il tipo che vedete in fondo a destra è il tipo
+del risultato prodotto dalla funzione d'accordo in realtà se adesso noi
+leggiamo il tipo dopo aver messo le parentesi è non è più così ovvio che
+a ux sia una funzione a tre argomenti perché se noi leggiamo questo tipo così
+con le parentesi che cosa scopriamo scopriamo che in realtà a ux è una
+funzione a un argomento solo di tipo int e questa funzione produce come
+risultato che cosa e qua c'è un'altra freccia quindi questa ux produce come
+risultato una funzione a un argomento solo di tipo int che produce come
+risultato che cosa qui c'è un'altra freccia ancora e quindi questa funzione
+produce a sua volta una funzione a un argomento solo di tipo int che
+finalmente produce come risultato un int quindi vedete che questa
+interpretazione è molto più complessa da descrivere e anche da capire uno
+potrebbe chiedersi ma perché mai la funzione a ux deve avere un tipo così
+complicato non è un obbligo però questo modo di descrivere le funzioni a più
+argomenti ha delle sue comodità e le vediamo proprio fra un po in questa
+stessa lezione ok però teniamo a mente il fatto che le frecce sono associative
+a destra e però per il momento possiamo accontentarci di questa
+interpretazione semplicistica no di frecce multiple come il tipo di
+funzioni a più argomenti d'accordo altre curiosità domande ok
+va bene quindi in askel le funzioni hanno un tipo ve l'ho appena fatto vedere
+la funzione a ux è una funzione che prende un intero e produce una funzione
+che e via dicendo d'accordo hanno un tipo posso definire funzioni dentro altre
+funzioni posso scrivere delle strutture dati che
+contengono al loro interno delle funzioni per esempio se io lancio il
+l'interpret e askel in askel c'è ad esempio la funzione id che è la
+funzione identità quella che non fa niente se io applico la funzione di ad
+un argomento la funzione di produce esattamente quell'argomento non c'è
+nessun problema ad esempio nel creare una lista all'interno della quale ci
+sono per dire due occorrenze della funzione id ok oppure non c'è nessun
+problema nel creare una coppia ok in cui nella prima componente della coppia c'è
+la funzione id e nella seconda componente della coppia c'è un buleano
+true con la t maiuscola è il buleano true di tipo bull in askel d'accordo
+quindi le funzioni le posso usare come se fossero dati e askel è un esempio
+così come erlang di linguaggio dove davvero le funzioni sono entità di
+prima classe che cosa possiamo dire di altri linguaggi moderni di cui avete
+sicuramente sentito parlare e quando dico moderni intendo linguaggi tipo java
+python c più più eccetera eccetera le funzioni sono entità di prima classe in
+questi linguaggi allora in senso stretto no nel senso che questi linguaggi non
+nascono propriamente come linguaggi funzionali però nel corso del tempo
+hanno incorporato tutti la possibilità di definire al volo funzioni di
+memorizzare funzioni all'interno di strutture dati di scrivere ad esempio
+metodi che accettano funzioni come argomenti eccetera eccetera ovviamente
+questi linguaggi come dire in questi linguaggi il concetto di funzione come
+entità di prima classe è stato aggiunto a posteriori nel momento in cui i
+progettisti del linguaggio si sono resi conto dell'utilità di avere questa
+questo costrutto nella nel linguaggio e però quando il linguaggio viene
+modificato e esteso espanso quando delle nuove funzionalità non è che
+queste modifiche così importanti possono essere fatte alla leggera
+soprattutto se nel frattempo il linguaggio di programmazione è diventato
+importante abbiamo visto che java è diventato al giorno d'oggi è uno dei
+linguaggi più popolari per la scrittura di applicazioni generiche d'accordo e
+quindi quando i progettisti del linguaggio hanno deciso di incorporare
+le funzioni dentro come entità di prima classe in java non è che hanno potuto
+come dire stravolgere il linguaggio per far sì che questa modifica questa
+estensione fosse la più naturale possibile
+hanno dovuto incorporare le funzioni all'interno del linguaggio le funzioni di
+prima classe all'interno del linguaggio java cercando di farle rientrare nel
+paradigma di programmazione a oggetti che era quello seguito da java quindi
+quello che succede è che sì adesso in java è possibile scrivere metodi che a
+quanto pare accettano funzioni come argomenti e producono funzioni come
+risultati ma in pratica queste funzioni che vengono passate come argomenti di
+metodi o come valori restituiti dai metodi non sono altro che degli oggetti
+che invece sono un concetto ben definito e preesistente fino agli albori del
+linguaggio java d'accordo e quindi i progettisti hanno detto ok incorporiamo
+le funzioni di prima classe in java ma di fatto quello che forniamo al
+programmatore è solo un modo rapido di definire degli oggetti che si comportano
+alla stregua di funzioni d'accordo e qua vediamo un esempio quindi così come
+prima abbiamo visto l'esempio della funzione di libreria quick sort nel caso
+del linguaggio c non so se avete mai avuto occasione di utilizzare in java la
+funzione sort della classe arrays questa è una funzione analoga a quella q sort
+che abbiamo visto prima è la funzione che serve in java per ordinare gli
+elementi di un di un array d'accordo e quello che sto facendo qui è fornire
+alla metodo sort l'array che contiene gli elementi da ordinare e poi esattamente
+come nel caso della funzione q sort del ci devo dire qual è il criterio di
+ordinamento di questi elementi ed esattamente come in ci il criterio di
+ordinamento deve essere una funzione che accetta in input due elementi
+dell'array e produce come risultato un numero intero che è negativo se il primo
+dei due elementi che sto confrontando è più piccolo del secondo questo numero è
+zero se i due elementi che sto confrontando sono uguali ed è
+strettamente positivo se il primo dei due elementi che sto confrontando è
+strettamente più grande del secondo e che cosa faccio qui ora questa
+notazione qui io non so se avete avuto occasione di usarla o di quanto meno di
+di studiarla questa notazione qui che è per è java
+perfettamente legale ok dal 2008 in avanti questa è stata l'estensione del
+linguaggio che è stata implementata dai progettisti questa notazione qui serve a
+dire che noi passiamo come secondo argomento del metodo sort una funzione
+che si aspetta come argomenti due elementi dell'array diciamo a e b e
+questa funzione produce come risultato in questo caso specifico la differenza
+delle lunghezze delle stringhe a e b in questo caso sto ordinando stringhe da
+questo array e quindi esattamente come facevo in c in cui sottraevo i due
+valori in quel caso erano numeri interi per ottenere il criterio di ordinamento
+qua sto sottraendo le lunghezze delle due stringhe e questa freccia che vedete
+qui non è scelta caso come notazione sintattica è la notazione che ricorda
+proprio il tipo delle funzioni ad esempio in in askele no dove usiamo
+questo tipo per dire la funzione accetta argomenti di tipo int e produce
+risultati di tipo int e qui lo sto facendo sto usando di nuovo la freccia
+però a livello non di tipi ma di codice per dire la funzione a come argomenti a
+e b due stringhe e produce come risultato la differenza delle lunghezze di queste
+due stringhe d'accordo poi che cosa succede succede che dietro le quinte
+quando il compilatore vede che il programmatore ha usato una notazione del
+genere per dire io qui voglio creare la funzione che date due stringhe mi
+confronta alle loro lunghezze il compilatore crea un oggetto perché java
+può ragionare soltanto in termini di oggetti essendo un linguaggio di
+programmazione ad oggetti crea un oggetto che in qualche modo rappresenta questa
+funzione la funzione che date due stringhe ne confronta la lunghezza
+tant'è vero che se andate nella documentazione della libreria standard e
+guardate la documentazione relativa al metodo sort lì troverete una
+dichiarazione del genere che vi fa capire che il metodo sort che è un
+metodo parametrico nel tipo t degli elementi dell'arrei da ordinare si
+aspetta come secondo argomento un oggetto di tipo comparator con qui la
+notazione delle wild card che serve per dare maggiore flessibilità all'utilizzo
+di questo oggetto però questo comparator qui non è nient'altro che
+un'interfaccia java d'accordo e l'oggetto che il compilatore java crea in
+corrispondenza di questa sentarsi guarda caso è un oggetto che implementa
+l'interfaccia comparator d'accordo quindi è vero io posso scrivere un codice
+simil funzionale ma poi dietro alle quinte il compilatore java traduce
+questo codice in ciò che java sa fare che è manipolare oggetti passare oggetti
+a metodi scrivere metodi che producono come risultato altri oggetti e via
+dicendo ok la stessa cosa si può dire per python
+aperci più più eccetera eccetera sono linguaggi che non nascono in senso
+stretto come linguaggi funzionali ma le funzioni sono poi state promosse a
+entità di prima classe incorporandole nel linguaggio usando quei meccanismi
+naturali della linguaggio in cui sono state incorporate ok anche python e c
+più più sono linguaggi ad oggetti e quindi potete immaginare che anche nel
+caso di python e di c più più il modo in cui vengono modellate le funzioni è
+sostanzialmente per mezzo di di oggetti ok
+va bene e come siete abituati facciamo una pausa finiamo prima come cosa
+preferite
+per me va bene ditemi voi se avete piacere di fare una pausa
+se no se siete tutti d'accordo tiriamo dritto non non dovrebbe essere una
+lezione pesante almeno non dal mio punto di vista però ditemi insomma
+allora già l'altra volta vi avevo suggerito un semplice test per capire se
+un linguaggio è davvero un linguaggio di programmazione in cui le funzioni sono
+entità di prima classe oppure no e il test è il seguente riusciamo a
+implementare nel linguaggio di programmazione l'operatore di
+composizione funzionale se la risposta è sì allora questo nel 99 per cento dei
+casi indica che il linguaggio di programmazione in questione è un
+linguaggio in cui le funzioni sono entità di prima classe dico questo
+perché l'operatore di composizione funzionale lo possiamo esprimere come
+funzione probabilmente questa definizione qua
+in matematica l'avete vista in analisi matematica è una delle prime cose che
+si incontrano ok date due funzioni f e g che cosa vuol
+dire che le compongo vuol dire produrre una nuova funzione che è applicata ad
+un argomento x calcola f di g di x ok quindi se io mi concentro su questa
+parte della definizione sulla che cosa vuol dire
+l'operatore cerchietto di composizione funzionale
+questo operatore è una funzione che si aspetta in input due funzioni f e g
+quindi già questo ci fa capire che l'operatore di composizione funzionale è
+un operatore si dice così di ordine superiore perché accetta in input non
+dei semplici dati ma delle funzioni non solo ma produce come risultato un'altra
+funzione ok questo operatore è facile implementarlo in askel questa quella che
+vedete qui è proprio il modo in cui la l'operatore di composizione funzionale è
+realizzato nella libreria standard di askel proviamo a decifrarne il tipo ok
+quindi l'operatore di composizione funzionale in askel si esprime con il
+punto che tra i caratteri semplici è quello che forse si avvicina più di
+tutti alla cerchietto che invece viene usato in matematica d'accordo? ora che
+cosa sto dicendo qui? sto dicendo che quando uso la funzione punto cioè
+l'operatore di composizione funzionale questo è un operatore che io applico a
+due funzioni f e g notate la sintassi per cui il nome degli argomenti viene
+scritto direttamente di fianco al nome della funzione esattamente come abbiamo
+fatto prima con fibo e con aux e che cosa produce come risultato la
+composizione funzionale di f e g? ebbene produce un'altra funzione e qui ritroviamo
+una sintassi che abbiamo già visto prima in java ok? questa sintassi qui in askel
+serve a dire che il risultato della composizione funzionale di f e g è un'altra
+funzione questo backslash qui lo dovete interpretare come il carattere che fa
+capire ad askel qui comincia la definizione di una funzione ok? è un
+modo stilizzato per scrivere la lettera greca lambda ok? forse avete sentito
+parlare di lambda espressioni d'accordo? questo qui è il modo per dire in askel
+voglio definire una lambda espressione cioè una funzione anonima questa
+funzione si aspetta un argomento x e che cosa produce quando viene applicata a
+quell'argomento x? produce il risultato ottenuto applicando f al risultato
+dell'applicazione di g a x ok? ora qui ci sono delle altre stranezze per
+cui voi magari siete abituati in altri linguaggi di programmazione a scrivere
+una sintassi del genere per dire che si vuole applicare la funzione f al
+risultato dell'applicazione di g a x ok? di solito nella maggior parte dei
+linguaggi l'applicazione di una funzione ai suoi argomenti o di un
+metodo ai suoi argomenti è fatto così nome della funzione o del metodo aperta
+parentesi e poi vado ad elencare gli argomenti della funzione o del metodo
+d'accordo? in askel invece si usa una sintassi un po' diversa si mettono
+semplicemente funzione e argomento uno di fianco all'altro ok? per cui ad
+esempio io qui sto dicendo con questa sintassi qua g di fianco a x sto
+dicendo applica la funzione g all'argomento x perché è stata scelta
+questa notazione nel caso di askel? perché askel essendo un linguaggio
+funzionale dove di fatto le uniche cose che posso fare sono definire e
+funzioni e applicare funzioni io applico funzioni continuamente per cui
+i progettisti del linguaggio hanno scelto come sintassi per indicare
+l'applicazione di una funzione dello suo argomento la sintassi più leggera
+possibile e quale la sintassi più leggera possibile?
+anziché scrivere f aperta parentesi argomento chiusa parentesi questa cosa
+la scrivo semplicemente mettendo funzione e argomento uno di fianco
+all'altro ok? mi risparmio le parentesi che però devo comunque utilizzare in
+alcune circostanze perché questo operatore di applicazione funzionale in
+askel è invece associativo a sinistra e quindi qua invece se io voglio dire
+applico f al risultato dell'applicazione di g ad x qui devo usare le parentesi
+attorno a gx per dire che prima applico g e poi applico f alla risultato
+dell'applicazione di g ad x ok? quindi se torniamo a noi qua vedete come definire
+l'operatore di composizione funzionale in askel e qui invece vedete come
+definirlo in java ok? questo metodo statico compose è un metodo in java
+assolutamente corretto da java 8 in avanti che mi dice ok questo metodo si
+aspetta una funzione f che ha come tipo del dominio b e tipo del codominio c
+poi si aspetta un'altra funzione g questa volta con tipo del dominio a e
+tipo del codominio b e l'idea è che questo metodo deve produrre come
+risultato un'altra funzione che mi rappresenta la composizione funzionale di
+f e g e allora come facciamo a definire il metodo vedete di nuovo la sentassi x
+freccia quindi qua sto definendo la funzione che si aspetta un argomento x e
+che cosa fa questa funzione? beh invoca il metodo apply su f ricordate in java ho
+l'illusione di lavorare con delle funzioni ma in realtà queste funzioni
+sono oggetti che implementano una certa interfaccia nel caso specifico
+l'interfaccia function ha un metodo che si chiama apply che significa applica la
+funzione rappresentata da questo oggetto a questo argomento e l'argomento che
+cos'è è il risultato dell'applicazione di g a x ok quindi sicuramente come una
+sentassi un po' più pesante rispetto a quella che vedete in in askel però di
+nuovo ho davvero l'illusione di lavorare con un linguaggio dove le
+funzioni sono entità di prima classe questo metodo compose accetta due
+funzioni f e g come argomenti e produce questa funzione qua come risultato di
+nuovo dietro le quinte il compilatore java ad esempio quando vede questa
+sentassi qui crea un oggetto che è istanza della che implementa scusate
+l'interfaccia function e che rappresenta la funzione che ho scritto
+sintaticamente in questo modo ok
+ora se noi volessimo provare a estendere il c e qui arriviamo un po' al succo
+della lezione di oggi se noi volessimo provare a estendere il linguaggio c con
+funzioni di prima classe prima abbiamo argomentato sul fatto che in
+ci ci sono soltanto puntatori a funzione ma non vere e proprie funzioni di prima
+classe e quali sono le difficoltà tecniche che ci troviamo ad affrontare
+allora facciamo questo esperimento anzi adesso mi ricordo di avervi suggerito
+alla fine della lezione della volta scorsa provate in ci a realizzare
+l'operatore di composizione funzionale e andate a vedere qual è il problema che
+si materializza cioè qual è l'ostacolo fondamentale che vi impedisce di
+realizzare questo operatore in un linguaggio come il ci allora proviamo a
+farlo insieme d'accordo proviamo a definire in ci un
+operatore di composizione funzionale allora la sintassi è un po' ostica da
+digerire perché appunto in ci ci sono soltanto puntatori a funzione però
+facciamo un po' di ipotesi per semplificare supponiamo che le due
+funzioni f e g che voglio comporre tra di loro siano entrambe funzioni che
+accettano un numero intero come argomento e producono un numero intero
+come risultato ok quindi scriverei la funzione compos in ci in questo modo qua
+devo mettere questi asterischi di fronte ai nomi dei due argomenti perché devo
+far capire al ci che f e g sono puntatori a funzioni da int a int e poi
+dovrei dire che il tipo di ritorno di compos è fatto grosso modo in questo
+modo qua devo dire che compos produce come
+risultato il puntatore ad una funzione e qui però la funzione restituita non ha
+un nome vero e proprio nel tipo almeno non posso indicarlo anche questa sarà
+una funzione da int a int se le due funzioni che sto componendo a loro volta
+sono funzioni da int a int ora una cosa che potremmo provare a fare è la
+seguente come faccio a estendere il linguaggio ci con funzioni di prima
+classe potrei pensare di estendere il ci permettendo ad esempio la
+dichiarazione di funzioni dentro altre funzioni per esempio qui potrei dire
+ok che cosa deve restituire la funzione composa e un'altra funzione e dove la
+dove la dichiaro questa funzione supponiamo di dichiararla qua dentro no
+un po come in pascala dove io posso dichiarare delle funzioni localmente
+all'interno di altre funzioni non ho dei grossi problemi a scrivere il
+corpo di questa funzione a ux ok è una funzione che si aspetta come argomento un
+certo x di tipo int e produce come risultato f applicata a g applicata ad
+x dopodiché una volta che io ho definito questa funzione a ux potrei
+dire ok ecco qua questo è il risultato della composizione di f e dg ok
+torna uno potrebbe dire vabbè se noi ammettiamo la possibilità di
+dichiarare funzioni all'interno di altre funzioni ecco che in c sebbene
+con un po di pastrocchio a livello di tipi potremmo tutto sommato avere delle
+funzioni come entità di prima classe ok vi sembra sufficientemente
+convincente questa questo ragionamento notate qualche cosa di strano in questa
+funzione qui
+esatto cioè qual è il problema il problema è che questa funzione a ux fa
+riferimento oltre all'argomento della funzione ad altri nomi f e g d'accordo e
+questi nomi però non sono argomenti di a ux sono argomenti di compos d'accordo è
+questa se vogliamo l'aspetto critico di questa realizzazione dell'operatore di
+composizione funzionale e perché questo è un aspetto critico
+immaginiamo di di tentare di usare questo ipotetico questa ipotetica
+ipotetico operatore di composizione funzionale supponiamo di avere a
+disposizione una funzione successore da inta inta che calcola il successore di un
+numero e di voler usare l'operatore di composizione funzionale ok compose per
+dire beh voglio definire la funzione più 2 quella che somma 2 al suo argomento
+non direttamente ma facendo uso dell'operatore di composizione
+funzionale allora potrei immaginare di dichiarare
+questo plus 2 d'accordo che è la mia funzione che somma 2 al suo argomento
+come risultato dell'invocazione di composta su successore e successore
+il problema qual è il problema è che quando io chiamo quando io invoco la
+funzione plus 2 applico plus 2 all'argomento per esempio a1 beh questa
+funzione plus 2 in teoria che funzionè dovrebbe essere questa funzione a ux qua
+alla quale noi forniamo il suo argomento x l'1 ok quindi x sappiamo chi è è il
+valore 1 che passiamo qua ma poi questa funzione accede a dei nomi f e g e
+questi il valore associato a questi nomi dove lo trovo perché questi f e g che
+cosa sono o meglio che cos'erano erano argomenti di compose ma compose è già
+bella che è finita la funzione compose io l'ho chiamata qua per ottenere la
+composizione di successore come se stesso la funzione è andata in
+esecuzione le ho fornito dei parametri la funzione mi ha prodotto un risultato ma
+una volta che la funzione è terminata il luogo in cui il valore dei suoi
+parametri è stato memorizzato temporaneamente è sparito quei parametri
+lì sono stati inseriti sulla pila quando ho chiamato la funzione compose la
+funzione compose ha fatto quello che doveva fare poi nel momento in cui
+compose termina il suo frame il suo record di attivazione viene rimosso
+dalla pila e di conseguenza viene rimosso dalla pila l'area di memoria in
+cui sono memorizzati i valori di f e di g ragion per cui quando io provo ad
+applicare plus 2 in questo punto del codice
+ammesso che un programma del genere venga accettato dal compilatore c e
+questa funzione plus 2 che non è nient'altro che aux cercherà di leggere
+il valore di variabili non locali che non esistono proprio in memoria
+d'accordo e questo è il problema sostanziale ok
+ora in pascala invece abbiamo visto che è possibile definire funzioni
+all'interno di altre funzioni benché non sia possibile ad esempio restituire
+funzioni come risultato di altre funzioni e quindi in pascala noi
+potremmo provare a definire localmente una funzione tipo questa no che si
+comporta come la composizione di f e g ma poi non abbiamo nessun strumento
+linguistico per dire ecco il risultato della composizione è questa funzione
+che io ho definito localmente però in generale se anche noi riprendiamo
+l'esempio più semplice che ho fatto prima no questo è un esempio
+perfettamente legale di definizione di funzione locale in pascal e già prima vi
+ho fatto notare che questa funzione f locale accede al proprio interno ad una
+variabile x che è definita esternamente alla funzione ok quindi in qualche
+maniera sembra che il pascal non soffra di quel problema di cui invece soffre il
+per cui non è possibile accedere all'interno di una funzione locale a
+nomi che però sono definiti esternamente a quella funzione ok quindi uno
+potrebbe chiedersi ma come fa allora il pascal a permettere la definizione di una
+funzione come la f che vedete qui dal momento che ci sono questi problemi di
+accesso non locale ad un nome x beh il punto è che in pascal quando la
+funzione f viene chiamata proprio perché la funzione f è definita
+localmente all'interno della funzione e se io che sto chiamando la funzione f è
+perché la funzione e non è ancora terminata non c'è esecuzione concorrente
+ritardata in una linguaggio come pascale un linguaggio puramente sequenziale ok
+se la funzione f è definita dentro la funzione e io posso chiamare la funzione
+f solo dall'interno della funzione e ma allora se io chiamo la funzione f
+dall'interno della funzione e quando chiamo f vuol dire che la funzione e è
+in esecuzione altrimenti la f non sarebbe definita d'accordo e se la
+funzione e è in esecuzione questo vuol dire che il record di attivazione della
+funzione e è presente sulla pila e quindi è presente l'area di memoria
+nella quale io trovo in questo caso il valore dell'argomento x ok quindi se
+me volessimo provare a rappresentare graficamente quello che succede nella
+memoria del nostro programma pascal ok noi abbiamo il record di attivazione
+della funzione e dentro il quale ad esempio c'è uno slot per l'argomento x
+che viene memorizzato nella recorda di attivazione di e quando la funzione e
+chiama la funzione f che è definita localmente dentro e nella recorda di
+attivazione nella nella pila dei record di attivazione compare un nuovo record
+per la funzione f che è stata chiamata questa funzione ha il suo slot per
+l'argomento y non mi ricordo se quella chiamavo con un valore specifico con 3
+ok quindi anche qui io sto usando facciamo così per non fare confusione
+questo argomento qua chiamiamolo 7 ok quindi io chiamo la funzione e passando
+l'argomento 7 la funzione e a questo punto chiama la funzione f passando come
+argomento 3 questo è consistente con il codice che vi ho fatto vedere ma notate
+quando io invoco la funzione f necessariamente la funzione e è ancora in
+esecuzione e se la funzione e è ancora in esecuzione nel suo recorda di
+attivazione c'è il valore associato alla variabile locale x e quindi dentro la
+funzione f quando io scrivo calcola il valore di x più y
+vabbè magari faccio un po di fatica devo fare un po di lavoro per capire
+nella pila dove trovare il valore della variabile non locale x ma quel valore
+c'è perché quel valore io lo trovo nel record di attivazione della funzione e
+che è ancora presente nella pila non è il record di attivazione di f ma è
+subito sotto d'accordo quindi magari devo fare un po di
+lavoro per capire dove si trova la x ma la certezza che la x c'è ce l'ho
+d'accordo guarda caso in un linguaggio come pascal non posso restituire una
+funzione come risultato di un'altra funzione e questo fa sì che se io
+definisco una funzione localmente all'interno di un'altra funzione come il
+caso di di f d'accordo non ho modo di dire il risultato di e e f tutte le
+chiamate di f io le devo esaurire all'interno del corpo di e e questo fa
+sì che non mi troverò mai nella circostanza in cui devo eseguire il
+corpo di f e devo cercare il valore di una variabile non locale e lo slot in
+cui ha memorizzato quel valore non è più presente nella pila questo non può
+materialmente accadere perché tutte le chiamate di f devono necessariamente
+essere circoscritte all'interno del corpo di e ok quindi arriviamo alla
+nozione di chiusura in un linguaggio funzionale quindi il punto qual è il
+punto è che in un linguaggio funzionale io devo avere un meccanismo che mi
+consenta la libertà di invocare una funzione in un luogo in una zona del
+programma e in un tempo che siano in generale molto diversi rispetto al
+punto in cui la funzione è stata definita e rispetto al momento in cui
+la funzione è stata definita ok questo ha un'implicazione fondamentale
+perché significa che quando io chiamo una funzione in un certo senso io devo
+ripristinare nel valutare il corpo di quella funzione l'ambiente che la
+funzione vedeva nel luogo e nel momento in cui quella funzione è stata definita
+devo ricreare le condizioni affinché quella funzione possa essere valutata
+nell'ambiente e nel momento in cui è stata definita d'accordo per cui per
+assicurare questa proprietà cioè il fatto che la funzione venga definita in
+un ambiente in cui tutto ciò di cui la funzione ha bisogno è presente ed è
+definito un linguaggio funzionale deve creare una cosiddetta chiusura cioè che
+cosa succede succede che nel momento in cui io definisco una funzione quella
+funzione non è semplicemente il codice che mi dice che cosa la funzione sta
+deve calcolare ma è una struttura composta che da un lato contiene il
+codice un puntatore al codice della funzione quello inevitabilmente mi
+serve devo sapere che cosa fa la funzione ma questa struttura detta
+chiusura contiene al proprio interno anche il valore di tutti i nomi non
+locali a cui la funzione fa riferimento d'accordo e il punto cruciale è che
+questa struttura non viene memorizzata nella pila dei frame in qualche
+record di attivazione che è soggetta a questa politica di allocazione e
+deallocazione che sostanzialmente è dettata dalla struttura del programma ma
+la chiusura viene allocata nell'ip ok in una regione di memoria nell'ip del
+programma di modo che la chiusura sopravvive anche alla terminazione di
+quelle funzioni che hanno causato la creazione della chiusura stessa
+d'accordo quindi facciamo due esempi semplici di chiusure in askel quando io
+in askel definisco ad esempio questa funzione qua la funzione che accetta
+un argomento x e produce come risultato un'altra funzione che accetta un
+argomento y e che produce come risultato la somma di x e y
+ora se io qui ho due funzioni che vengono definite la funzione ad che è
+quella esterna e che non fa riferimento a nomi non locali d'accordo quindi la
+chiusura di questa funzione ad è una struttura se vogliamo banale è una
+struttura che contiene esclusivamente il puntatore al codice di questa
+funzione che qui in maniera un po' prossimativa ho rappresentato
+semplicemente come il codice askel della funzione stessa è chiaro che quando
+parlo di codice in realtà intendo dire ciò che il compilatore ha prodotto dalla
+traduzione di questo frammento di programma d'accordo però non ci
+occupiamo di questi dettagli di basso livello il punto qui è che ad è una
+funzione che non fa riferimento a nomi non locali ma allora questo vuol dire
+che quando io creo una chiusura per la funzione ad crea una struttura banale
+che contiene il solo puntatore al codice della funzione però nel momento in cui
+io applico la funzione ad ad un argomento per esempio a1 applicare la
+funzione ad a1 che cosa significa significa ottenere come risultato la
+chiusura della funzione che ho evidenziato qui perché io qui sto
+applicando ad a1 1 è il valore dell'argomento x e il risultato di
+questa applicazione è un'altra funzione o meglio è una chiusura ok perché è una
+chiusura perché qui ho una funzione che si fa riferimento al suo argomento y
+ma anche ad un nome x non locale in questa funzione questo nome x è
+l'argomento della funzione esterna d'accordo quindi questa funzione interna
+qui fa riferimento ad un nome non locale e allora come fatta la chiusura di
+questa funzione quando io applico ad a1 è una struttura se vogliamo con due campi
+d'accordo il primo campo come prima è il puntatore alla funzione al codice
+corrispondente alla funzione che dato l'argomento x calcola x più y e però
+siccome questa funzione qui fa riferimento a dei nomi non locali
+ecco che nella chiusura c'è anche un secondo campo che qui per legibilità per
+chiarezza ho chiamato con lo stesso nome dell'argomento d'accordo e in quel campo
+viene copiato il valore dell'argomento x nel momento in cui la chiusura è stata
+creata quindi vedete la chiusura crea una specie di fotografia della funzione nel
+momento in cui la funzione è stata creata quando io creo quando io definisco come
+risultato questa funzione qui devo prendere una devo scattare una
+fotografia che mi permetta di capire qual era lo stato della memoria nel
+momento in cui la funzione è stata definita e in questo caso specifico la
+cosa che mi interessa sapere è qual era il valore di x nel momento in cui ho
+definito quella funzione x valeva 1 e questo 1 me lo ricordo nella chiusura
+ok quindi tenete a mente questo concetto non del tutto formale ma poi proviamo
+anche ad implementare le chiusure concretamente in ci non credo che lo
+faremo oggi ma domani sì quindi l'idea di chiusura è la chiusura è una
+struttura che contiene sicuramente il puntatore al codice della mia funzione
+più una copia di tutti dei valori tutte le variabili non locali a cui la
+funzione fa riferimento perché quei valori lì in generale serviranno alla
+funzione quando noi l'applicheremo al suo argomento ok
+o le chiusure hanno innumerevoli utilizzi io adesso non ho seguito tutte
+le lezioni che avete fatto con con Claudio non so se avete già visto dei
+casi d'uso interessanti di chiusure e se sì se lo avete fatto come dire in
+maniera consapevole oppure se erano così diciamo così passate inosservate
+adesso vi farò vedere due tre casi in cui le le chiusure giocano un ruolo
+fondamentale il primo caso d'uso e qui mi ricollego a
+quell'osservazione che è stata fatta prima che riguardava l'associatività
+dell'operatore freccia e la realizzazione nei linguaggi funzionali o
+meglio in molti linguaggi funzionali non necessariamente in tutti di un meccanismo
+che spesso prende il nome di caring dove qui non diciamo non non sto facendo
+riferimento alla spezia ma sto facendo riferimento al cognome di askel carri un
+ricercatore che ha dato contributi fondamentali alla semantica dei linguaggi
+di programmazione funzionali e il cui nome poi è diventato il cui nome di
+battesimo poi è stato scelto come nome del linguaggio funzionale che che già
+qui stiamo stiamo utilizzando ok quindi il punto qual è il punto è che in molti
+linguaggi funzionali non esiste un vero e proprio concetto di funzione a più
+argomenti come ad esempio abbiamo in ci ma anche
+nello stesso linguaggio java e come c'è ad esempio anche in erlang no il punto
+è che in molti linguaggi funzionali esistono soltanto funzioni ad un
+argomento ogni funzione accetta esattamente un argomento uno potrebbe
+dire cavolo ma questa è una limitazione importante se le mie funzioni possono
+avere un solo argomento come faccio a rappresentare una funzione a più
+argomenti lo abbiamo già visto con la funzione a ux di prima e lo vediamo di
+nuovo qui in un caso un pochino più semplice la funzione ad che somma due
+numeri come faccio a definire la funzione che
+somma due numeri nella mia testa sono abituato a pensare a questa funzione
+come ad una funzione a due argomenti x e y che produce come risultato x più y
+quando la applico a questi due argomenti in realtà in un linguaggio come a che
+questa funzione io la scrivo così ad è la funzione che preso un argomento x
+produce come risultato un'altra funzione che preso un argomento y produce come
+risultato la somma di x e y ok ora per quale motivo uno dovrebbe
+complicarsi la vita almeno a prima vista con una definizione del genere quando
+dico caring faccio riferimento a questo modo di definire funzioni ad argomenti
+multipli come cascate di funzioni ad un argomento singolo ok quindi perché
+potrei essere interessato a definire le funzioni a più argomenti in questo modo
+ci sono diversi motivi innanzitutto se io scelgo faccio come scelta quella di
+dire nel mio linguaggio di programmazione tutte le funzioni hanno
+un solo argomento beh il mio linguaggio è semplice ok non esiste un concetto
+nativo di funzione a più argomenti tutte le funzioni hanno esattamente un
+argomento quindi il mio linguaggio si semplifica inoltre posso definire le
+funzioni a più argomento in questo modo qui in questo modo bizzarro e uno dei
+motivi per cui questo modo bizzarro è utile è il seguente
+supponiamo di replicare quella definizione ok definiamo ad in questo
+modo qui la funzione che dato un argomento x produce la funzione che dato
+un argomento y produce come risultato la somma di x e y ok ho riscritto nel mio
+editor ciò che è riportato nella nella slide
+ora dov'è che ho salvato tutto ciò in fibo se chiedo ad askel che tipo ha la
+mia funzione ad e lui mi dice la funzione ad a questo tipo qui posso usare la
+funzione ad per sommare 2 e 3 e vedete che il risultato è esattamente quello che
+mi aspetto d'accordo ma siccome la funzione ad in realtà è una funzione
+non è molto bello da dire in italiano carificata ho usato il carring per
+rappresentare questa funzione a due argomenti come cascata di funzioni ad
+un argomento solo quello che succede è che io potrei definire io potrei dire ok
+applico ad a un solo argomento no dopo tutto ad è una funzione ad un argomento
+e perché potrei essere interessato a fare una cosa del genere che funzione
+ad di uno scopriamolo gli do un nome f no askel giustamente dice che f è una
+funzione da interi a interi la domanda è che funzione è f proviamo se applico f
+a 5 ottengo 6 se applico f a 7 ottengo 8 se applico f a 10 ottengo 11 che cosa
+possiamo dire della funzione f che funziona e la funzione successore ok
+perché giustamente come è stato detto f realtà è una chiusura è la chiusura
+che io ho ottenuto applicando ad a 1 ok perché quell'uno era il valore
+associato all'argomento x nome non locale al quale la funzione interna fa
+riferimento e che però viene congelato nella chiusura alla quale poi do nome f
+d'accordo quindi qual è l'utilità di applicare una funzione ad che
+moralmente si aspetta due argomenti ad un argomento solo
+l'utilità è che mi permette di definire delle nuove funzioni per esempio la
+funzione successore semplicemente specializzando funzioni già esistenti
+applicando parzialmente funzioni già esistenti
+cosa vuol dire applicare parzialmente vuol dire in questo caso prendere una
+funzione ad che moralmente si aspetta a due argomenti ma applico ad ad un
+argomento solo l'ho specializzata un pochino ok ho detto che funzione ad 1
+ho congelato il primo argomento di ad nella sua nella chiusura f che ho
+ottenuto ok e ho ottenuto così la funzione successore d'accordo non ho
+bisogno di definire da capo la funzione successore sapendo che ho la funzione ad
+posso applicare ad parzialmente a 1 e quindi qui vediamo un caso in cui la
+chiusura mi permette di rappresentare il risultato di una
+applicazione parziale ed ecco perché il caring è un meccanismo utile in
+generale molto utilizzato in linguaggi funzionali come askel perché io posso
+applicare le funzioni a meno argomenti rispetto a quelli che moralmente si
+attendono proprio perché in realtà si tratta di funzioni ad un argomento solo
+d'accordo e così facendo però le posso le posso specializzare
+facciamo un altro esempio guardiamo e poi chiudiamo qui per oggi
+guardiamo la funzione leq quindi definiamo la funzione leq che è una
+funzione che si aspetta due numeri interi e e mi dice se il primo è minor
+uguale del secondo ricarichiamo il modulo quindi la mia
+funzione leq vedete ha il tipo atteso se io applico leq a 2 e 3 il risultato è
+vero perché è vero che 2 minor uguali di 3 se applico leq a 3 e 2 il risultato è
+falso eccetera eccetera la cosa interessante è che come prima leq è
+carificata e quindi io posso applicare la funzione leq per esempio a un solo
+argomento per dire 2 e adesso la funzione f che ho ottenuto che cos'è?
+è il predicato se dovessimo descriverlo a parole che cosa potremmo dire? f è la
+funzione che mi dice
+facciamo un po' di esperimenti applichiamo f a 0 false
+applichiamo f a 1 false applichiamo f a 2 true
+applichiamo f a 3 true applichiamo f a 4 eccetera eccetera f che predicato è? che
+funzione è? è la funzione che mi dice se il suo argomento è maggiore o uguale di 2
+ok quindi io sono stato in grado di scrivere la funzione il predicato essere
+maggiore o uguale di 2 semplicemente applicando parzialmente la funzione leq
+quindi creando una chiusura che contiene al proprio interno il valore congelato di
+x a 2 e da adesso in avanti io posso usare questo predicato essere maggiore
+uguale di 2 ok e così via domani vedremo altri altri esempi carini ci
+sono domande?
+tutto ok? va bene allora buona serata e a domani

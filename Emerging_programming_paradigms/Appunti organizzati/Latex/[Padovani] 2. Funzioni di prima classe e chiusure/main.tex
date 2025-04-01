@@ -1,0 +1,160 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{tcolorbox}
+
+\titleformat{\section}
+{\LARGE\bfseries}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\Large\bfseries}{\thesection}{1em}{}
+
+\begin{document}
+
+\pagestyle{empty}
+
+\section*{Funzioni di prima classe e chiusure}
+\large
+
+In un linguaggio funzionale tendenzialmente le funzioni sono \textbf{entità di prima classe}.\\
+Un'entità di prima classe può essere:
+\begin{itemize}
+    \item \textbf{Argomento} di una funzione.
+    \item \textbf{Risultato} di una funzione.
+    \item \textbf{Definita} dentro una funzione.
+    \item \textbf{Assegnata} a una variabile.
+    \item \textbf{Memorizzata} in una struttura dati (array, liste, alberi, \dots).
+\end{itemize}
+In generale, un'entità di prima classe in un \textit{linguaggio tipato} ha un \textbf{tipo che la descrive}, andando a descrivere il tipo del dominio (\textit{input}) e del codominio (\textit{output}).
+
+Vengono ora osservati diversi linguaggi, per determinare se sono linguaggi funzionali o meno:
+\begin{itemize}
+    \item \textbf{C}: il linguaggio C \textbf{non} è un linguaggio funzionale.
+    
+    In C esistono dei \textbf{puntatori a funzioni}, ma non è possibile definire funzioni dentro funzioni.
+    \item \textbf{Pascal}: anche il linguaggio Pascal \textbf{non} è un linguaggio funzionale.
+    
+    In Pascal è possibile definire \textbf{funzioni dentro funzioni}, ma non c'è un tipo \texttt{funzione}.
+    \item \textbf{Haskell}: \textbf{è} un linguaggio funzionale.
+    
+    Le funzioni hanno un tipo, possono essere definite dentro ad altre funzioni e possono essere risultati di altre funzioni.
+    \item \textbf{Java, Python, C++, \dots}: non sono pienamente linguaggi funzionali. 
+    
+    Le funzioni vengono modellate come oggetti (e incorporate a posteriori). Viene applicato dello zucchero sintattico per le $\lambda$ espressioni (ad esempio, in Java: \texttt{(a, b) -> ...;}). Inoltre, vengono utilizzate delle interfacce funzionali, come il \texttt{Comparator} in Java.
+\end{itemize}
+\vspace{8pt}
+Un semplice test per comprendere se all'interno di un linguaggio le funzioni sono entità di prima classe è il \textbf{definire la composizione funzionale $(f \circ g)(x) = f(g(x))$}.
+
+Viene scelto questo test dato che la composizione funzionale prende in input due funzioni e ne restituisce una in output.
+
+Vediamo ora due esempi di implementazione.\\
+In Haskell, preso dalla libreria standard:
+\begin{tcolorbox}
+\begin{verbatim}
+(.) :: (b -> c) -> (a -> b) -> a -> c
+(.) f g = \x -> f (g x)
+\end{verbatim}
+\end{tcolorbox}
+
+Nota: \texttt{f (g x)} è equivalente al solito \texttt{f(g(x))}. Viene scelta questa notazione per semplificare l'utilizzo del linguaggio, evitando l'uso eccessivo di parentesi.\\
+Inoltre, la notazione \texttt{$\backslash$x} indica una nuova funzione che si aspetta in input l'argomento \texttt{x}.\\
+Il \texttt{$\backslash$} vuole richiamare ad una $\lambda$ stilizzata.
+
+In Java:
+\begin{tcolorbox}
+\begin{verbatim}
+public static <A,B,C>
+Function<A,C> compose(Function<B,C> f, Function<A,B> g) {
+    return x -> f.apply(g.apply(x));
+}
+\end{verbatim}
+\end{tcolorbox}
+
+Il metodo si aspetta due funzioni che andranno a produrre una funzione come output. Tutte queste funzioni sono in realtà oggetti che implementano una determinata interfaccia (\texttt{Function}).\vspace{14pt}\\
+Proviamo invece ora ad implementarlo in C:
+\begin{tcolorbox}
+\begin{verbatim}
+int (*)(int) compose(int (*f)(int), int (*g)(int)) {
+    int aux(int x) {
+        return f(g(x));
+    }
+    return aux;
+}
+
+int main() {
+    int (*plus2)(int) = compose(succ, succ);
+    printf("%d", plus2(1));
+}
+\end{verbatim}
+\end{tcolorbox}
+
+Ci sono però dei problemi. Stiamo richiamando valori al di fuori della funzione \texttt{aux} (\texttt{f} e \texttt{g} che appartengono a \texttt{compose}).
+
+Quando viene eseguito il corpo di \texttt{aux}, gli slot che contengono i valori di \texttt{f} e \texttt{g} non esistono più. Una funzione è una \textit{computazione ritardata} che può accedere a nomi definiti all’esterno del suo corpo, ma che potrebbero non esistere più nel momento in cui il corpo viene eseguito.\vspace{14pt}\\
+Proviamo ora ad implementarlo anche in Pascal:
+\begin{tcolorbox}
+\begin{verbatim}
+function E(x: real): real;
+    function F(y: real): real;
+    begin
+        F := x + y
+    end;
+begin
+    E := F(3) + F(4)
+end;
+\end{verbatim}
+\end{tcolorbox}
+
+In C le funzioni non possono essere annidate, in Pascal si. Se una funzione accede a nomi definiti all’esterno del suo corpo, deve trattarsi di variabili \textbf{globali} (o di altre funzioni \textbf{globali}).
+Variabili/funzioni globali esistono per tutta la durata del programma, quindi siamo salvi.
+
+In Pascal le funzioni possono essere annidate, ma non restituite come risultato. Se una funzione accede a nomi definiti all’esterno del suo corpo, deve trattarsi di variabili \textbf{globali} o di \textbf{variabili locali ancora esistenti}.
+
+Viene quindi utilizzato un meccanismo chiamato \textbf{puntatore di catena statica}. Il puntatore di catena statica è il collegamento che ogni activation record (di una funzione annidata) mantiene con il proprio ambiente di definizione. Questo collegamento è fondamentale per permettere alla funzione annidata di accedere correttamente alle variabili definite nei livelli esterni. È una soluzione elegante per gestire la visibilità e la durata delle variabili in presenza di funzioni annidate, garantendo che le variabili locali di un contesto esterno siano ancora accessibili fintanto che ne esiste un riferimento valido.
+
+\subsection*{Chiusure}
+In un linguaggio funzionale una funzione può essere invocata in un luogo e in un tempo molto diversi da quelli in cui la funzione è stata definita.
+
+Per assicurare che l’esecuzione del corpo della funzione proceda senza intoppi (= tutti i dati di cui ha bisogno esistono ancora) tali dati vengono copiati e “impacchettati” insieme al codice della funzione in una cosiddetta \textbf{chiusura}.
+\begin{center}
+    \textbf{Chiusura} = \textbf{codice della funzione} + \textbf{(valori delle) variabili libere}.    
+\end{center}
+
+Le chiusure possono avvere molti utilizzi. Un possibile caso d'uso è il \textbf{currying}.
+
+In molti linguaggi funzionali, le funzioni “a più argomenti” sono “cascate” di funzioni a un singolo argomento. Due possibili esempi possono essere:
+\begin{tcolorbox}
+\begin{verbatim}
+add :: Int -> Int -> Int
+add = \x -> \y -> x + y
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}
+\begin{verbatim}
+leq :: Int -> Int -> Bool
+leq = \x -> \y -> x <= y
+\end{verbatim}
+\end{tcolorbox}
+
+Questo consente di non avere una nozione nativa di "funzione a più argomenti", rendendo quindi il linguaggio più semplice.
+
+Inoltre, le funzioni "currificate" possono essere specializzate. Un possibile esempio dove si specializza una funzione è il seguente, riprendendo la funzione \texttt{add} definita precedentemente:
+\begin{tcolorbox}
+\begin{verbatim}
+>let f = add 1
+>f 5
+6
+>f 7
+8
+\end{verbatim}
+\end{tcolorbox}
+Si può notare quindi come la funzione \texttt{add} sia stata specializzata come una funzione che somma \texttt{1} al numero passato come argomento. 
+
+\end{document}

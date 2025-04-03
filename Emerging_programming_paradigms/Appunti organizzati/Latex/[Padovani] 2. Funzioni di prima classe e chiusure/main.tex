@@ -122,10 +122,11 @@ Viene quindi utilizzato un meccanismo chiamato \textbf{puntatore di catena stati
 \subsection*{Chiusure}
 In un linguaggio funzionale una funzione può essere invocata in un luogo e in un tempo molto diversi da quelli in cui la funzione è stata definita.
 
-Per assicurare che l’esecuzione del corpo della funzione proceda senza intoppi (= tutti i dati di cui ha bisogno esistono ancora) tali dati vengono copiati e “impacchettati” insieme al codice della funzione in una cosiddetta \textbf{chiusura}.
+Per assicurare che l’esecuzione del corpo della funzione proceda senza intoppi (ovvero che tutti i dati di cui ha bisogno esistono ancora) tali dati vengono copiati e “impacchettati” insieme al codice della funzione in una cosiddetta \textbf{chiusura}.
 \begin{center}
     \textbf{Chiusura} = \textbf{codice della funzione} + \textbf{(valori delle) variabili libere}.    
 \end{center}
+\vspace{14pt}
 
 Le chiusure possono avvere molti utilizzi. Un possibile caso d'uso è il \textbf{currying}.
 
@@ -145,7 +146,7 @@ leq = \x -> \y -> x <= y
 
 Questo consente di non avere una nozione nativa di "funzione a più argomenti", rendendo quindi il linguaggio più semplice.
 
-Inoltre, le funzioni "currificate" possono essere specializzate. Un possibile esempio dove si specializza una funzione è il seguente, riprendendo la funzione \texttt{add} definita precedentemente:
+Inoltre, le funzioni "currificate" possono essere \textbf{specializzate}. Un possibile esempio dove si specializza una funzione è il seguente, riprendendo la funzione \texttt{add} definita precedentemente:
 \begin{tcolorbox}
 \begin{verbatim}
 >let f = add 1
@@ -156,5 +157,78 @@ Inoltre, le funzioni "currificate" possono essere specializzate. Un possibile es
 \end{verbatim}
 \end{tcolorbox}
 Si può notare quindi come la funzione \texttt{add} sia stata specializzata come una funzione che somma \texttt{1} al numero passato come argomento. 
+
+\pagebreak
+
+Un ulteriore utilizzo delle chiusure è quello di \textbf{incapsulare} un dato sensibile creato localmente da un'altra funzione.
+
+
+Un possibile esempio di quest'applicazione può essere, in linguaggio OCaml:
+\begin{tcolorbox}
+\begin{verbatim}
+let make_counter () =
+    let c = ref 0 in
+    (fun () -> !c),
+    (fun () -> c := !c + 1),
+    (fun () -> c := 0)
+
+let get, inc, reset = make_counter ()
+\end{verbatim}
+\end{tcolorbox}
+
+In questo caso, \texttt{make\_counter} crea un riferimento \texttt{c} e tre funzioni per leggere, incrementare e resettare il contenuto di \texttt{c}.
+
+Il contatore è incapsulato nella chiusura di (ed utilizzabile solo attraverso) queste funzioni.\vspace{14pt}\\
+Altro caso d'uso comune per le chiusure è il loro utilizzo per \textbf{impacchettare} espressioni che non devono essere valutate subito, ma solo se necessario.
+
+Questo concetto è allineato con i linguaggi \textbf{lazy}, come Haskell, dove gli argomenti di una funzione vengono valutati al massimo una volta e solo se necessario.
+
+Un possibile esempio di quest'applicazione può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+zif f []       _        = []
+zif f _        []       = []
+zif f (x : xs) (y : ys) = f x y : zif f xs ys
+
+sorted xs = and (zif (<=) xs (tail xs))
+\end{verbatim}
+\end{tcolorbox}
+
+La funzione \texttt{zif} permette di controllare se una lista è ordinata. Un modo elegante di effettuare questo controllo è quello di confrontare le coppie che si ottengono unendo un valore con il suo successivo all'interno della lista.
+
+\texttt{(zif (<=) xs (tail xs))} permette quindi di confrontare la lista con la sua coda (la lista senza il primo elemento).
+
+\texttt{(tail xs)} potrebbe però provocare dei problemi, non essendo definita in caso di \texttt{xs} vuota.
+
+Essendo però Haskell un linguaggio lazy, \texttt{sorted} è corretta perché quando \texttt{xs} è vuota il secondo argomento di \texttt{zif} non viene valutato.
+
+Questa logica in Haskell viene anche applicata in contesti di base, come l'implementazione degli operatori logici (come l'operatore \texttt{AND \&\&}) e dell'if-else. Non vengono quindi valutati gli argomenti non necessari.
+
+\pagebreak
+
+\subsection*{Chiusure in Java}
+Altri linguaggi moderni hanno implementato costrutti della programmazione funzionale all'interno del proprio linguaggio. Un esempio sono le chiusure implementate in Java.
+
+Un possibile esempio di chiusura in Java può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+public static Function<Integer,Integer> add(int x) {
+    return y -> x + y;
+}
+\end{verbatim}
+\end{tcolorbox}
+
+In questo caso, la variabile \texttt{x} è \textbf{effectively final}. Il valore di \texttt{x} non deve essere alterato all'interno del codice della chiusura.
+
+La chiusura contiene \textbf{copie} dei valori delle variabili libere. Se tali variabili sono modificate, la semantica della chiusura può risultare oscura.\\
+Se \texttt{x} fosse un riferimento ad un oggetto la situazione si andrebbe a complicare, potendo modificare lo stato interno dell'oggetto successivamente.
+
+In un linguaggio funzionale \textbf{puro} il problema non si pone perché non c’è assegnamento.\vspace{14pt}\\
+Volendo quindi confrontare \textit{oggetti} e \textit{chiusure}:
+\begin{itemize}
+    \item All'interno di oggetti sono presenti \textbf{(campi + riferimenti a metodi)}, mentre nelle chiusure sono presenti \textbf{(valori della variabili libere + riferimento a funzione)}.
+    \item Negli oggetti i \textbf{campi} sono \textbf{mutabili}, mentre nelle chiusure i \textbf{valori} sono \textbf{immutabili}.
+    \item Negli oggetti i metodi hanno un parametro implicito (tipicamente \texttt{self} o \texttt{this}) con riferimento all'oggetto ricevente, mentre nelle chiusure la funzione ha un parametro implicito con riferimento alla chiusura in cui la funzione trova i valori delle variabili libere.
+\end{itemize}
 
 \end{document}

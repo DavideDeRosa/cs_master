@@ -172,10 +172,207 @@ float sum(Figure f, Figure g) { return f.area() + g.area(); }
 \texttt{Square} e \texttt{Circle} sono sottoclassi di \texttt{Figure}, andando a specializzare la classe base.\\
 Il metodo \texttt{sum} permette quindi di sommare l'area di due figure qualsiasi.
 
-Questo approccio però porta una rigidità. Idealmente, \texttt{sum} funzionerebbe per tutti gli oggetti che hanno un metodo \texttt{area}, ma nel nostro caso \texttt{sum} accetta solo figure.
+Questo approccio però porta una "rigidità". Idealmente, \texttt{sum} funzionerebbe per tutti gli oggetti che hanno un metodo \texttt{area}, ma nel nostro caso \texttt{sum} accetta solo figure.
 
-Il problema principale è il definire una gerarchia sul \textbf{cosa un oggetto è}, ma non su \textbf{cosa sa realmente fare}.
+Il problema principale è il definire una gerarchia sul \textbf{cosa un oggetto è}, ma non su \textbf{cosa sa realmente fare}.\vspace{14pt}\\
+Un ulteriore problema è che il meccanismo dell'ereditarietà può diventare troppo "fragile". 
 
-Un ulteriore problema è ...
+Se la classe base viene modificata in un secondo momento, tutte le sottoclassi basate su quella classe padre devono adattarsi alle modifiche.
+
+Si osservi una possibile implementazione di una pila (che si assume sia corretta) in Java:
+\begin{tcolorbox}
+\begin{verbatim}
+class Stack<T> {
+    ...
+    void push(T x) { ... }
+    T pop() { ... }
+    void pushAll(T[] a) { for (T x : a) push(x); }
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\pagebreak
+
+Si presenta ora l'esigenza di definire una nuova classe \texttt{SizedStack} basata sulla classe \texttt{Stack} ma con dimensione esplicita. Una sua possibile implementazione può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+class SizedStack<T> extends Stack<T> {
+    int size = 0;
+    void push(T x) { super.push(x); size++; }
+    T pop() { size--; return super.pop(); }
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso non c'è bisogno di ridefinire il metodo \texttt{pushAll}.
+
+Si ipotizzi ora la seguente modifica della classe base \texttt{Stack}:
+\begin{tcolorbox}
+\begin{verbatim}
+class Stack<T> {
+    ...
+    void push(T x) { ... }
+    T pop() { ... }
+    void pushAll(T[] a) { ... }     // versione che non usa push
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso occorre ridefinire anche il metodo \texttt{pushAll}.\\
+\texttt{pushAll}, non usando più il metodo \texttt{push}, non permette di non ridefinire il metodo \texttt{pushAll} all'interno della classe \texttt{SizedStack}.
+
+A causa di queste problematiche (rigidità e conseguente fragilità) l'ereditarietà non risolve sempre i problemi che cerca di risolvere (come il copia-incolla di codice).
+
+\subsection*{Dall'ereditarietà alla composizione}
+Per cercare di risolvere i problemi dell'ereditarietà si è passati alla composizione di oggetti. Si parla di sviluppare oggetti che al loro interno utilizzano altri oggetti.
+
+Riprendendo l'esempio precedente di \texttt{SizedStack}, con composizione al posto di ereditarietà:
+\begin{tcolorbox}
+\begin{verbatim}
+class SizedStack<T> {
+    Stack<T> s;         // composizione
+    int size = 0;
+    void push(T x) { s.push(x); size++; }
+    T pop() { size--; return s.pop(); }
+    void pushAll(T[] a) { s.pushAll(a); size += a.length; }
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, \texttt{SizedStack} contiene uno \texttt{Stack}, rendendo le due implementazioni separate e indipendenti.
+
+Ovviamente, anche il meccanismo della composizione non è perfetto. Un possibile problema può essere che i tipi \texttt{SizedStack<T>} e \texttt{Stack<T>} \textbf{non sono più in relazione} nonostante descrivano oggetti che \textbf{sanno fare le stesse cose}.
+
+\pagebreak
+
+\subsection*{Interfacce}
+In parallelo all'idea di classe è molto utile avere anche l'idea di \textbf{interfaccia}. Una interfaccia definisce \textbf{cosa sa fare un determinato oggetto}.
+
+Riprendendo l'esempio precedente di \texttt{SizedStack}, come interfaccia:
+\begin{tcolorbox}
+\begin{verbatim}
+interface StackInterface<T> {
+    void push(T x);
+    T pop();
+    void pushAll(T[] a);
+}
+
+class Stack<T> implements StackInterface<T> { ... }
+
+class SizedStack<T> implements StackInterface<T> { ... }
+\end{verbatim}
+\end{tcolorbox}
+Le due classi \texttt{Stack<T>} e \texttt{SizedStack<T>} implementano l'interfaccia \texttt{StackInterface<T>}, definendo i metodi che le due classi devono implementare. Le due nuove classi andranno ad implementare in base alle proprie esigenze i metodi definiti nell'interfaccia.
+
+\subsection*{Trait}
+Si introduce ora il linguaggio \textbf{Go}, che punta ad essere semplice da imparare ed intuitivo.\\
+In Go non è presente il concetto di oggetto, ma viene utilizzata l'idea dei \textit{trait}.
+
+Un esempio di codice Go può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+package main
+import (
+    "fmt"
+    "math"
+)
+
+type Vector struct {
+    X, Y float64
+}
+
+func Mod(v Vector) float64 {
+    return math.Sqrt(v.X * v.X + v.Y * v.Y)
+}
+
+func main() {
+    v := Vector{3, 4}
+    fmt.Println(Mod(v))
+}
+\end{verbatim}
+\end{tcolorbox}
+In Go il programma viene definito all'interno di un \texttt{package}.\\
+Tramite \texttt{import} si possono importare librerie (moduli) esterne.\\
+Viene successivamente definita una struttura \texttt{Vector}, con due campi di tipo \texttt{float}.\\
+La funzione \texttt{Mod(v Vector)} calcola il modulo del vettore dato in input, ritornando un \texttt{float}.\\
+Infine è presente una funzione \texttt{main()}, punto di esecuzione del programma.\\
+Tramite il costrutto \texttt{:=} viene creata una variabile locale ed assegnata (nel nostro caso con un \texttt{Vector}).\vspace{14pt}\\
+Volendo utilizzare dei \textbf{metodi} al posto delle funzioni, avremmo potuto modificare il codice nel seguente modo:
+\begin{tcolorbox}
+\begin{verbatim}
+package main
+import (
+    "fmt"
+    "math"
+)
+
+type Vector struct {
+    X, Y float64
+}
+
+func (v Vector) Mod() float64 {     // questa definizione è differente
+    return math.Sqrt(v.X * v.X + v.Y * v.Y)
+}
+func main() {
+    v := Vector{3, 4}
+    fmt.Println(v.Mod())        // viene richiamato in maniera diversa  
+}
+\end{verbatim}
+\end{tcolorbox}
+Un metodo è una funzione in cui un argomento specifico - detto \textbf{receiver} - viene distinto dagli altri.
+
+I metodi vengono invocati con una sintassi \texttt{o.m(a1, ..., an)} invece della tradizionale\\
+\texttt{m(o, a1, ..., an)}. Questa sintassi è simile a quella di Java, anche se non si tratta di programmazione ad oggetti.
+
+Questo viene fatto perché non è presente \textit{late binding}, la sintassi con il receiver a sinistra è quindi scelta per \textbf{(f)utili motivi}: aiuta l’autocompletamento perché il tipo è definito localmente.
+
+A run-time non cambia nulla tra l'esecuzione di funzioni e metodi.
+
+Nota Bene: il receiver \textit{deve avere un tipo definito nel file corrente}. Per ovviare a questo limite è possibile utilizzare degli \textbf{alias}:
+\begin{tcolorbox}
+\begin{verbatim}
+package main
+import ("fmt")
+
+type MyFloat float64
+
+func (f MyFloat) Abs() float64 {
+    if f < 0 {
+        return float64(-f)
+    }
+    return float64(f)
+}
+
+func main() {
+    f := MyFloat(-math.Sqrt2)
+    fmt.Println(f.Abs())
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso viene definito un tipo all'interno del file che fa da alias per il \texttt{float64}.\vspace{14pt}\\
+In Go esiste anche il concetto di puntatore (riferimento). Un possibile esempio può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+func (v *Vector) Scale(f float64) {
+    v.X = v.X * f
+    v.Y = v.Y * f
+}
+
+func main() {
+    v := Vector{3, 4}
+    v.Scale(10)
+    fmt.Println(v.Abs())
+}
+\end{verbatim}
+\end{tcolorbox}
+Il receiver può avere un tipo puntatore per consentire la modifica. La sintassi per accedere/modificare campi e per l’invocazione è la stessa. Non c'è bisogno di deferenziare il puntatore, sarà il compilatore a fare tutto il lavoro.
+
+La differenza rispetto ad invocare il metodo senza \texttt{*} è che in questo caso la modifica viene effettuata globalmente, mentre senza \texttt{*} verrebbe creata una copia locale al quale verrebbe applicata la modifica.
+
+A differenza di Java, dove tutti gli oggetti sono allocati nell'Heap e passando un oggetto ad un metodo viene sempre passato un riferimento di quell'oggetto, in Go se non viene specificato il passaggio come riferimento del dato si va a creare una copia locale del dato stesso.
+
+\pagebreak
+
+Si introduce ora il concetto di \textbf{trait}, che in Go viene chiamato \textit{interfaccia}.\\
+Un trait è un \textbf{insieme di tipi di metodi}. Tutte le entità che implementano l'interfaccia supportano determinate operazioni. 
+
+Inoltre, non è necessario utilizzare alcuna cerimonia sintattica (come \texttt{implements} in Java). Un tipo \texttt{T} implementa \textbf{automaticamente} un'interfaccia \texttt{I} se definisce tutti i metodi elencati in \texttt{I} (con lo stesso tipo).
 
 \end{document}

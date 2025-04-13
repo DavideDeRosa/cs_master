@@ -373,6 +373,319 @@ A differenza di Java, dove tutti gli oggetti sono allocati nell'Heap e passando 
 Si introduce ora il concetto di \textbf{trait}, che in Go viene chiamato \textit{interfaccia}.\\
 Un trait è un \textbf{insieme di tipi di metodi}. Tutte le entità che implementano l'interfaccia supportano determinate operazioni. 
 
-Inoltre, non è necessario utilizzare alcuna cerimonia sintattica (come \texttt{implements} in Java). Un tipo \texttt{T} implementa \textbf{automaticamente} un'interfaccia \texttt{I} se definisce tutti i metodi elencati in \texttt{I} (con lo stesso tipo).
+Inoltre, non è necessario utilizzare alcuna cerimonia sintattica (come \texttt{implements} in Java). Un tipo \texttt{T} implementa \textbf{automaticamente} un'interfaccia \texttt{I} se definisce tutti i metodi elencati in \texttt{I} (con lo stesso tipo). Questo viene chiamato \textbf{Duck Typing}.
 
+Si osservi ora un esempio di utilizzo delle interfacce in Go.
+
+Vengono dichiarate due strutture di dato: \texttt{Square} e \texttt{Circle}. Entrambe le strutture implementano i metodi \texttt{Area()} e \texttt{Parimeter()}.
+
+\begin{tcolorbox}
+\begin{verbatim}
+type Square struct {
+    side float64
+}
+
+func (o Square) Area() float64 {
+    return o.side * o.side
+}
+
+func (o Square) Perimeter() float64 {
+    return 4 * o.side
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+\begin{verbatim}
+type Circle struct {
+    radius float64
+}
+
+func (o Circle) Area() float64 {
+    return pi * o.radius * o.radius
+}
+
+func (o Circle) Perimeter() float64 {
+    return 2 * pi * o.radius
+}
+\end{verbatim}
+\end{tcolorbox}
+Si vuole quindi dichiarare una interfaccia \texttt{Measurable}, la quale contiene al suo interno i due metodi precedentemente citati.
+
+\begin{tcolorbox}
+\begin{verbatim}
+type Measurable interface {
+    Area() float64
+    Perimeter() float64
+}
+
+func PrintMeasure(o Measurable) {
+    fmt.Println(o.Area())
+    fmt.Println(o.Perimeter())
+}
+
+func main() {
+    s := Square{1}
+    c := Circle{2}
+    PrintMeasure(s)     // Square -> Measurable
+    PrintMeasure(c)     // Circle -> Measurable
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\texttt{PrintMeasure} è un esempio di funzione polimorfa, al quale possiamo passare un oggetto \texttt{Measurable}. Possiamo quindi passare qualsiasi oggetto che implementi quella interfaccia.
+
+Il compilatore Go in maniera automatica capisce se l'interfaccia viene implementata da un tipo, come nel caso di \texttt{Square} e \texttt{Circle} che implementano l'interfaccia \texttt{Measurable}.\vspace{14pt}\\
+Osserviamo ora l'implementazione delle interfacce in Go. Viene ripreso il seguente metodo:
+\begin{tcolorbox}
+\begin{verbatim}
+func PrintMeasure(o Measurable) {
+    fmt.Println(o.Area())
+    fmt.Println(o.Perimeter())
+}
+\end{verbatim}
+\end{tcolorbox}
+Il compilatore, per tradurre il seguente metodo, deve sapere quali metodi \texttt{Area} e \texttt{Perimeter} invocare, ma anche l'oggetto su cui agire.
+
+Viene quindi introdotto il concetto di \textbf{valore di tipo interfaccia}, che equivale alla \textbf{coppia (dati, codice)}.
+
+Un valore di tipo interfaccia \texttt{I} è una coppia \texttt{(v, p)}, dove \texttt{v} è l'oggetto e \texttt{p} è la tabella dei metodi in \texttt{I} per l'oggetto \texttt{v}.
+
+Il punto chiave è che viene fatta una chiamata a funzione il cui indirizzo in memoria è noto solo a tempo di esecuzione (una forma di \textit{late binding}). Solo nel momento d'esecuzione viene letta la tabella presente nella coppia, e si scopre il metodo giusto da invocare.
+
+\pagebreak
+
+Si vuole invece osservare cosa accade nel \texttt{main} dell'esempio precedente:
+\begin{tcolorbox}
+\begin{verbatim}
+func main() {
+    s := Square{1}
+    c := Circle{2}
+    PrintMeasure(s)    
+    PrintMeasure(c)    
+}
+\end{verbatim}
+\end{tcolorbox}
+
+Passare \texttt{s} di tipo \texttt{Square} a una funzione che si aspetta \texttt{Measurable} significa creare e passare la coppia \texttt{(s, p)} dove \texttt{p} è una tabella (simile a una virtual table) che contiene puntatori ai metodi \texttt{Area} e \texttt{Perimeter} per i receiver di tipo \texttt{Square}. Il discorso è analogo per \texttt{c}.\vspace{14pt}\\
+In Go è possibile anche definire interfacce che estendono altre interfacce.
+\begin{tcolorbox}
+\begin{verbatim}
+type MeasurableColorable interface {
+    Measurable
+    GetColor() color
+    SetColor(c color)
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo modo si afferma che \texttt{MeasurableColorable} possiede tutti i metodi presenti in \texttt{Measurable}, oltre ai nuovi metodi.
+
+Questo tipo di ereditarietà è solo a livello di specifica dell'interfaccia, non di codice.\vspace{14pt}\\
+E' possibile in maniera analoga realizzare composizione di strutture in Go.
+\begin{tcolorbox}
+\begin{verbatim}
+type ColoredSquare struct {
+    Square
+    c Color
+}
+\end{verbatim}
+\end{tcolorbox}
+Una struttura può avere come campo (anonimo) un’altra struttura. Tutti i campi della struttura inclusa sono accessibili come campi della struttura che la include.\\
+I metodi già definiti per la struttura inclusa (es. \texttt{Area} e \texttt{Perimeter}) sono generati anche per la struttura che la include.\vspace{14pt}\\
+Volendo quindi mettere a confronto le chiusure ed i trait:
+\begin{itemize}
+    \item le \textit{chiusure} definiscono \textbf{una funzione} che può accedere a \textbf{diversi dati},
+    \item i \textit{trait} definiscono \textbf{un dato} per il quale disponiamo di \textbf{diverse funzioni}.
+\end{itemize}
+
+\pagebreak
+
+\subsection*{Rust}
+\textbf{Rust} è un linguaggio di sistema (come \textit{C o C++}) con un supporto a run-time minimo (ad esempio, non è presente alcun garbage collector) e con un sistema di tipi con gestione lineare delle risorse (per gestione lineare si intende che il sistema di tipi è in grado di capire se una certa entità del programma viene duplicata).
+
+In Rust, a differenza di Go, i \textit{trait} richiedono una sintassi esplicita per la loro implementazione. E' inoltre richiesta una sintassi esplicita anche per il passaggio di oggetti dove è atteso un trait.
+
+In generale, un \textit{metodo} equivale ad una \textit{funzione con invocazione su receiver}.
+
+Si osservi ora un esempio di funzioni e metodi in Rust:
+\begin{tcolorbox}
+\begin{verbatim}
+struct Vector {
+    x : f64,
+    y : f64,
+}
+
+impl Vector {
+    // non-instance method
+    fn origin() -> Vector {         
+        Vector { x : 0.0, y : 0.0 }
+    }
+
+    // instance method
+    fn modulus(&self) -> f64 {      
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+}
+
+fn mod_origin() -> f64 {
+    let o = Vector::origin()        // non-instance method invocation
+    o.modulus()                     // instance method invocation
+}
+\end{verbatim}
+\end{tcolorbox}
+
+Viene inizialmente dichiarata una struttura \texttt{Vector}.\\
+La struttura implementa, tramite il costrutto \texttt{impl}, i metodi \texttt{origin} e \texttt{modulus}. Il primo è una semplice funzione, senza receiver. Il secondo è un metodo d'istanza, ha un receiver. \\
+\texttt{origin} può essere visto come un costruttore (viene chiamato origin arbitrariamente, senza una logica precisa).\\
+\texttt{modulus} è un metodo d'istanza. Il \texttt{\&self} indica che il metodo prende temporaneamente in prestito il possesso dell'oggetto su cui agisce.\\
+Nella funzione \texttt{mod\_origin} vengono richiamati i due metodi precedentemente citati. Inoltre, non è necessario effettuare un \texttt{return} esplicito alla fine della funzione, ma verrà restituito l'ultimo valore presente.
+
+\pagebreak
+
+Per definire un trait in Rust viene utilizzata la seguente sintassi:
+\begin{tcolorbox}
+\begin{verbatim}
+trait Measurable {
+    fn area(&self) -> f64;
+    fn perimeter(&self) -> f64;
+}
+\end{verbatim}
+\end{tcolorbox}
+A differenza di Go, viene indicato esplicitamente il receiver (\texttt{\&self}).\\
+L'uso di \texttt{self} come \textit{tipo segnaposto} per l’argomento dell’oggetto receiver è fondamentale perché qui \textbf{non sappiamo} che tipo avrà.
+
+Si osservi ora un esempio di implementazione del trait precedente in Rust:
+\begin{tcolorbox}
+\begin{verbatim}
+struct Circle {
+    radius : f64,
+}
+
+impl Measurable for Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * self.radius * self.radius
+    }
+
+    fn perimeter(&self) -> f64 {
+        2 * std::f64::consts::PI * self.radius
+    }
+}
+\end{verbatim}
+\end{tcolorbox}
+\vspace{14pt}
+Rispetto a Go, il sistema di tipi di Rust è più sofisticato.\\
+Sono, ad esempio, presenti le funzioni polimorfe con vincoli:
+\begin{tcolorbox}
+\begin{verbatim}
+fn print_measure<T : Measurable>(shape : T) {
+    println!("Area = {}", shape.area());
+    println!("Perimeter = {}", shape.perimeter());
+}
+\end{verbatim}
+\end{tcolorbox}
+La funzione \texttt{print\_measure} è polimorfa nel tipo \texttt{T} dell’argomento.\\
+Il trait \texttt{Measurable} è usato come vincolo per \texttt{T}. Analogo ad \texttt{extends} di Java.
+
+\pagebreak
+
+Anche i tipi possono essere polimorfi con vincoli:
+\begin{tcolorbox}
+\begin{verbatim}
+struct Rectangle<T> {
+    width : T,
+    height : T,
+}
+
+impl Rectangle<T : PartialEq + Display> Rectangle<T> {
+    fn is_square(&self) -> bool {
+        println!("Width = {}", self.width);
+        self.width == self.height
+    }
+}
+\end{verbatim}
+\end{tcolorbox}
+
+Il tipo \texttt{Rectangle} è polimorfo nel tipo delle lunghezze. I trait \texttt{PartialEq} e \texttt{Display} sono vincoli per \texttt{T}.\\
+\texttt{self.width} in \texttt{println!} richiede che \texttt{T} implementi \texttt{Display}, per stampare a schermo.\\
+\texttt{==} richiede che \texttt{T} implementi \texttt{PartialEq}, per effettuare il confronto.\vspace{14pt}\\
+Per implementare in Rust il trait \texttt{T} per il tipo \texttt{U} almeno uno tra \texttt{T} e \texttt{U} deve essere definito nel file corrente, a differenza di Go dove si possono implementare metodi per \texttt{U} solo nel file dove è stato definito (questo a volte porta all'utilizzo di tipi alias).
+
+Questo permette di coprire due casi comuni:
+\begin{itemize}
+    \item Ho definito un nuovo tipo \texttt{U} -> implemento tutti i trait \texttt{T} con cui \texttt{U} è compatibile.
+    \item Ho definito un nuovo trait \texttt{T} -> implemento \texttt{T} per tutti i tipi \texttt{U} compatibili con \texttt{T}.
+\end{itemize}
+\vspace{14pt}
+In Rust i trait possono fornire implementazioni di default. Queste implementazioni possono essere ridefinite quando si implementa il trait. Un possibile esempio può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+trait Foo {
+    fn is_valid(&self) -> bool { !self.is_invalid() }
+    fn is_invalid(&self) -> bool { !self.is_valid() }
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso si può implementare uno dei due metodi, ottenendo l'opposto tramite\\
+l'implementazione di default.
+
+Questo approccio ha alcuni potenziali problemi:
+\begin{itemize}
+    \item \textit{Cut \& paste} di codice, analogie con la fragilità dell’ereditarietà.
+    \item Se la stessa implementazione di default è fornita per lo stesso metodo in trait diversi, non è chiaro quale debba essere usata (\textit{diamond problem}).
+\end{itemize}
+
+\pagebreak
+
+Anche in Rust, come in Go, è presente l'ereditarietà di trait:
+\begin{tcolorbox}
+\begin{verbatim}
+trait Foo {
+    fn foo(&self);
+}
+
+trait FooBar : Foo {
+    fn foo_bar(&self);
+}
+\end{verbatim}
+\end{tcolorbox}
+\texttt{FooBar} estende il trait \texttt{Foo}, includendo tutti i metodi definiti anche in \texttt{Foo}.\vspace{14pt}\\
+\textbf{Binding statico in Rust}\\
+Un metodo invocato su un oggetto il cui tipo è \textit{concreto} (non un trait) viene risolto \textbf{staticamente}:
+\begin{tcolorbox}
+\begin{verbatim}
+fn smaller(a : Circle, b : Circle) -> bool {
+    a.area() < b.area()
+}
+\end{verbatim}
+\end{tcolorbox}
+\vspace{8pt}
+Un metodo invocato su un oggetto il cui tipo è \textit{generico} (ma concreto) viene risolto staticamente grazie alla \textbf{monomorfizzazione} (definita una funzione polimorfa, il compilatore genera una versione per ogni applicazione della funzione):
+\begin{tcolorbox}
+\begin{verbatim}
+fn smaller<T>(a : Rectangle<T>, b : Rectangle<T>) -> bool {
+    a.width * a.height < b.width * b.height
+}
+\end{verbatim}
+\end{tcolorbox}
+Vengono create (a tempo di compilazione) tante versioni di \texttt{smaller}, una per ogni istanziazione del parametro di tipo \texttt{T}.\vspace{14pt}\\
+\textbf{Binding dinamico in Rust}\\
+Un metodo invocato su un oggetto il cui tipo è un (riferimento a) trait viene risolto \textbf{dinamicamente}:
+\begin{tcolorbox}
+\begin{verbatim}
+fn print_measure(shape : &Measurable) {
+    println!("Area = {}", shape.area());
+    println!("Perimeter = {}", shape.perimeter());
+}
+\end{verbatim}
+\end{tcolorbox}
+Il passaggio di un oggetto di tipo (riferimento a) trait deve essere indicato esplicitamente dal programmatore.
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+    let c = Circle{radius : 2};
+    print_measure(&c as &Measurable);
+}
+\end{verbatim}
+\end{tcolorbox}
+L'implementazione è analoga a quella di Go, con coppie (valore + puntatore a tabella dei metodi).
 \end{document}

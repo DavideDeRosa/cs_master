@@ -108,7 +108,7 @@ In questo caso, le variabili di tipo \texttt{"a} possono essere istanziate solo 
 In Standard ML, se una variabile viene preceduta da un singolo apice (\texttt{'}), la variabile potrà essere istanziata con un qualsiasi tipo arbitrario. Se invece è preceduta da un doppio apice (\texttt{"}), la variabile potrà essere istanziata solo con tipi per i quali è definita una nozione di uguaglianza.
 
 Questa soluzione risulta essere migliore rispetto a quella di OCaml ma resta incompleta, non comprendendo altre proprietà possibili dei tipi.\vspace{14pt}\\
-Haskell cerca di risolvere questi problemi cercando di introdurre meccanismi più generici, e non ad hoc come quelli discussi precedentemente.
+Haskell cerca di risolvere questi problemi introducendo meccanismi più generici, e non ad hoc come quelli discussi precedentemente.
 
 In Haskell, i tipi sono divisi in \textbf{classi}, non necessariamente disgiunte. Ogni classe è definita dalle \textbf{operazioni} supportate da quei tipi. Alcuni esempi possono essere:
 \begin{tcolorbox}
@@ -191,7 +191,7 @@ read :: Read a => String -> a
 \end{tcolorbox}
 \texttt{show} è la funzione analoga al metodo \texttt{toString()} in Java. Crea la rappresentazione testuale di un dato. Non è quindi possibile rappresentare in stringa qualsiasi tipo di dato, come ad esempio le funzioni.
 
-\texttt{read} è la funzione inversa di \texttt{show}. E' in grado di costruire un valore di tipo arbitrario a partire da una stringa. Anche in questo caso, non è sempre possibile rappresentare un tipo di dato partendo da una stringa.
+\texttt{read} è la funzione inversa di \texttt{show}. E' in grado di costruire un valore di tipo arbitrario a partire da una stringa. Anche in questo caso, non sempre è possibile rappresentare un tipo di dato partendo da una stringa.
 
 \texttt{show} è una funzione \textbf{totale} (per ogni valore di tipo \texttt{a} della classe \texttt{show} viene prodotta una stringa), al contrario \texttt{read} è necessariamente \textbf{parziale} (non sempre si può effettuare un parsing di un tipo da una stringa).\vspace{14pt}\\
 In Haskell, anche le costanti sono polimorfe. Un esempio sulle costanti numeriche può essere:
@@ -275,9 +275,129 @@ Le \texttt{t} in questo codice indicano costruttori di tipo. Associando \texttt{
 \texttt{Foldable} viene utilizzato per rappresentare strutture dati (contenitori) che possono essere “ridotte” a un singolo valore. Su dei contenitori ha senso avere come operazioni il calcolo della lunghezza del contenitore e della somma degli elementi presenti nel contenitore (sono presenti anche altre operazioni, come \texttt{product} e \texttt{null}).
 
 \texttt{Functor} viene utilizzato per rappresentare contenitori su cui puoi applicare una funzione a ogni elemento senza cambiare la struttura del contenitore.\\
-\texttt{fmap} prende una funzione da \texttt{a} a \texttt{b} e la applica a ogni \texttt{a} all'interno del contenitore \texttt{f a}, restituendo \texttt{f b}.\\
-Un possibile esempio di utilizzo può essere \texttt{fmap (+1) [1,2,3]}, con risultato \texttt{[2,3,4]}.
+\texttt{fmap} prende una funzione da \texttt{a} a \texttt{b} e la applica ad ogni \texttt{a} all'interno del contenitore \texttt{f a}, restituendo \texttt{f b}.\\
+Un possibile esempio di utilizzo può essere \texttt{fmap (+1) [1,2,3]}, con risultato \texttt{[2,3,4]}.\vspace{14pt}\\
+Sono presenti tre possibili interpretazioni per le classi di tipo:
+\begin{itemize}
+    \item \textbf{Overloading (polimorfismo ad hoc)}
+    
+\begin{tcolorbox}
+\begin{verbatim}
+m :: C a => T
+\end{verbatim}
+\end{tcolorbox}
 
+    Esistono diverse versioni di \texttt{m} in base a come viene istanziata \texttt{a}.
+    \item \textbf{Polimorfismo limitato}
+    
+\begin{tcolorbox}
+\begin{verbatim}
+f :: a -> a
+\end{verbatim}
+\end{tcolorbox}
 
+    Solitamente in linguaggi come Haskell, questa funzione può avere un tipo qualsiasi ($\forall \alpha .\alpha \rightarrow  \alpha$). Questo ci fa capire che siamo noi a scegliere il tipo di \texttt{a}.
 
+    \vspace{8pt}
+\begin{tcolorbox}
+\begin{verbatim}
+f :: C a => a -> a
+\end{verbatim}
+\end{tcolorbox}
+
+    Quando sono presenti le classi di tipo, come in questa funzione, è comunque presente una quantificazione universale, ma c'è un vincolo che impone un tipo appartenente alla classe di tipo \texttt{C}.
+    \item \textbf{Trait}
+    
+\begin{tcolorbox}
+\begin{verbatim}
+class C a where
+    m1 :: T1
+    ...
+    mn :: Tn
+\end{verbatim}
+\end{tcolorbox}
+
+    Per ogni tipo \texttt{a} istanza di \texttt{C} esistono i “metodi” \texttt{m1, \dots, mn} con tipo \texttt{T1, \dots, Tn}.
+\end{itemize}
+
+\pagebreak
+
+Una possibile implementazione delle classi di tipo in Haskell può essere:
+\begin{tcolorbox}
+\begin{verbatim}
+class Num a where
+    add :: a -> a -> a
+    mul :: a -> a -> a
+    neg :: a -> a
+
+instance Num Int where
+    add = addInt
+    mul = mulInt
+    neg = negInt
+
+instance Num Float where
+    add = addFloat
+    mul = mulFloat
+    neg = negFloat
+
+square :: Num a => a -> a
+square x = mul x x
+
+result :: Int
+result = square 3
+\end{verbatim}
+\end{tcolorbox}
+
+Questo codice Haskell verrà tradotto dal compilatore nel seguente modo:
+
+\begin{tcolorbox}
+\begin{verbatim}
+data Num a = Num
+    {   add :: a -> a -> a,
+        mul :: a -> a -> a,
+        neg :: a -> a   }
+
+numIntD :: Num Int = Num
+    {   add = addInt,
+        mul = mulInt,
+        neg = negInt    }
+
+numFloatD :: Num Float = Num
+    {   add = addFloat,
+        mul = mulFloat,
+        neg = negFloat  }
+
+square :: Num a -> a -> a
+square numD x = mul numD x x
+
+result :: Int
+result = square numIntD 3
+\end{verbatim}
+\end{tcolorbox}
+
+La traduzione del compilatore è abbastanza semplice.
+
+Quando viene dichiarata una classe di tipo il compilatore andrà a creare un \textbf{record} (\texttt{data}, come una classe \textit{nuda} in Java).
+
+Quando viene dichiarato che il tipo \texttt{Int} è una istanza della classe \texttt{Num} viene dichiarato un \textbf{dizionario}. All'interno del dizionario vengono associati i metodi con il loro comportamento.
+
+Passando invece a \texttt{square}, la solita freccia (\texttt{=>}) utilizzata per esprimere il tipo della funzione diventa una freccia normale (\texttt{->}). Questo significa che la funzione passa da un singolo argomento a due argomenti. Il primo argomento (\texttt{Num a}) è il dizionario delle operazioni di \texttt{Num}. Quella che prima era una classe si traduce nel dizionario dei metodi di quella classe.
+
+Stessa logica per \texttt{result}, dove \texttt{numIntD} è il dizionario dei metodi di \texttt{Num}. Il compilatore, facendo inferenza di tipi, riesce a capire quale dizionario utilizzare.\vspace{14pt}\\
+In conclusione, volendo mettere a \textbf{confronto i trait con le classi di tipo}, si può notare che in linguaggi come Haskell il dizionario con i metodi di una classe di tipo \texttt{C} viene passato una volta sola, mentre in linguaggi come Go e Rust ogni oggetto (o trait object) porta con sé il dizionario.
+
+Prendendo come esempio la seguente funzione:
+\begin{tcolorbox}
+\begin{verbatim}
+f :: C a => a -> a -> a
+\end{verbatim}
+\end{tcolorbox}
+che viene tradotta dal compilatore Haskell in:
+\begin{tcolorbox}
+\begin{verbatim}
+f :: C a -> a -> a -> a
+\end{verbatim}
+\end{tcolorbox}
+
+In questo caso non è necessario passare il dizionario dei metodi ogni volta, dato che il tipo di \texttt{a} sarà sempre lo stesso.
 \end{document}

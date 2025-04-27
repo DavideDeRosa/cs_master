@@ -89,7 +89,7 @@ Inizialmente l'idea delle monadi era stata pensata per gestire il problema dell'
 Una monade può essere anche definita come: concetto nell’area della semantica dei linguaggi per descrivere matematicamente \textbf{computazioni} che possono avere \textbf{effetti collaterali}.
 
 E' possibile trovare monadi anche in linguaggi moderni, come Scala e Javascript, fornendo un modo strutturato di organizzare computazioni con effetti collaterali.\vspace{14pt}\\
-Di seguito vengono mostrati diversi esempi pratici di applicazione di monadi.
+Di seguito vengono mostrati esempi pratici di applicazione di monadi.
 
 \pagebreak
 
@@ -132,7 +132,44 @@ eval (Div t s) =
 \end{tcolorbox}
 Ciò che era facile fare in un linguaggio impuro ha stravolto la struttura del programma in un linguaggio puro. La logica del programma si perde nella gestione dell’eccezione.
 
+\pagebreak
+
 Si passa ora al conteggio delle operazioni "difficili".\\
-ciao
+Per implementare il conteggio delle operazioni viene modificato il codice nel seguente modo:
+\begin{tcolorbox}
+\begin{verbatim}
+type Counter a = Int -> (a, Int)
+
+eval :: Expr -> Counter Int
+eval (Const n) x = (n, x)
+eval (Div t s) x =
+    let (m, y) = eval t x in
+        let (n, z) = eval s y in
+            (m ‘div‘ n, z + 1)
+\end{verbatim}
+\end{tcolorbox}
+Ciò che era facile fare in un linguaggio impuro ha stravolto la struttura del programma in un linguaggio puro. La logica del programma si perde nella gestione del contatore.\vspace{14pt}\\
+Per concluduere, si passa al tracciamento dei passi di valutazione.\\
+Per implementare il tracciamento dei passi di valutazione viene modificato il codice nel seguente modo:
+\begin{tcolorbox}
+\begin{verbatim}
+type Output a = (String, a)
+
+eval :: Expr -> Output Int
+eval (Const n) = (line (Const n) n, n)
+eval (Div t s) =
+    let (x, m) = eval t in
+        let (y, n) = eval s in
+            (x ++ y ++ line (Div t s) (m ‘div‘ n), m ‘div‘ n)
+
+line :: Expr -> Int -> String
+line t n = "eval (" ++ show t ++ ") = " ++ show n ++ "\n"
+\end{verbatim}
+\end{tcolorbox}
+Ciò che era facile fare in un linguaggio impuro ha stravolto la struttura del programma in un linguaggio puro. La logica del programma si perde nella gestione della traccia.
+
+In tutti e tre i casi, l'utilizzo di un linguaggio puro porta ad un codice più complesso.
+
+CAPIRE COSA METTERE, SIAMO A SLIDE 20 DELLE MONADI. LUI HA PARLATO UN PO DELL'ESEMPIO DELLA DIVISIONE PER ZERO CON MONADI, MA NON SI CAPISCE BENE A COSA FACCIA RIFERIMENTO (NO CONDIVISIONE SCHERMO).
 
 \end{document}

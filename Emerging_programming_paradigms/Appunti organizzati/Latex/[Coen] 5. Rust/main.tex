@@ -1,0 +1,308 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{tcolorbox}
+
+\titleformat{\section}
+{\LARGE\bfseries}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\Large\bfseries}{\thesection}{1em}{}
+
+\begin{document}
+
+\pagestyle{empty}
+
+\section*{Rust}
+\large
+
+Rust è un linguaggio di sistema (come C/C++, il compilato può girare sul bare metal, senza il supporto di un sistema operativo).
+
+Nasce all'interno della Mozilla foundation, con forti influenze da OCaml e C++. Proprio in OCaml viene scritto il suo primo compilatore, anche se ora il codice viene compilato in Rust stesso (con LLVM come backend).
+
+Come tutti i linguaggi a livello di sistema \textbf{non è presente un runtime} (in realtà è presente un runtime minimo), infatti non utilizza system threads e non ha un garbage collector.
+
+Inoltre, è presente una \textbf{zero-cost abstraction}, con polimorfismo parametrico via monomorfizzazione. Il complesso sistema di ownership dei dati in memoria è interamente imposto a compile-time.
+
+Viene garantita la \textbf{memory safety}, non avendo memory leaks, double deallocation, dangling pointes e data races.
+
+Per concludere, è presente un sistema di \textbf{fearless concurrency}, dove il type system (insieme agli smart pointers) minimizzano i problemi legati alla concorrenza.
+
+Sono inoltre presenti anche alcune features aggiuntive:
+\begin{itemize}
+    \item Chiusure.
+    \item Algebraic Data Types e Pattern Matching.
+    \item No NULL values, vengono usati \textit{option types}.
+    \item Polimorfimo parametrico bounded, usando templates/generics con bounds con i traits.
+    \item Traits, inizialmente con classi (poi rimosse) + Trait Objects, per dynamic dispatch + Trait Bounds + Associated Types.
+    \item Moduli annidabili.
+\end{itemize}
+\vspace{14pt}
+Rust è diventato famoso nel tempo per la sua \textbf{gestione della memoria}.
+
+In Rust sono presenti due meccanismi ortogonali, che nascono per essere indipendenti ma finiscono per interagire l'uno con l'altro. I due meccanismi sono:
+\begin{enumerate}
+    \item Complesso sistema di \textbf{ownership} con \textbf{borrowing} in \textbf{lettura} e/o \textbf{scrittura}.
+    \item \textbf{Smart pointers}, qualora il primo meccanismo diventi troppo complesso da gestire.
+\end{enumerate}
+
+\subsection*{Primo meccanismo (ownership + borrowing)}
+Ogni cella di memoria sullo heap ha un owner, che è responsabile per la sua deallocazione.
+
+Quando una cella sullo heap viene creata e un puntatore a esso viene assegnato a una \textbf{variabile sullo stack}, quest’ultima ne diventa l’\textbf{owner}.
+
+Quando invece il puntatore viene assegnato a \textbf{un’altra cella sullo heap}, questa ne diventa l’\textbf{owner}.
+
+Quando un owner viene \textbf{deallocato} (ad esempio, il blocco di una variabile sullo stack viene dellocato) \textbf{le celle RICORSIVAMENTE possedute vengono rilasciate}. Il codice per la deallocazione viene inserito alla fine del blocco (delimitato dalle parentesi graffe).
+
+Una cella sullo \textbf{heap} ha sempre \textbf{uno e un solo owner}. \textbf{Assegnamenti} e \textbf{passaggio come parametri} della variabile/cella che ha l’ownership trasferiscono (\textbf{move}) l’ownership.
+
+Quando una variabile perde l’ownership, essa non può più essere utilizzata!
+
+Si osservino ora alcuni esempi di codice.
+
+In questo primo esempio è possibile osservare il funzionamento del sistema di ownership:
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ // x è unboxed, quindi sullo stack
+ let x = 4; 
+
+ // s sullo stack punta a una stringa nello heap
+ let s = String::from("ciao"); 
+
+ let y = x;
+
+ let t = String::from("ciao");
+
+ println!("x = {}, y = {}", x, y);
+ println!("s' = {}, t = {}", s, t);
+}
+\end{verbatim}
+\end{tcolorbox}
+\texttt{let y = x;} copia il valore 4 da \texttt{x} ad \texttt{y}. La variabile \texttt{x} rimane viva!
+
+Vediamo ora una seconda versione modificata:
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ // x è unboxed, quindi sullo stack
+ let x = 4; 
+
+ // s sullo stack punta a una stringa nello heap
+ let s = String::from("ciao"); 
+
+ let y = x;
+
+ let t = s;
+
+ println!("x = {}, y = {}", x, y);
+ println!("s' = {}, t = {}", s, t);
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, con \texttt{let t = s;}, l'ultima riga è errata. \texttt{s} non ha più l'ownership, è diventata una variabile morta (l'ownership è di \texttt{t})!
+
+\pagebreak
+
+Si osservi ora un secondo esempio, vedendo il passaggio di ownership attraverso l'utilizzo di funzioni:
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let s1 = gives_ownership();        // ownership taken
+ let s2 = String::from("hello");    // ownership taken
+ let s3 = takes_and_gives_back(s2); // s2 looses ownership; s3 takes it
+} // the strings pointed to by s1 and s3 are deallocated
+
+fn gives_ownership() -> String {            // String is a pointer!
+ let some_string = String::from("hello");   // allocated here
+ some_string                                // ownership transferred
+}
+
+fn takes_and_gives_back(a_string: String) -> String { // ownership taken
+ a_string                                       // ownership transferred
+}
+\end{verbatim}
+\end{tcolorbox}
+\texttt{gives\_ownership()} alloca una nuova stringa nello heap e ne trasferisce l'ownership ad \texttt{s1}.
+
+\texttt{takes\_and\_gives\_back(...)} prende momentaneamente l'ownership della stringa, per poi restituirla ad \texttt{s3}.
+
+In questo caso, alla fine del blocco verrà aggiunto dal compilatore il codice per deallocare \texttt{s1} ed \texttt{s3}.\vspace{14pt}\\
+Si introduce ora il concetto di \textbf{References}.\\
+Questo sistema può essere visto come un sistema di prestiti della ownership.
+
+\texttt{\&x} è una reference a \texttt{x} (o al suo contenuto).\\
+\texttt{\&mut x} è una reference a \texttt{x} (o al suo contenuto) che permette di modificarne il contenuto.
+
+Se \texttt{x} ha tipo \texttt{T}, \texttt{\&x} ha tipo \texttt{\&T} e \texttt{\&mut x} ha tipo \texttt{\&mut T}.
+
+Prendere una reference di una variabile implica fare \textbf{borrowing} della variabile. Questo permette di \textbf{non} avere \textbf{data races} (anche concorrentemente), infatti:
+\begin{itemize}
+    \item Se una variabile è borrowed \textbf{mutably}, \textbf{nessun altro borrow è possibile} e l’owner è \textbf{frozen} (non può accedere alla variabile fino a quando il borrowing termina).
+    \item Se l’ownership è \textbf{mutable} e la variabile viene borrowed, l’owner è \textbf{frozen} (non può modificare la variabile fino a quando il borrowing termina).
+\end{itemize}
+
+Si osservino ora alcuni esempi di codice.
+
+\pagebreak
+
+In questo primo esempio l'obiettivo è osservare il sistema di borrowing:
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let x = 4;
+ let y = &x;
+
+ let t = String::from("ciao");      // takes immutable ownership
+ let s = &t;                        // borrows immutably
+
+ println!("x = {}, y = {}", x, y);
+ println!("s = {}, t = {}", s, t);
+} 
+ // end of borrowing (s goes out of scope) and end of ownership 
+ // (t goes out of scope and the string is deallocated)
+\end{verbatim}
+\end{tcolorbox}
+Il compilatore controlla partendo dal basso verso l'alto ed aggiunge il codice necessario.\vspace{14pt}\\
+Vediamo ora vari esempi di borrowing (con errori di compilazione e non):
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let mut x = 4;
+ let y = &x;
+ x = 5;             // error: assignment to borrowed `x`
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, il compilatore restituirà un errore!\vspace{8pt}
+
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let mut x = 4;
+ { let y = &x; }    // ok: the borrow ends at the end of inner block!
+ x = 5;
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, il compilatore non restituirà alcun errore, avendo terminato il borrow all'interno di uno scope interno.\vspace{8pt}
+
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let x = 4;
+ let z = &mut x; // error: cannot borrow immutable local var. as mutable
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, non si può fare borrowing mutabile di una variabile locale immutabile.
+
+\pagebreak
+
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let mut x = 4;
+ let y = &x;
+ let z = &mut x;    // error: cannot borrow as mutable because it is 
+                    // also borrowed as immutable
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, non è possibile effettuare più prestiti (è già presente un prestito immutabile).\vspace{8pt}
+
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let mut x = 4;
+ let y = &mut x;
+ let z = &mut x;    // error: cannot borrow as mutable more 
+                    // than once at a time
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, non è possibile effettuare più prestiti mutabili.\vspace{8pt}
+
+\begin{tcolorbox}
+\begin{verbatim}
+fn increment(x: &mut i32) { // syntactic sugar at work! See later
+ *x = *x + 1;
+}
+
+fn main() {
+ let mut x = 4;             // x has mutable ownership
+ increment(&mut x);         // mutable borrows begins and ends
+ x = x + 1;                 // so x can be used again here
+ println!("x = {}", x);
+}
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, l'ownership di \texttt{x} viene passata alla funzione \texttt{increment(...)}. Terminata la funzione, l'ownership tornerà alla variabile \texttt{x} che potrà essere nuovamente utilizzata.\vspace{8pt}
+
+\textbf{Nota Bene}: il compilatore modifica le euristiche valide di versione in versione. Alcuni di questi esempi potrebbero avere esiti differenti in base alla versione utilizzata!\vspace{14pt}\\
+Si introduce ora il concetto di \textbf{Lifetimes}.\\
+Finora era sempre la parentesi graffa chiusa che determinava la morte dell'uso di una variabile. In realtà, le celle di memoria hanno un \textbf{lifetime} che indica quando la cella verrà deallocata dall’owner.
+
+Il lifetime è diverso dallo scope, come, ad esempio, nel caso in cui l’ownership venga trasferita.
+
+Ogni reference ha di fatto \textbf{due} lifetime: quello della reference e quello di ciò a cui la reference punta.
+
+Questo risolve il problema dei \textbf{dangling pointers}: Rust verifica che il primo lifetime sia sempre inferiore al secondo (sintassi concreta: ‘a : ‘b per ‘a,’b variabili di lifetime con significato “’a termina dopo ‘b”).
+
+L’unico termine costante di tipo lifetime è \texttt{‘static} (vivo fino al termine del programma, ad esempio una variabile globale). Le variabili di lifetime vengono indicate con \texttt{‘a}, \texttt{‘b}, ..., che stanno ad indicare alpha, beta, ...
+
+I lifetime vengono utilizzati in due contesti:
+\begin{itemize}
+    \item Template astratti su variabili di lifetime + bound (polimorfismo bounded).
+    \item Reference tipate con il lifetime (ad esempio, \texttt{\&’a i32} reference a un \texttt{i32} di lifetime \texttt{‘a}).
+\end{itemize}
+
+E' presente un meccanismo di \textbf{elisione}: ove non necessari i lifetime si possono non esplicitare!\vspace{14pt}\\
+Si osservino ora alcuni esempi di codice.
+
+In questo primo esempio l'obiettivo è osservare il classico problema dei dangling pointers:
+\begin{tcolorbox}
+\begin{verbatim}
+fn main() {
+ let reference_to_nothing = dangle();
+}
+
+fn dangle<’a>() -> &’a String {
+ let s = String::from("hello");
+ &s
+} // error: the lifetime of s ends here and it should end at ‘a
+\end{verbatim}
+\end{tcolorbox}
+La funzione \texttt{dangle()} restituisce un riferimento ad una stringa.\\
+E' quindi presente un errore, dato che il lifetime di \texttt{s} termina alla fine della funzione (lifetime \textit{now} arbitrario), ma dovrebbe terminare a lifetime \texttt{'a}.\vspace{8pt}
+
+\begin{tcolorbox}
+\begin{verbatim}
+// i lifetime 'b e 'c devono terminare dopo il lifetime di 'a
+fn max<'a,'b : 'a,'c : 'a>(x: &'b i32, y: &'c i32) -> &'a i32 {
+ std::cmp::max(x,y)
+}
+
+fn main() {
+ //let z;           // error se z è dichiarato prima di x o y
+
+ let x = 4;
+ let y = 3;
+
+ let z;             // ok se z è dichiarato dopo x,y
+ z = max(&x, &y);
+ println!("max = {}", z);
+} // i lifetime finiscono in ordine inverso di dichiarazione
+\end{verbatim}
+\end{tcolorbox}
+In questo caso, la variabile \texttt{z} va dichiarata dopo le variabili \texttt{x} e \texttt{y}.
+
+\end{document}

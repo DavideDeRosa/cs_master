@@ -14,7 +14,7 @@ For our group project, we focused on a Super Resolution problem. More details on
 
 The group was composed by:
 - [Myself](https://github.com/DavideDeRosa)
-- [Valerio Vorabbi](https://github.com/leovora)
+- [Leonardo Vorabbi](https://github.com/leovora)
 - [Carlotta Nunziati]()
 
 [Project Repo](https://github.com/leovora/sat2drone-superres)
